@@ -1,0 +1,3 @@
+﻿id_fato_inventario,id_documento_logico,id_tempo,id_dim_setor,id_dim_abrangencia,id_dim_metodologia,ano_publicacao,horizonte_temporal,extensao_tempo,aplicou_estudo_futuro,qtd_arquivos_origem,qtd_temas,qtd_metodos,qtd_referencias,possui_condicionantes
+fat_4bae733dfef4cd77,doc_d74719a524f502f7,tmp_477c856c290090fa,set_a9ce142c502d7d9b,abr_1a7a5e074a17ceee,mdg_c47a9c26f8d3138f,2020,2030,10,True,1,26,7,21,True
+fat_e2cd1e12cbd90e16,doc_dd3da919f4ffd49c,tmp_ebdf187eab8c2b99,set_22ece1e10fdc2d93,,mdg_7fe7a9cc400e6651,2024,2050,26,True,1,7,1,30,False

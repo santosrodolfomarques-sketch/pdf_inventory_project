@@ -1,0 +1,108 @@
+{
+  "dimensoes": [
+    "dim_abrangencia",
+    "dim_apoio",
+    "dim_condicionante",
+    "dim_documento",
+    "dim_instituicao_responsavel",
+    "dim_metodo",
+    "dim_metodologia",
+    "dim_referencia",
+    "dim_setor",
+    "dim_source_file",
+    "dim_tema",
+    "dim_tempo"
+  ],
+  "pontes": [
+    "ponte_documento_arquivo_origem",
+    "ponte_documento_condicionante",
+    "ponte_documento_instituicao_apoio",
+    "ponte_documento_metodo",
+    "ponte_documento_referencia",
+    "ponte_documento_tema"
+  ],
+  "fato": "fato_inventario",
+  "validacao": {
+    "status": "ok",
+    "checks": [
+      {
+        "objeto": "dim_documento",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_tempo",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_setor",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_abrangencia",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_instituicao_responsavel",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_tema",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_metodo",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_apoio",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_referencia",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_condicionante",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_source_file",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "dim_metodologia",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "fato_inventario",
+        "teste": "chave_unica",
+        "duplicados": 0,
+        "status": "ok"
+      }
+    ]
+  }
+}

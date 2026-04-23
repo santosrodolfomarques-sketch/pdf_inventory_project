@@ -80,7 +80,7 @@ def run_extraction(settings: Settings, logger: Any, force_reprocess: bool = Fals
         try:
             for chunk_number, chunk in enumerate(chunks, start=1):
                 logger.info(f"Consultando LLM para chunk {chunk_number}/{len(chunks)} de {pdf_path.name}")
-                prompt = build_extraction_prompt(chunk, settings.taxonomia_metodos)
+                prompt = build_extraction_prompt(chunk)
                 raw_payload, model_used = client.generate_json(prompt)
                 normalized_payload = validate_and_normalize_payload(raw_payload)
                 chunk_payloads.append(normalized_payload)

@@ -68,12 +68,17 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
     _save_dataframe(consolidated_df, consolidated_path)
 
     unique_scalar_fields = [
-        "tipo_documento",
-        "abrangencia_territorial",
-        "setor",
-        "familia_do_metodo",
-        "instituicao_responsavel",
+    "tipo_documento",
+    "abrangencia_territorial",
+    "setor",
+    "instituicao_responsavel",
     ]
+    unique_rows = collect_unique_values(consolidated_records, "familia_do_metodo_norm")
+    unique_df = pd.DataFrame(unique_rows)
+    _save_dataframe(
+        unique_df,
+        settings.transformed_unique_dir / "valores_unicos_familia_do_metodo.csv",
+    )
     for field in unique_scalar_fields:
         unique_rows = collect_unique_values(consolidated_records, field)
         unique_df = pd.DataFrame(unique_rows)

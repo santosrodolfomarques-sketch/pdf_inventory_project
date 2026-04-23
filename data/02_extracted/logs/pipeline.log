@@ -3,3 +3,12 @@
 2026-04-23 14:40:29 | INFO | pdf_inventory | [2/2] Processando extração: 002.pdf
 2026-04-23 14:40:29 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 002.pdf
 2026-04-23 14:40:46 | INFO | pdf_inventory | Extração concluída. Controle salvo em: C:\pdf_inventory_project\data\02_extracted\controle_processamento\controle_extracao.csv
+2026-04-23 16:54:00 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 2 | consolidados: 2
+2026-04-23 16:55:00 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 2 | consolidados: 2
+2026-04-23 16:55:01 | INFO | pdf_inventory | Preparação para BI concluída.
+2026-04-23 17:02:30 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 2 | consolidados: 2
+2026-04-23 17:06:23 | INFO | pdf_inventory | [1/2] Processando extração: 001.pdf
+2026-04-23 17:06:24 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 001.pdf
+2026-04-23 17:07:48 | INFO | pdf_inventory | [2/2] Processando extração: 002.pdf
+2026-04-23 17:07:48 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 002.pdf
+2026-04-23 17:08:04 | INFO | pdf_inventory | Extração concluída. Controle salvo em: C:\pdf_inventory_project\data\02_extracted\controle_processamento\controle_extracao.csv

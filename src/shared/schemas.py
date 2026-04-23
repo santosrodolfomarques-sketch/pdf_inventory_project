@@ -13,8 +13,6 @@ EXTRACTION_FIELDS = [
     "temas",
     "aplicou_estudo_futuro",
     "tipo_estudo_futuro",
-    "metodos_estudo_futuro",
-    "familia_do_metodo",
     "referencias",
     "condicionantes_estudo_futuro",
     "instituicoes_apoio",
@@ -35,7 +33,6 @@ STRING_FIELDS = [
     "abrangencia_territorial",
     "setor",
     "tipo_estudo_futuro",
-    "familia_do_metodo",
     "instituicao_responsavel",
 ]
 
@@ -81,7 +78,6 @@ def empty_payload() -> dict[str, Any]:
         "aplicou_estudo_futuro": None,
         "tipo_estudo_futuro": None,
         "metodos_estudo_futuro": [],
-        "familia_do_metodo": None,
         "referencias": [],
         "condicionantes_estudo_futuro": [],
         "instituicoes_apoio": [],
