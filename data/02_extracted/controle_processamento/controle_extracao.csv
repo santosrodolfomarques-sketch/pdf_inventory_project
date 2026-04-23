@@ -1,0 +1,3 @@
+timestamp_utc,arquivo,arquivo_hash,status,modelo_utilizado,chunks_processados,cache_path,erro
+2026-04-23T17:40:29.862632+00:00,001.pdf,bb92b4f1ce111350c9488b770993ddae05beb00f3a741edc8d1db20e83bb7e02,success,gemini-2.5-flash,1,C:\pdf_inventory_project\data\02_extracted\json_raw\001__bb92b4f1ce11.json,
+2026-04-23T17:40:46.588001+00:00,002.pdf,ec788fb1600fce6e264239d00d0db6345bd1c4e88e9868f3e9b8c1ebe8001c9a,success,gemini-2.5-flash,1,C:\pdf_inventory_project\data\02_extracted\json_raw\002__ec788fb1600f.json,

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import argparse
 
-from src.bi.bi_pipeline import run_bi_preparation
-from src.extraction.extraction_pipeline import run_extraction
 from src.shared.config import (
     BI_BRIDGE_DIR,
     BI_DICT_DIR,
@@ -21,7 +19,7 @@ from src.shared.config import (
 )
 from src.shared.logging_utils import setup_logger
 from src.shared.utils import ensure_dirs
-from src.transformation.transformation_pipeline import run_transformation
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Pipeline reestruturado para inventário de PDFs.")
@@ -37,6 +35,7 @@ def parse_args() -> argparse.Namespace:
         help="Ignora cache da camada de extração.",
     )
     return parser.parse_args()
+
 
 def main() -> None:
     args = parse_args()
@@ -60,16 +59,28 @@ def main() -> None:
     logger = setup_logger("pdf_inventory", EXTRACTION_LOG_DIR / "pipeline.log")
 
     stage = args.stage
+
     if stage == "all":
+        from src.extraction.extraction_pipeline import run_extraction
+        from src.transformation.transformation_pipeline import run_transformation
+        from src.bi.bi_pipeline import run_bi_preparation
+
         run_extraction(settings, logger, force_reprocess=args.force_reprocess)
         run_transformation(settings, logger)
         run_bi_preparation(settings, logger)
+
     elif stage == "extraction":
+        from src.extraction.extraction_pipeline import run_extraction
         run_extraction(settings, logger, force_reprocess=args.force_reprocess)
+
     elif stage in {"transform", "transformation"}:
+        from src.transformation.transformation_pipeline import run_transformation
         run_transformation(settings, logger)
+
     elif stage == "bi":
+        from src.bi.bi_pipeline import run_bi_preparation
         run_bi_preparation(settings, logger)
+
 
 if __name__ == "__main__":
     main()
