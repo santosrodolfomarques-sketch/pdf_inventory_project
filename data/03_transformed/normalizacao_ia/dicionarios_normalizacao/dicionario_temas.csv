@@ -1,0 +1,121 @@
+﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
+temas,Agenda 2030,agenda 2030,Agenda 2030,Iniciativa Global,alta,manter original,Valor já adequado e específico.,True,1
+temas,Objetivos de Desenvolvimento Sustentável (ODS),objetivos de desenvolvimento sustentavel (ods),Objetivos de Desenvolvimento Sustentável,Iniciativa Global,alta,aplicar automático,Remover sigla redundante para padronização.,True,1
+temas,COVID-19,covid-19,COVID-19,Saúde Pública,alta,manter original,Valor já adequado e específico.,True,1
+temas,Pobreza,pobreza,Pobreza,Questão Social,alta,manter original,Valor já adequado e específico.,True,1
+temas,Fome,fome,Fome,Questão Social,alta,manter original,Valor já adequado e específico.,True,1
+temas,Segurança alimentar,seguranca alimentar,Segurança Alimentar,Questão Social,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Nutrição,nutricao,Nutrição,Saúde,alta,manter original,Valor já adequado e específico.,True,1
+temas,Agricultura sustentável,agricultura sustentavel,Agricultura Sustentável,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Saúde,saude,Saúde,Saúde,alta,manter original,Valor já adequado e específico.,True,1
+temas,Bem-estar,bem-estar,Bem-estar,Qualidade de Vida,alta,manter original,Valor já adequado e específico.,True,1
+temas,Educação,educacao,Educação,Educação,alta,manter original,Valor já adequado e específico.,True,1
+temas,Igualdade de gênero,igualdade de genero,Igualdade de Gênero,Questão Social,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Água potável,agua potavel,Água Potável,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Saneamento,saneamento,Saneamento,Meio Ambiente,alta,manter original,Valor já adequado e específico.,True,1
+temas,Energia sustentável,energia sustentavel,Energia Sustentável,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Crescimento econômico,crescimento economico,Crescimento Econômico,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Emprego,emprego,Emprego,Economia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Infraestrutura resiliente,infraestrutura resiliente,Infraestrutura Resiliente,Desenvolvimento Urbano,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Industrialização sustentável,industrializacao sustentavel,Industrialização Sustentável,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Inovação,inovacao,Inovação,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Redução das desigualdades,reducao das desigualdades,Redução das Desigualdades,Questão Social,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Cidades e comunidades sustentáveis,cidades e comunidades sustentaveis,Cidades e Comunidades Sustentáveis,Desenvolvimento Urbano,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Padrões de produção e consumo sustentáveis,padroes de producao e consumo sustentaveis,Padrões de Produção e Consumo Sustentáveis,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Mudanças climáticas,mudancas climaticas,Mudanças Climáticas,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Oceanos,oceanos,Oceanos,Meio Ambiente,alta,manter original,Valor já adequado e específico.,True,1
+temas,Mares,mares,Mares,Meio Ambiente,alta,manter original,Valor já adequado e específico.,True,1
+temas,Recursos marinhos,recursos marinhos,Recursos Marinhos,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Ecossistemas terrestres,ecossistemas terrestres,Ecossistemas Terrestres,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Gestão florestal sustentável,gestao florestal sustentavel,Gestão Florestal Sustentável,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Combate à desertificação,combate a desertificacao,Combate à Desertificação,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Degradação do solo,degradacao do solo,Degradação do Solo,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Perda de biodiversidade,perda de biodiversidade,Perda de Biodiversidade,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Sociedades pacíficas e inclusivas,sociedades pacificas e inclusivas,Sociedades Pacíficas e Inclusivas,Questão Social,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Acesso à justiça,acesso a justica,Acesso à Justiça,Direito,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,"Instituições eficazes, responsáveis e inclusivas","instituicoes eficazes, responsaveis e inclusivas","Instituições Eficazes, Responsáveis e Inclusivas",Governança,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Meios de implementação,meios de implementacao,Meios de Implementação,Estratégia,media,revisar manualmente,"Termo genérico, pode precisar de contexto para categorização precisa.",False,1
+temas,Parceria global para o desenvolvimento sustentável,parceria global para o desenvolvimento sustentavel,Parceria Global para o Desenvolvimento Sustentável,Cooperação Internacional,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Políticas públicas,politicas publicas,Políticas Públicas,Governança,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Governança,governanca,Governança,Governança,alta,manter original,Valor já adequado e específico.,True,1
+temas,Participação da sociedade civil,participacao da sociedade civil,Sociedade Civil,Questão Social,alta,aplicar automático,"Simplificar para o ator principal, mantendo o sentido.",True,1
+temas,Direitos Humanos,direitos humanos,Direitos Humanos,Direito,alta,manter original,Valor já adequado e específico.,True,1
+temas,Questões ambientais,questoes ambientais,Questões Ambientais,Meio Ambiente,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Proteção social,protecao social,Proteção Social,Questão Social,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Questões econômicas,questoes economicas,Questões Econômicas,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Crise política,crise politica,Crise Política,Política,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Desigualdades,desigualdades,Desigualdades,Questão Social,alta,manter original,Valor já adequado e específico.,True,1
+temas,Voluntariado,voluntariado,Voluntariado,Questão Social,alta,manter original,Valor já adequado e específico.,True,1
+temas,Sustentabilidade,sustentabilidade,Sustentabilidade,Meio Ambiente,alta,manter original,Valor já adequado e específico.,True,1
+temas,Terceiro Setor,terceiro setor,Terceiro Setor,Questão Social,alta,manter original,Valor já adequado e específico.,True,1
+temas,Ética,etica,Ética,Filosofia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Liderança,lideranca,Liderança,Gestão,alta,manter original,Valor já adequado e específico.,True,1
+temas,Cidades Inteligentes,cidades inteligentes,Cidades Inteligentes,Desenvolvimento Urbano,alta,manter original,Valor já adequado e específico.,True,1
+temas,I.A. Virturealidade,i.a. virturealidade,IA e Virtualidade,Tecnologia,alta,aplicar automático,Padronizar abreviação e termo.,True,1
+temas,Têxteis técnicos,texteis tecnicos,Têxteis Técnicos,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Não tecidos,nao tecidos,Não Tecidos,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Diversificação econômica,diversificacao economica,Diversificação Econômica,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Criação de empregos,criacao de empregos,Criação de Empregos,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Desenvolvimento de habilidades,desenvolvimento de habilidades,Desenvolvimento de Habilidades,Educação,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Avanço tecnológico,avanco tecnologico,Avanço Tecnológico,Tecnologia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Competitividade global,competitividade global,Competitividade Global,Economia,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Mercado de têxteis técnicos,mercado de texteis tecnicos,Mercado de Têxteis Técnicos,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Mercado de não tecidos,mercado de nao tecidos,Mercado de Não Tecidos,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Agrotech,agrotech,Agrotech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Meditech,meditech,Meditech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Buildtech,buildtech,Buildtech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Mobiltech,mobiltech,Mobiltech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Clothtech,clothtech,Clothtech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Oekotech,oekotech,Oekotech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Packtech,packtech,Packtech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Geotech,geotech,Geotech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Protech,protech,Protech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Hometech,hometech,Hometech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Sporttech,sporttech,Sporttech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Indutech,indutech,Indutech,Tecnologia,alta,manter original,Valor já adequado e específico.,True,1
+temas,Fibras sintéticas,fibras sinteticas,Fibras Sintéticas,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Fibras naturais,fibras naturais,Fibras Naturais,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,Fibras celulósicas,fibras celulosicas,Fibras Celulósicas,Indústria Têxtil,alta,aplicar automático,Padronizar capitalização.,True,1
+temas,P&D,p&d,Pesquisa e Desenvolvimento,Inovação,alta,aplicar automático,Expandir abreviação para clareza.,True,1
+temas,Treinamento,treinamento,Treinamento,Educação,alta,manter original,Valor já adequado e específico.,True,1
+temas,Pesquisa,pesquisa,Pesquisa,Inovação,alta,manter original,Valor já adequado e específico.,True,1
+temas,Incentivos fiscais,incentivos fiscais,Incentivo Fiscal,Economia,alta,aplicar automático,Padronização para singular e tema conciso.,True,2
+temas,Padrões técnicos,padroes tecnicos,Padrão Técnico,Regulamentação,alta,aplicar automático,Padronização para singular e tema conciso.,True,2
+temas,Reciclagem,reciclagem,Reciclagem,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Biodegradabilidade,biodegradabilidade,Biodegradabilidade,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Objetivos de Desenvolvimento Sustentável,objetivos de desenvolvimento sustentavel,Objetivos de Desenvolvimento Sustentável,Sustentabilidade,alta,manter original,"Nome oficial de framework, já adequado.",True,2
+temas,Desenvolvimento Sustentável,desenvolvimento sustentavel,Desenvolvimento Sustentável,Sustentabilidade,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Indicadores,indicadores,Indicadores,Monitoramento,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Acompanhamento,acompanhamento,Acompanhamento,Monitoramento,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Empoderamento Feminino,empoderamento feminino,Empoderamento Feminino,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Água,agua,Água,Recursos Naturais,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Energia,energia,Energia,Recursos Naturais,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Trabalho Decente,trabalho decente,Trabalho Decente,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Infraestrutura,infraestrutura,Infraestrutura,Desenvolvimento Urbano,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Industrialização,industrializacao,Industrialização,Economia,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Desigualdade,desigualdade,Desigualdade,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Cidades Sustentáveis,cidades sustentaveis,Cidades Sustentáveis,Desenvolvimento Urbano,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Assentamentos Humanos,assentamentos humanos,Assentamentos Humanos,Desenvolvimento Urbano,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Produção e Consumo Sustentáveis,producao e consumo sustentaveis,Produção e Consumo Sustentáveis,Sustentabilidade,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Florestas,florestas,Florestas,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Desertificação,desertificacao,Desertificação,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Degradação da Terra,degradacao da terra,Degradação da Terra,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Biodiversidade,biodiversidade,Biodiversidade,Meio Ambiente,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Paz,paz,Paz,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Justiça,justica,Justiça,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Instituições Eficazes,instituicoes eficazes,Instituições Eficazes,Governança,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Desenvolvimento socioeconômico sustentável,desenvolvimento socioeconomico sustentavel,Desenvolvimento Sustentável,Sustentabilidade,alta,aplicar automático,Agrupamento com termo mais amplo e conciso.,True,2
+temas,Economia forte,economia forte,Economia,Economia,alta,aplicar automático,Simplificação para o tema central 'Economia'.,True,2
+temas,Ganhos sociais,ganhos sociais,Ganhos Sociais,Desenvolvimento Social,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Preservação do meio ambiente,preservacao do meio ambiente,Meio Ambiente,Meio Ambiente,alta,aplicar automático,Simplificação para o tema central 'Meio Ambiente'.,True,2
+temas,Segurança,seguranca,Segurança,Direitos Humanos,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Desigualdade social,desigualdade social,Desigualdade,Direitos Humanos,alta,aplicar automático,Agrupamento com termo mais amplo e conciso.,True,2
+temas,Geração de emprego e renda,geracao de emprego e renda,Emprego e Renda,Economia,alta,aplicar automático,Simplificação para o tema central 'Emprego e Renda'.,True,2
+temas,Governança colaborativa,governanca colaborativa,Governança Colaborativa,Governança,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Reinvenção das cadeias produtivas,reinvencao das cadeias produtivas,Cadeias Produtivas,Economia,alta,aplicar automático,"Foco no tema 'Cadeias Produtivas', removendo ação 'Reinvenção'.",True,2
+temas,Cultura e turismo,cultura e turismo,Cultura e Turismo,Desenvolvimento Social,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Capital humano,capital humano,Capital Humano,Desenvolvimento Social,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Ambiente de negócios e inovação,ambiente de negocios e inovacao,Ambiente de Negócios e Inovação,Economia,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Serviços públicos,servicos publicos,Serviços Públicos,Governança,alta,manter original,Valor já adequado e conciso.,True,2
+temas,Políticas públicas de direitos humanos,politicas publicas de direitos humanos,Direitos Humanos,Direitos Humanos,alta,aplicar automático,"Foco no tema 'Direitos Humanos', removendo o instrumento 'Políticas Públicas'.",True,2
+temas,Políticas públicas de mulheres,politicas publicas de mulheres,Empoderamento Feminino,Direitos Humanos,alta,aplicar automático,"Agrupamento com tema existente 'Empoderamento Feminino', removendo o instrumento 'Políticas Públicas'.",True,2

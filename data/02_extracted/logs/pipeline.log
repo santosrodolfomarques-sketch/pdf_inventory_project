@@ -12,3 +12,50 @@
 2026-04-23 17:07:48 | INFO | pdf_inventory | [2/2] Processando extração: 002.pdf
 2026-04-23 17:07:48 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 002.pdf
 2026-04-23 17:08:04 | INFO | pdf_inventory | Extração concluída. Controle salvo em: C:\pdf_inventory_project\data\02_extracted\controle_processamento\controle_extracao.csv
+2026-04-24 09:25:32 | INFO | pdf_inventory | [1/2] Processando extração: 001.pdf
+2026-04-24 09:25:32 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 001.pdf
+2026-04-24 09:26:45 | INFO | pdf_inventory | [2/2] Processando extração: 002.pdf
+2026-04-24 09:26:45 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 002.pdf
+2026-04-24 09:26:59 | INFO | pdf_inventory | Extração concluída. Controle salvo em: C:\pdf_inventory_project\data\02_extracted\controle_processamento\controle_extracao.csv
+2026-04-24 09:27:02 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 2 | consolidados: 2
+2026-04-24 09:27:04 | INFO | pdf_inventory | Preparação para BI concluída.
+2026-04-24 10:19:54 | INFO | pdf_inventory | [1/5] Processando extração: 001.pdf
+2026-04-24 10:19:54 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 001.pdf
+2026-04-24 10:20:49 | INFO | pdf_inventory | [2/5] Processando extração: 002.pdf
+2026-04-24 10:20:49 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 002.pdf
+2026-04-24 10:21:15 | INFO | pdf_inventory | [3/5] Processando extração: 003.pdf
+2026-04-24 10:21:15 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 003.pdf
+2026-04-24 10:21:27 | INFO | pdf_inventory | [4/5] Processando extração: 004.pdf
+2026-04-24 10:21:27 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 004.pdf
+2026-04-24 10:21:51 | INFO | pdf_inventory | [5/5] Processando extração: 005.pdf
+2026-04-24 10:21:51 | INFO | pdf_inventory | Consultando LLM para chunk 1/1 de 005.pdf
+2026-04-24 10:22:15 | INFO | pdf_inventory | Extração concluída. Controle salvo em: C:\pdf_inventory_project\data\02_extracted\controle_processamento\controle_extracao.csv
+2026-04-24 10:22:17 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 5 | consolidados: 5
+2026-04-24 10:22:18 | INFO | pdf_inventory | Preparação para BI concluída.
+2026-04-24 10:46:25 | INFO | pdf_inventory | Normalização IA: setor | lote 1/1 | valores: 4
+2026-04-24 10:46:36 | INFO | pdf_inventory | Normalização IA: tipo_documento | lote 1/1 | valores: 5
+2026-04-24 10:46:42 | INFO | pdf_inventory | Normalização IA: abrangencia_territorial | lote 1/1 | valores: 2
+2026-04-24 10:46:48 | INFO | pdf_inventory | Normalização IA: tipo_estudo_futuro | lote 1/1 | valores: 3
+2026-04-24 10:47:01 | INFO | pdf_inventory | Normalização IA: nenhum valor novo para familia_do_metodo.
+2026-04-24 10:47:01 | INFO | pdf_inventory | Normalização IA: temas | lote 1/2 | valores: 80
+2026-04-24 10:47:43 | INFO | pdf_inventory | Normalização IA: temas | lote 2/2 | valores: 40
+2026-04-24 10:48:18 | INFO | pdf_inventory | Normalização IA: metodos | lote 1/1 | valores: 5
+2026-04-24 10:48:27 | INFO | pdf_inventory | Normalização IA: instituicoes | lote 1/2 | valores: 80
+2026-04-24 10:49:34 | INFO | pdf_inventory | Normalização IA: instituicoes | lote 2/2 | valores: 63
+2026-04-24 10:50:35 | INFO | pdf_inventory | Normalização IA concluída.
+2026-04-24 10:50:37 | INFO | pdf_inventory | Aplicação dos dicionários IA concluída.
+2026-04-24 10:50:38 | INFO | pdf_inventory | Preparação para BI concluída.
+2026-04-24 11:13:38 | INFO | pdf_inventory | Transformação concluída. Registros tratados: 5 | consolidados: 5
+2026-04-24 11:13:40 | INFO | pdf_inventory | Normalização IA: setor | lote 1/1 | valores: 4
+2026-04-24 11:14:35 | INFO | pdf_inventory | Normalização IA: tipo_documento | lote 1/1 | valores: 5
+2026-04-24 11:14:42 | INFO | pdf_inventory | Normalização IA: abrangencia_territorial | lote 1/1 | valores: 2
+2026-04-24 11:14:47 | INFO | pdf_inventory | Normalização IA: tipo_estudo_futuro | lote 1/1 | valores: 3
+2026-04-24 11:14:56 | INFO | pdf_inventory | Normalização IA: nenhum valor novo para familia_do_metodo.
+2026-04-24 11:14:56 | INFO | pdf_inventory | Normalização IA: temas | lote 1/2 | valores: 80
+2026-04-24 11:15:59 | INFO | pdf_inventory | Normalização IA: temas | lote 2/2 | valores: 40
+2026-04-24 11:16:35 | INFO | pdf_inventory | Normalização IA: metodos | lote 1/1 | valores: 5
+2026-04-24 11:16:52 | INFO | pdf_inventory | Normalização IA: instituicoes | lote 1/2 | valores: 80
+2026-04-24 11:17:57 | INFO | pdf_inventory | Normalização IA: instituicoes | lote 2/2 | valores: 63
+2026-04-24 11:18:54 | INFO | pdf_inventory | Normalização IA concluída.
+2026-04-24 11:18:58 | INFO | pdf_inventory | Aplicação dos dicionários IA concluída.
+2026-04-24 11:18:59 | INFO | pdf_inventory | Preparação para BI concluída.

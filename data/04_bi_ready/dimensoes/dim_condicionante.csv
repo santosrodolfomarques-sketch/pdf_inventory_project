@@ -1,30 +1,41 @@
 ﻿id_condicionante,condicionante
-con_78a8809fa2ba2ffa,"Crises política, econômica e ambiental intensificadas pela COVID-19"
+con_f684f9fb411bc8b8,"Crises políticas, econômicas e ambientais exacerbadas pela COVID-19"
+con_a13c0cb712376612,Pandemia expõe desafios em país com múltiplas desigualdades
 con_dea5ffb391bfb005,Crise política sem precedentes desde 1988
-con_850201db65dd078e,Ataques do Governo Federal a instituições públicas e desrespeito aos poderes Legislativo e Judiciário
-con_ccef2284dd4bf3ce,Deslegitimação do multilateralismo e da ciência pelo Governo Federal
-con_0cb19cc914c434fc,Negligência e falta de capacidade do Governo Federal em responder à COVID-19
-con_5dfa2fa7ecfbbfd8,Fragilidade institucional e desfinanciamento estratégico de prioridades no Brasil
-con_46e03eb1ac70c565,Dissolução da Comissão Nacional para os Objetivos de Desenvolvimento Sustentável (CNODS) em 2019
-con_0d62854ed96af031,Veto presidencial à menção da Agenda 2030 no Plano Plurianual 2020-23
+con_2ef5ed6f0f48adb0,"Governo Federal ataca instituições públicas, desrespeita poderes Legislativo e Judiciário, deslegitima multilateralismo e ciência"
+con_0bb1316918ecace2,Presidência negligencia responsabilidades e demonstra falta de capacidade de resposta à COVID-19
+con_2807c78dd0204c59,Fragilidade de instituições e desfinanciamento estratégico de prioridades no Brasil
+con_a48490ede81e54a8,"Políticas ou ações correspondentes foram interrompidas, alteradas ou desfinanciadas"
 con_b9369b4c06bbda2c,Falta de dados atuais para avaliar 40 dos 248 indicadores dos ODS
-con_e52f72907162e300,Sete indicadores dos ODS não aplicáveis ou apropriados para o Brasil
-con_db288dbee904eb2a,"Aumento da desigualdade devido a reformas de austeridade (Emenda Constitucional 95/2016, Reforma Trabalhista, Reforma da Previdência)"
-con_49ed94e9462e499b,Taxa de desemprego de 11.9% e 41.1% de trabalhadores no mercado informal
-con_141f2ab19cd405bd,Retrocesso em programas de transferência de renda como Bolsa Família
-con_1400495c616bee79,"Redução de gastos públicos em serviços essenciais (saúde, educação, proteção social)"
+con_0df156da2f1b2a2a,Dissolução da Comissão Nacional para os Objetivos de Desenvolvimento Sustentável (CNODS)
+con_6490405dca6ba24e,Veto presidencial à menção da Agenda 2030 e exclusão da busca por metas dos ODS no Plano Plurianual 2020-23
+con_f9bb581d0566adbc,"Reformas de austeridade (Emenda Constitucional 95/2016, Reforma Trabalhista, Reforma da Previdência) aumentaram a desigualdade"
+con_08ce13ad6ef01c2e,"Redução dos gastos públicos em serviços essenciais como saúde, educação e proteção social"
 con_6337cf44cadd436a,Negação da ciência e negligência ambiental em ascensão
-con_c097a1a23ff8090f,Aumento de 10% a 20% nas emissões de gases de efeito estufa em comparação com 2018
-con_55d045c9d1413ea7,Desmatamento contínuo durante a pandemia
-con_5b373e6a70d1fc0b,Aumento do uso e descarte incorreto de materiais plásticos
-con_32b569f27e12f3ca,Aumento massivo da pobreza e fome devido à pandemia de COVID-19
-con_072f4c0ab9288789,Dificuldades na implementação do Auxílio Emergencial
+con_ec2ceee8906a0cef,Desmatamento continua em meio à pandemia
+con_1a5d4ba5a97320d0,Degradação de ecossistemas como causa principal de zoonoses
+con_387976b19d6c047b,Derretimento de geleiras e exploração de petróleo/gás podem liberar vírus patogênicos
+con_322cbde54a6b6b48,Aumento do uso e descarte incorreto de materiais plásticos durante a pandemia
+con_532c1a1824041120,Aumento massivo da pobreza e da fome
+con_55a9e63afa8323f5,Falta de capacidade do governo brasileiro na implementação do auxílio emergencial
+con_b9204524901b29da,Fraudes no auxílio emergencial
 con_64ccd5ddf3137bcb,Falta de acesso regular à internet prejudica o direito à educação
-con_f38aa17a21151a4b,Agravamento das desigualdades de gênero sob a COVID-19
-con_4362889478fc05de,Aumento de denúncias de violência doméstica
-con_113ffdaea5ccc5c0,Continuidade de assassinatos de populações negras e indígenas com impunidade
-con_fc6aba436163ce87,Falta de dados desagregados por raça nos boletins do Ministério da Saúde
+con_cef61b1022932113,Desigualdades de gênero pioraram sob a COVID-19
+con_a64c0eff0dcd087e,Assassinatos de populações negras e indígenas continuam com pouca punição
+con_87b666eb0613faef,Governo não forneceu dados desagregados por raça para boletins do Ministério da Saúde
 con_71e51362f413d1f2,Condições precárias da população carcerária e violência policial sistêmica
-con_381750a1415e2206,Conflito entre diferentes níveis de governo sobre regras de isolamento social
-con_e253e470c346bd68,Perda de credibilidade do Brasil no cenário internacional e fuga de capital estrangeiro
+con_7c18aa29b3b94306,Conflito entre diferentes níveis de governo
+con_4b83ab433592b34d,"Posições do governo em contravenção aos Direitos Humanos pioraram a credibilidade do Brasil internacionalmente, resultando em fuga de capital"
 con_71bff49a8eca3d05,Falta de vontade política para implementar soluções conhecidas
+con_09c605296958b513,"Pontos fortes do setor (grande mercado doméstico, custo competitivo, centro de comércio regional, forte indústria têxtil verticalmente integrada, presença de campeões locais, forte segmento Packtech, institutos de teste e pesquisa, proximidade cultural com a Europa)"
+con_89e5fd2405ca7b75,"Pontos fracos do setor (poucos acordos comerciais e de livre comércio, custos gerais, forte concorrência internacional, poucos 'pesos pesados', várias pequenas empresas, intensidade competitiva importante na Packtech, indisponibilidade de processo piloto/pequeno lote, capacitação/especialização, inteligência de mercado/observação tecnológica, programas de pesquisa colaborativa, incentivos relacionados à pesquisa, processo robusto de padrão/norma/certificação, não é considerada área de foco para governos, esquemas de investimento, iniciativas de promoção, incentivo à exportação, proteção tarifária, personalização de produtos, infraestrutura do país, cultura de exportação, pouca conscientização, reputação geral do país, esquemas de apoio, fibras especiais, representação do setor, não há fiação úmida, nenhuma tecnologia proprietária)"
+con_e389fec9acd2625d,"Oportunidades (crescimento econômico, mercado local e regional não saturado, demografia dinâmica, novas oportunidades em Packtech, potencial de crescimento em Agrotech e Geotech, potencial de aumento de escala em vários segmentos, circularidade/reciclagem, biodegradabilidade, aumentar a conscientização)"
+con_d008bcca02489498,"Ameaças (atividade ainda limitada em segmentos de alto valor, foco claro em aplicações de commodities, alta intensidade competitiva internacional, altos custos de capital, muitas PMEs mas poucos pesos pesados, apenas um fornecedor doméstico de PP, poder de compra limitado, importação disponível de aplicações de alto valor, excesso de capacidade no segmento Packtech, esforços limitados de P&D, falta de conhecimento geral, baixo nível de agrupamento de recursos de pesquisa, poucos programas acadêmicos especializados, introdução de novas regulamentações, baixa e lenta penetração de produtos sustentáveis, poucos investimentos em tecnologias de ponta, disponibilidade limitada de fibras recicladas, fraco em produtos e aplicações de valor agregado, competitividade geral, diálogo limitado entre segmentos)"
+con_6e25ccb7bb678657,Crises econômicas e sociais decorrentes da pandemia da Covid-19
+con_1daeb902d76fe2f4,Incertezas provocadas por conflitos bélicos e instabilidades geopolíticas
+con_a28f594afd8291b5,Processo acelerado de transição de arranjos produtivos com emprego intensivo de novas tecnologias
+con_9e899d8c48f95a37,Necessidade de preservação do planeta
+con_3908465e3a1c60c3,Cenário de pobreza no Estado do Acre
+con_51ae9fe7ec771e93,Precários indicadores socioeconômicos no Estado do Acre
+con_694514e680b15beb,Baixa oferta de serviços públicos de qualidade no Estado do Acre
+con_60e992c3da962a18,Exploração inadequada dos recursos naturais no Estado do Acre

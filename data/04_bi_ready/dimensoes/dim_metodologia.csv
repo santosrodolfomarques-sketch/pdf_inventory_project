@@ -1,3 +1,5 @@
-﻿familia_do_metodo,tipo_estudo_futuro,aplicou_estudo_futuro,id_metodologia
-Cenários Prospectivos,Análise Prospectiva,True,mdg_c47a9c26f8d3138f
-Visão de Futuro / Backcasting,Visão de Futuro,True,mdg_7fe7a9cc400e6651
+﻿id_metodologia,familia_do_metodo,natureza_metodologia,tipo_estudo_futuro,aplicou_estudo_futuro
+mdg_b237c8ebc21f461e,Cenários Prospectivos,Prospectivo,Análise Prospectiva,
+mdg_5266a869ba2e9393,Não classificado,Não Classificado,Não informado,
+mdg_553a8471404bc6a5,Cenários Prospectivos,Prospectivo,Cenários Prospectivos,True
+mdg_91f9f5e4022414dd,Extrapolação de Tendências,Não Classificado,Cenários Prospectivos,True

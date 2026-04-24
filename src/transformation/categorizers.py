@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any
 
+
 def build_pending_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     pending_rows: list[dict[str, Any]] = []
 
@@ -13,12 +14,18 @@ def build_pending_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             reasons.append("nome_documento_ausente")
         if record.get("ano_publicacao") is None:
             reasons.append("ano_publicacao_ausente")
-        if record.get("familia_do_metodo_norm") in (None, "Outros") and record.get("aplicou_estudo_futuro"):
-            reasons.append("familia_do_metodo_revisar")
         if record.get("tipo_documento_norm") is None:
             reasons.append("tipo_documento_revisar")
         if record.get("abrangencia_territorial_norm") is None:
             reasons.append("abrangencia_revisar")
+        if record.get("aplicou_estudo_futuro") is None:
+            reasons.append("aplicou_estudo_futuro_revisar")
+        if record.get("aplicou_estudo_futuro") is True and not record.get("metodos_estudo_futuro_norm") and not record.get("tipo_estudo_futuro_norm"):
+            reasons.append("futuro_sem_metodo_ou_tipo")
+        if record.get("familia_do_metodo_norm") in (None, "Outros") and record.get("aplicou_estudo_futuro"):
+            reasons.append("familia_do_metodo_revisar")
+        if record.get("setor_norm") is None:
+            reasons.append("setor_revisar")
 
         if reasons:
             pending_rows.append({
@@ -30,6 +37,7 @@ def build_pending_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
     return pending_rows
 
+
 def collect_unique_values(records: list[dict[str, Any]], field_name: str) -> list[dict[str, Any]]:
     values = defaultdict(set)
 
@@ -38,8 +46,10 @@ def collect_unique_values(records: list[dict[str, Any]], field_name: str) -> lis
         normalized = record.get(f"{field_name}_norm")
 
         if isinstance(original, list):
-            for value in original:
-                values[str(value)].add(str(normalized) if normalized is not None else "")
+            normalized_list = normalized if isinstance(normalized, list) else []
+            for index, value in enumerate(original):
+                paired = normalized_list[index] if index < len(normalized_list) else ""
+                values[str(value)].add(str(paired) if paired is not None else "")
         else:
             values[str(original)].add(str(normalized) if normalized is not None else "")
 

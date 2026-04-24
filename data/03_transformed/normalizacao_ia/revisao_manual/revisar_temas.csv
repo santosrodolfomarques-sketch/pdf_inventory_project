@@ -1,0 +1,2 @@
+﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
+temas,Meios de implementação,meios de implementacao,Meios de Implementação,Estratégia,media,revisar manualmente,"Termo genérico, pode precisar de contexto para categorização precisa.",False,1

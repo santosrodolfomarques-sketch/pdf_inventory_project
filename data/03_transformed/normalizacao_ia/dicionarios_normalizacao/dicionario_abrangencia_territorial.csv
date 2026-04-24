@@ -1,0 +1,3 @@
+﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
+abrangencia_territorial,Brasil,brasil,Nacional,Nacional,alta,aplicar automático,Brasil refere-se à abrangência nacional.,True,1
+abrangencia_territorial,Estado do Acre,estado do acre,Estadual,Estadual,alta,aplicar automático,Estado do Acre refere-se à abrangência estadual.,True,1

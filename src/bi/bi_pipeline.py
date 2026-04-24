@@ -16,7 +16,8 @@ def _save_csv(df: pd.DataFrame, path: Path) -> None:
     df.to_csv(path, index=False, encoding="utf-8-sig")
 
 def run_bi_preparation(settings: Settings, logger: Any) -> dict[str, Any]:
-    consolidated_path = settings.transformed_base_dir / "documentos_consolidados.csv"
+    ai_consolidated_path = settings.ai_applied_dir / "documentos_consolidados_normalizado_ia.csv"
+    consolidated_path = ai_consolidated_path if ai_consolidated_path.exists() else settings.transformed_base_dir / "documentos_consolidados.csv"
 
     if not consolidated_path.exists():
         logger.info("Arquivo consolidado não encontrado. Execute a transformação antes do BI.")

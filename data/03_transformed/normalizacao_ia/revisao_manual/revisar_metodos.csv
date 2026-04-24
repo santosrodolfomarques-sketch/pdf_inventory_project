@@ -1,0 +1,2 @@
+﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
+metodos,Modelo Gherzi,modelo gherzi,Modelo Gherzi,Modelagem,media,revisar manualmente,Nome próprio de modelo; categoria genérica por falta de contexto sobre sua aplicação específica.,False,1

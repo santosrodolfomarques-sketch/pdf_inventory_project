@@ -1,3 +1,6 @@
-﻿id_fato_inventario,id_documento_logico,id_tempo,id_dim_setor,id_dim_abrangencia,id_dim_metodologia,ano_publicacao,horizonte_temporal,extensao_tempo,aplicou_estudo_futuro,qtd_arquivos_origem,qtd_temas,qtd_metodos,qtd_referencias,possui_condicionantes
-fat_4bae733dfef4cd77,doc_d74719a524f502f7,tmp_477c856c290090fa,set_a9ce142c502d7d9b,abr_1a7a5e074a17ceee,mdg_c47a9c26f8d3138f,2020,2030,10,True,1,26,7,21,True
-fat_e2cd1e12cbd90e16,doc_dd3da919f4ffd49c,tmp_ebdf187eab8c2b99,set_22ece1e10fdc2d93,,mdg_7fe7a9cc400e6651,2024,2050,26,True,1,7,1,30,False
+﻿id_fato_inventario,id_documento_logico,id_tempo,id_dim_setor,id_dim_abrangencia,id_dim_metodologia,id_qualidade,ano_publicacao,horizonte_temporal,extensao_tempo,aplicou_estudo_futuro,qtd_arquivos_origem,qtd_temas,qtd_metodos,qtd_referencias,qtd_condicionantes,possui_condicionantes,possui_metodo_identificado,possui_horizonte_temporal,score_qualidade,nivel_qualidade
+fat_9f6023d367845bba,doc_5ba60d8ea1c8ec6a,tmp_2e2ec91f972ccf97,set_36ab227cbc00e91d,abr_55e7d4a9a07c954a,mdg_b237c8ebc21f461e,qlt_15d9f9f1ff9be6fa,2020,2030.0,10.0,,1,46,0,21,28,True,False,True,0.85,Alta
+fat_9a38608a9bd10ef2,doc_1ef6f7fd04bfc171,tmp_8164ac4f7622d9da,set_22ece1e10fdc2d93,abr_e1ea6d9cab088e92,mdg_5266a869ba2e9393,qlt_e063063d18af27c9,2024,2050.0,26.0,,1,7,0,30,0,False,False,True,0.77,Média
+fat_8f6c07417819f02d,doc_49e12d5670dda940,tmp_d0c6e53d49bb9ed3,set_c063562387bae010,abr_55e7d4a9a07c954a,mdg_553a8471404bc6a5,qlt_a5fcb8d6fd75f413,2024,2040.0,16.0,True,1,35,3,4,4,True,True,True,1.0,Alta
+fat_3ed6d05c261d84ab,doc_196accfdd54b1443,tmp_3016c14db3cc0e12,set_a9ce142c502d7d9b,abr_55e7d4a9a07c954a,mdg_5266a869ba2e9393,qlt_0cfdcb24427af9aa,2015,2030.0,15.0,,1,40,0,19,0,False,False,True,0.85,Alta
+fat_a842489481e0bddc,doc_680553d1554ac1c8,tmp_aab7fec9fc303801,set_36ab227cbc00e91d,abr_33f339d7c580daf0,mdg_91f9f5e4022414dd,qlt_4a24800bb5c73c8b,2023,,,True,1,20,2,0,8,True,True,False,0.75,Média

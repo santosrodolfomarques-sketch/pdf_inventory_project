@@ -1,9 +1,6 @@
-﻿id_metodo,metodo
-met_c84d17cebc75020d,Coleta e Análise de Dados
-met_31d192dec6e96e45,Análise de Indicadores
-met_6996f5a9ee9db0e3,Grupos Focais de Especialistas
-met_a77157cd54455219,Revisão por Especialistas
-met_2c8a687a2167a11c,Sistematização de Conteúdo
-met_47acfcf7c784330e,Validação por Organizações
-met_de17df2adccee668,Classificação de Progresso de Metas
-met_b589420ac01804de,Entrevista com o ChatGPT
+﻿id_metodo,metodo,familia_do_metodo,natureza_metodo
+met_a6be9df3b8e4cff2,Cenário de Caso Base,Cenários Prospectivos,Prospectivo
+met_f3c0358423484b60,Melhor Cenário,Cenários Prospectivos,Prospectivo
+met_917997385821636f,Modelo Gherzi,Cenários Prospectivos,Prospectivo
+met_07e21da5e6d076e7,Projeção Econométrica de Cenários,Extrapolação de Tendências,Prospectivo
+met_445ae052c0f9121d,Benchmarking,Extrapolação de Tendências,Não Classificado

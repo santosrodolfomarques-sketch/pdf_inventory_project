@@ -15,6 +15,9 @@ REGRAS:
 3. Use ano no formato YYYY quando houver.
 4. Para listas, remova duplicações evidentes.
 5. Não classifique métodos em família; apenas extraia os métodos mencionados.
+6. Só marque "aplicou_estudo_futuro" como true quando houver evidência de prospectiva, cenários, projeções, modelagem, foresight, backcasting, Delphi ou método análogo. Ter um ano no título, como 2030 ou 2050, por si só não basta.
+7. Quando houver apenas visão aspiracional, reflexão, ensaio ou discussão geral sobre futuro, prefira false ou null.
+8. Em "instituicao_responsavel", priorize a instituição autora, coordenadora ou responsável intelectual pelo documento. Não confunda automaticamente editora, selo editorial ou gráfica com autoria institucional.
 
 ESTRUTURA OBRIGATÓRIA:
 {{

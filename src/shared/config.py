@@ -21,6 +21,10 @@ TRANSFORMED_BASE_DIR = TRANSFORMED_DIR / "tabelas_base"
 TRANSFORMED_NORMALIZED_DIR = TRANSFORMED_DIR / "tabelas_normalizadas"
 TRANSFORMED_PENDING_DIR = TRANSFORMED_DIR / "pendencias"
 TRANSFORMED_UNIQUE_DIR = TRANSFORMED_DIR / "valores_unicos_para_normalizacao"
+AI_NORMALIZATION_DIR = TRANSFORMED_DIR / "normalizacao_ia"
+AI_DICTIONARY_DIR = AI_NORMALIZATION_DIR / "dicionarios_normalizacao"
+AI_DICTIONARY_REVIEW_DIR = AI_NORMALIZATION_DIR / "revisao_manual"
+AI_APPLIED_DIR = AI_NORMALIZATION_DIR / "bases_normalizadas"
 
 BI_READY_DIR = DATA_DIR / "04_bi_ready"
 BI_DIM_DIR = BI_READY_DIR / "dimensoes"
@@ -54,6 +58,8 @@ DEFAULT_DOCUMENT_TYPES = {
 }
 
 DEFAULT_TERRITORIAL_SCOPE = {
+    "brasil": "Nacional",
+    "brazil": "Nacional",
     "nacional": "Nacional",
     "regional": "Regional",
     "global": "Global",
@@ -64,7 +70,63 @@ DEFAULT_TERRITORIAL_SCOPE = {
     "internacional": "Global",
 }
 
+
+DEFAULT_INSTITUTION_MAP = {
+    "gtsc a2030": "GTSC A2030",
+    "civil society working group for the 2030 agenda": "GTSC A2030",
+    "grupo de trabalho da sociedade civil para a agenda 2030": "GTSC A2030",
+}
+
+DEFAULT_FUTURE_STUDY_TYPE_MAP = {
+    "monitoramento": "Monitoramento e Avaliação",
+    "avaliacao": "Monitoramento e Avaliação",
+    "avaliação": "Monitoramento e Avaliação",
+    "cenario": "Cenários Prospectivos",
+    "cenário": "Cenários Prospectivos",
+    "foresight": "Cenários Prospectivos",
+    "backcasting": "Visão de Futuro / Backcasting",
+    "prospectiv": "Cenários Prospectivos",
+}
+
+DEFAULT_THEME_MAP = {
+    "covid-19": "COVID-19",
+    "covid 19": "COVID-19",
+    "sustainable development goals": "ODS",
+    "2030 agenda for sustainable development": "Agenda 2030",
+    "gender equality": "Igualdade de Gênero",
+    "climate change": "Mudança do Clima",
+    "poverty": "Pobreza",
+    "hunger": "Fome",
+    "education": "Educação",
+    "health": "Saúde",
+    "human rights": "Direitos Humanos",
+    "democracy": "Democracia",
+    "public policy": "Políticas Públicas",
+    "third sector": "Terceiro Setor",
+    "terceiro setor": "Terceiro Setor",
+    "sociedade civil": "Sociedade Civil",
+    "voluntariado": "Voluntariado",
+    "sustentabilidade": "Sustentabilidade",
+}
+
+DEFAULT_METHOD_MAP = {
+    "coleta e analise de dados": "Coleta e análise de dados",
+    "coleta e análise de dados": "Coleta e análise de dados",
+    "dados oficiais": "Uso de dados oficiais",
+    "grupos focais": "Grupos focais",
+    "grupo focal": "Grupos focais",
+    "indicadores": "Análise de indicadores",
+    "validacao": "Validação por especialistas",
+    "validação": "Validação por especialistas",
+    "monitoramento": "Monitoramento e avaliação",
+    "avaliacao": "Monitoramento e avaliação",
+    "avaliação": "Monitoramento e avaliação",
+}
 DEFAULT_SECTOR_MAP = {
+    "sociedade civil": "Sociedade Civil",
+    "civil society": "Sociedade Civil",
+    "terceiro setor": "Terceiro Setor",
+    "third sector": "Terceiro Setor",
     "saude": "Saúde",
     "saúde": "Saúde",
     "health": "Saúde",
@@ -106,6 +168,12 @@ class Settings:
     document_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_DOCUMENT_TYPES.copy())
     territorial_scope_map: dict[str, str] = field(default_factory=lambda: DEFAULT_TERRITORIAL_SCOPE.copy())
     sector_map: dict[str, str] = field(default_factory=lambda: DEFAULT_SECTOR_MAP.copy())
+    institution_map: dict[str, str] = field(default_factory=lambda: DEFAULT_INSTITUTION_MAP.copy())
+    future_study_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_FUTURE_STUDY_TYPE_MAP.copy())
+    theme_map: dict[str, str] = field(default_factory=lambda: DEFAULT_THEME_MAP.copy())
+    method_map: dict[str, str] = field(default_factory=lambda: DEFAULT_METHOD_MAP.copy())
+    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "80")))
+    ai_apply_min_confidence: str = field(default_factory=lambda: os.getenv("AI_APPLY_MIN_CONFIDENCE", "alta"))
 
     @property
     def raw_pdf_dir(self) -> Path:
@@ -138,6 +206,22 @@ class Settings:
     @property
     def transformed_unique_dir(self) -> Path:
         return TRANSFORMED_UNIQUE_DIR
+
+    @property
+    def ai_normalization_dir(self) -> Path:
+        return AI_NORMALIZATION_DIR
+
+    @property
+    def ai_dictionary_dir(self) -> Path:
+        return AI_DICTIONARY_DIR
+
+    @property
+    def ai_dictionary_review_dir(self) -> Path:
+        return AI_DICTIONARY_REVIEW_DIR
+
+    @property
+    def ai_applied_dir(self) -> Path:
+        return AI_APPLIED_DIR
 
     @property
     def bi_dim_dir(self) -> Path:

@@ -1,0 +1,171 @@
+{
+  "metadata": {
+    "source_file_name": "003.pdf",
+    "source_file_path": "C:\\pdf_inventory_project\\data\\01_raw\\pdfs\\003.pdf",
+    "source_file_hash": "0097ccff60f36649f684e9c99defdedb6f75a70be1db29a9a7c443a650424cab",
+    "processed_at_utc": "2026-04-24T13:21:27.911655+00:00",
+    "model_used": "gemini-2.5-flash",
+    "chunk_count": 1,
+    "extraction_details": {
+      "pages_total": 21,
+      "pages_read": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "strategy": "first_10_last_5"
+    }
+  },
+  "payload": {
+    "nome_documento": "Acelerando o crescimento do setor de têxteis técnicos no Brasil",
+    "tipo_documento": "Relatório final",
+    "ano_publicacao": 2024,
+    "horizonte_temporal": 2040,
+    "abrangencia_territorial": "Brasil",
+    "setor": "Têxteis técnicos",
+    "temas": [
+      "Têxteis técnicos",
+      "Não tecidos",
+      "Crescimento econômico",
+      "Sustentabilidade",
+      "Diversificação econômica",
+      "Criação de empregos",
+      "Desenvolvimento de habilidades",
+      "Inovação",
+      "Avanço tecnológico",
+      "Competitividade global",
+      "Mercado de têxteis técnicos",
+      "Mercado de não tecidos",
+      "Agrotech",
+      "Meditech",
+      "Buildtech",
+      "Mobiltech",
+      "Clothtech",
+      "Oekotech",
+      "Packtech",
+      "Geotech",
+      "Protech",
+      "Hometech",
+      "Sporttech",
+      "Indutech",
+      "Fibras sintéticas",
+      "Fibras naturais",
+      "Fibras celulósicas",
+      "P&D",
+      "Treinamento",
+      "Pesquisa",
+      "Políticas públicas",
+      "Incentivos fiscais",
+      "Padrões técnicos",
+      "Reciclagem",
+      "Biodegradabilidade"
+    ],
+    "aplicou_estudo_futuro": true,
+    "tipo_estudo_futuro": "Estudo de Cenários",
+    "metodos_estudo_futuro": [
+      "Cenário de caso base (CAGR)",
+      "Melhor cenário (CAGR)",
+      "Modelo Gherzi"
+    ],
+    "referencias": [
+      "IEMI",
+      "Comexstat",
+      "Messe Frankfurt",
+      "Gherzi analysis of 60+ legislative measures being proposed by the EU,US and UK"
+    ],
+    "condicionantes_estudo_futuro": [
+      "Pontos fortes do setor (grande mercado doméstico, custo competitivo, centro de comércio regional, forte indústria têxtil verticalmente integrada, presença de campeões locais, forte segmento Packtech, institutos de teste e pesquisa, proximidade cultural com a Europa)",
+      "Pontos fracos do setor (poucos acordos comerciais e de livre comércio, custos gerais, forte concorrência internacional, poucos 'pesos pesados', várias pequenas empresas, intensidade competitiva importante na Packtech, indisponibilidade de processo piloto/pequeno lote, capacitação/especialização, inteligência de mercado/observação tecnológica, programas de pesquisa colaborativa, incentivos relacionados à pesquisa, processo robusto de padrão/norma/certificação, não é considerada área de foco para governos, esquemas de investimento, iniciativas de promoção, incentivo à exportação, proteção tarifária, personalização de produtos, infraestrutura do país, cultura de exportação, pouca conscientização, reputação geral do país, esquemas de apoio, fibras especiais, representação do setor, não há fiação úmida, nenhuma tecnologia proprietária)",
+      "Oportunidades (crescimento econômico, mercado local e regional não saturado, demografia dinâmica, novas oportunidades em Packtech, potencial de crescimento em Agrotech e Geotech, potencial de aumento de escala em vários segmentos, circularidade/reciclagem, biodegradabilidade, aumentar a conscientização)",
+      "Ameaças (atividade ainda limitada em segmentos de alto valor, foco claro em aplicações de commodities, alta intensidade competitiva internacional, altos custos de capital, muitas PMEs mas poucos pesos pesados, apenas um fornecedor doméstico de PP, poder de compra limitado, importação disponível de aplicações de alto valor, excesso de capacidade no segmento Packtech, esforços limitados de P&D, falta de conhecimento geral, baixo nível de agrupamento de recursos de pesquisa, poucos programas acadêmicos especializados, introdução de novas regulamentações, baixa e lenta penetração de produtos sustentáveis, poucos investimentos em tecnologias de ponta, disponibilidade limitada de fibras recicladas, fraco em produtos e aplicações de valor agregado, competitividade geral, diálogo limitado entre segmentos)"
+    ],
+    "instituicoes_apoio": [
+      "SENAI-CETIQT",
+      "SENAI SP"
+    ],
+    "instituicao_responsavel": "Gherzi"
+  },
+  "chunk_payloads": [
+    {
+      "nome_documento": "Acelerando o crescimento do setor de têxteis técnicos no Brasil",
+      "tipo_documento": "Relatório final",
+      "ano_publicacao": 2024,
+      "horizonte_temporal": 2040,
+      "abrangencia_territorial": "Brasil",
+      "setor": "Têxteis técnicos",
+      "temas": [
+        "Têxteis técnicos",
+        "Não tecidos",
+        "Crescimento econômico",
+        "Sustentabilidade",
+        "Diversificação econômica",
+        "Criação de empregos",
+        "Desenvolvimento de habilidades",
+        "Inovação",
+        "Avanço tecnológico",
+        "Competitividade global",
+        "Mercado de têxteis técnicos",
+        "Mercado de não tecidos",
+        "Agrotech",
+        "Meditech",
+        "Buildtech",
+        "Mobiltech",
+        "Clothtech",
+        "Oekotech",
+        "Packtech",
+        "Geotech",
+        "Protech",
+        "Hometech",
+        "Sporttech",
+        "Indutech",
+        "Fibras sintéticas",
+        "Fibras naturais",
+        "Fibras celulósicas",
+        "P&D",
+        "Treinamento",
+        "Pesquisa",
+        "Políticas públicas",
+        "Incentivos fiscais",
+        "Padrões técnicos",
+        "Reciclagem",
+        "Biodegradabilidade"
+      ],
+      "aplicou_estudo_futuro": true,
+      "tipo_estudo_futuro": "Estudo de Cenários",
+      "metodos_estudo_futuro": [
+        "Cenário de caso base (CAGR)",
+        "Melhor cenário (CAGR)",
+        "Modelo Gherzi"
+      ],
+      "referencias": [
+        "IEMI",
+        "Comexstat",
+        "Messe Frankfurt",
+        "Gherzi analysis of 60+ legislative measures being proposed by the EU,US and UK"
+      ],
+      "condicionantes_estudo_futuro": [
+        "Pontos fortes do setor (grande mercado doméstico, custo competitivo, centro de comércio regional, forte indústria têxtil verticalmente integrada, presença de campeões locais, forte segmento Packtech, institutos de teste e pesquisa, proximidade cultural com a Europa)",
+        "Pontos fracos do setor (poucos acordos comerciais e de livre comércio, custos gerais, forte concorrência internacional, poucos 'pesos pesados', várias pequenas empresas, intensidade competitiva importante na Packtech, indisponibilidade de processo piloto/pequeno lote, capacitação/especialização, inteligência de mercado/observação tecnológica, programas de pesquisa colaborativa, incentivos relacionados à pesquisa, processo robusto de padrão/norma/certificação, não é considerada área de foco para governos, esquemas de investimento, iniciativas de promoção, incentivo à exportação, proteção tarifária, personalização de produtos, infraestrutura do país, cultura de exportação, pouca conscientização, reputação geral do país, esquemas de apoio, fibras especiais, representação do setor, não há fiação úmida, nenhuma tecnologia proprietária)",
+        "Oportunidades (crescimento econômico, mercado local e regional não saturado, demografia dinâmica, novas oportunidades em Packtech, potencial de crescimento em Agrotech e Geotech, potencial de aumento de escala em vários segmentos, circularidade/reciclagem, biodegradabilidade, aumentar a conscientização)",
+        "Ameaças (atividade ainda limitada em segmentos de alto valor, foco claro em aplicações de commodities, alta intensidade competitiva internacional, altos custos de capital, muitas PMEs mas poucos pesos pesados, apenas um fornecedor doméstico de PP, poder de compra limitado, importação disponível de aplicações de alto valor, excesso de capacidade no segmento Packtech, esforços limitados de P&D, falta de conhecimento geral, baixo nível de agrupamento de recursos de pesquisa, poucos programas acadêmicos especializados, introdução de novas regulamentações, baixa e lenta penetração de produtos sustentáveis, poucos investimentos em tecnologias de ponta, disponibilidade limitada de fibras recicladas, fraco em produtos e aplicações de valor agregado, competitividade geral, diálogo limitado entre segmentos)"
+      ],
+      "instituicoes_apoio": [
+        "SENAI-CETIQT",
+        "SENAI SP"
+      ],
+      "instituicao_responsavel": "Gherzi"
+    }
+  ]
+}

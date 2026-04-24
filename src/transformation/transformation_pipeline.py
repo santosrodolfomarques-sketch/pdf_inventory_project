@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +24,7 @@ LIST_COLUMNS = [
     "source_files",
 ]
 
+
 def _records_to_dataframe(records: list[dict[str, Any]]) -> pd.DataFrame:
     rows = []
     for record in records:
@@ -35,9 +35,26 @@ def _records_to_dataframe(records: list[dict[str, Any]]) -> pd.DataFrame:
         rows.append(row)
     return pd.DataFrame(rows)
 
+
 def _save_dataframe(df: pd.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False, encoding="utf-8-sig")
+
+
+def _build_exploded_mapping_dataframe(records: list[dict[str, Any]], original_field: str, normalized_field: str, original_col: str, normalized_col: str) -> pd.DataFrame:
+    rows = []
+    for record in records:
+        originals = record.get(original_field, []) or []
+        normalizeds = record.get(normalized_field, []) or []
+        for index, value in enumerate(originals):
+            rows.append({
+                original_col: value,
+                normalized_col: normalizeds[index] if index < len(normalizeds) else None,
+                "arquivo_origem": record.get("source_file_name"),
+                "id_documento_logico": record.get("id_documento_logico"),
+            })
+    return pd.DataFrame(rows)
+
 
 def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
     json_files = sorted(Path(settings.extracted_json_dir).glob("*.json"))
@@ -68,28 +85,29 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
     _save_dataframe(consolidated_df, consolidated_path)
 
     unique_scalar_fields = [
-    "tipo_documento",
-    "abrangencia_territorial",
-    "setor",
-    "instituicao_responsavel",
+        "tipo_documento",
+        "abrangencia_territorial",
+        "setor",
+        "instituicao_responsavel",
+        "tipo_estudo_futuro",
     ]
-    unique_rows = collect_unique_values(consolidated_records, "familia_do_metodo_norm")
-    unique_df = pd.DataFrame(unique_rows)
-    _save_dataframe(
-        unique_df,
-        settings.transformed_unique_dir / "valores_unicos_familia_do_metodo.csv",
-    )
     for field in unique_scalar_fields:
         unique_rows = collect_unique_values(consolidated_records, field)
         unique_df = pd.DataFrame(unique_rows)
         _save_dataframe(unique_df, settings.transformed_unique_dir / f"valores_unicos_{field}.csv")
 
+    family_rows = [{
+        "valor_original": record.get("familia_do_metodo") or "",
+        "valor_normalizado": record.get("familia_do_metodo_norm") or "",
+    } for record in consolidated_records]
+    _save_dataframe(pd.DataFrame(family_rows), settings.transformed_unique_dir / "valores_unicos_familia_do_metodo.csv")
+
     normalized_tables = {
-        "temas_normalizados.csv": pd.DataFrame(
-            [{"tema_original": row.get("temas"), "tema_normalizado": row.get("temas_norm")} for row in treated_records]
+        "temas_normalizados.csv": _build_exploded_mapping_dataframe(
+            treated_records, "temas", "temas_norm", "tema_original", "tema_normalizado"
         ),
-        "metodos_normalizados.csv": pd.DataFrame(
-            [{"metodo_original": row.get("metodos_estudo_futuro"), "metodo_normalizado": row.get("metodos_estudo_futuro_norm")} for row in treated_records]
+        "metodos_normalizados.csv": _build_exploded_mapping_dataframe(
+            treated_records, "metodos_estudo_futuro", "metodos_estudo_futuro_norm", "metodo_original", "metodo_normalizado"
         ),
         "instituicoes_normalizadas.csv": pd.DataFrame(
             [{
@@ -97,6 +115,8 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
                 "instituicao_responsavel_normalizada": row.get("instituicao_responsavel_norm"),
                 "instituicoes_apoio_originais": to_json_string(row.get("instituicoes_apoio")),
                 "instituicoes_apoio_normalizadas": to_json_string(row.get("instituicoes_apoio_norm")),
+                "arquivo_origem": row.get("source_file_name"),
+                "id_documento_logico": row.get("id_documento_logico"),
             } for row in treated_records]
         ),
     }

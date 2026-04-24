@@ -1,0 +1,6 @@
+﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
+metodos,Cenário de caso base (CAGR),cenario de caso base (cagr),Cenário de Caso Base,Análise de Cenários,alta,aplicar automático,Padronização de caixa e remoção de métrica secundária.,True,1
+metodos,Melhor cenário (CAGR),melhor cenario (cagr),Melhor Cenário,Análise de Cenários,alta,aplicar automático,Padronização de caixa e remoção de métrica secundária.,True,1
+metodos,Modelo Gherzi,modelo gherzi,Modelo Gherzi,Modelagem,media,revisar manualmente,Nome próprio de modelo; categoria genérica por falta de contexto sobre sua aplicação específica.,False,1
+metodos,Projeção econométrica de cenários,projecao econometrica de cenarios,Projeção Econométrica de Cenários,Projeção Econométrica,alta,aplicar automático,Padronização de caixa.,True,1
+metodos,Benchmarking,benchmarking,Benchmarking,Benchmarking,alta,manter original,Termo já padronizado e amplamente aceito como método.,True,1

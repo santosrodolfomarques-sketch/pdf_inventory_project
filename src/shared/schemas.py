@@ -13,6 +13,7 @@ EXTRACTION_FIELDS = [
     "temas",
     "aplicou_estudo_futuro",
     "tipo_estudo_futuro",
+    "metodos_estudo_futuro",
     "referencias",
     "condicionantes_estudo_futuro",
     "instituicoes_apoio",

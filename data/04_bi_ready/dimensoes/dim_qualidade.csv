@@ -1,0 +1,6 @@
+﻿id_documento_logico,id_qualidade,score_qualidade,nivel_qualidade,flag_revisao_manual,motivos_revisao
+doc_5ba60d8ea1c8ec6a,qlt_15d9f9f1ff9be6fa,0.85,Alta,True,estudo_futuro_sem_metodo
+doc_1ef6f7fd04bfc171,qlt_e063063d18af27c9,0.77,Média,True,estudo_futuro_sem_metodo; abrangencia_nao_informada
+doc_49e12d5670dda940,qlt_a5fcb8d6fd75f413,1.0,Alta,False,
+doc_196accfdd54b1443,qlt_0cfdcb24427af9aa,0.85,Alta,True,estudo_futuro_sem_metodo
+doc_680553d1554ac1c8,qlt_4a24800bb5c73c8b,0.75,Média,False,

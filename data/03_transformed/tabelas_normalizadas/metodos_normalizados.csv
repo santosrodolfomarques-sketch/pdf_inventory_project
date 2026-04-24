@@ -1,3 +1,6 @@
-﻿metodo_original,metodo_normalizado
-"['Coleta e Análise de Dados', 'Análise de Indicadores', 'Grupos Focais de Especialistas', 'Revisão por Especialistas', 'Sistematização de Conteúdo', 'Validação por Organizações', 'Classificação de Progresso de Metas']","['Coleta e Análise de Dados', 'Análise de Indicadores', 'Grupos Focais de Especialistas', 'Revisão por Especialistas', 'Sistematização de Conteúdo', 'Validação por Organizações', 'Classificação de Progresso de Metas']"
-['Entrevista com o ChatGPT'],['Entrevista com o ChatGPT']
+﻿metodo_original,metodo_normalizado,arquivo_origem,id_documento_logico
+Cenário de caso base (CAGR),Cenário de caso base (CAGR),003.pdf,doc_49e12d5670dda940
+Melhor cenário (CAGR),Melhor cenário (CAGR),003.pdf,doc_49e12d5670dda940
+Modelo Gherzi,Modelo Gherzi,003.pdf,doc_49e12d5670dda940
+Projeção econométrica de cenários,Projeção econométrica de cenários,005.pdf,doc_680553d1554ac1c8
+Benchmarking,Benchmarking,005.pdf,doc_680553d1554ac1c8
