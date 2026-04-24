@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -41,11 +42,74 @@ def _save_dataframe(df: pd.DataFrame, path: Path) -> None:
     df.to_csv(path, index=False, encoding="utf-8-sig")
 
 
-def _build_exploded_mapping_dataframe(records: list[dict[str, Any]], original_field: str, normalized_field: str, original_col: str, normalized_col: str) -> pd.DataFrame:
+def _ensure_list(value: Any) -> list[Any]:
+    if value is None:
+        return []
+
+    if isinstance(value, list):
+        return value
+
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, list):
+                return parsed
+            return [parsed]
+        except Exception:
+            return [text]
+
+    return [value]
+
+
+def _build_unique_list_values_dataframe(
+    records: list[dict[str, Any]],
+    field: str,
+    value_col: str = "valor_original",
+) -> pd.DataFrame:
     rows = []
+
+    for record in records:
+        values = _ensure_list(record.get(field))
+
+        for value in values:
+            if value is None:
+                continue
+
+            value_text = str(value).strip()
+            if not value_text:
+                continue
+
+            rows.append({
+                value_col: value_text,
+            })
+
+    if not rows:
+        return pd.DataFrame(columns=[value_col])
+
+    return (
+        pd.DataFrame(rows)
+        .drop_duplicates()
+        .sort_values(value_col)
+        .reset_index(drop=True)
+    )
+
+
+def _build_exploded_mapping_dataframe(
+    records: list[dict[str, Any]],
+    original_field: str,
+    normalized_field: str,
+    original_col: str,
+    normalized_col: str,
+) -> pd.DataFrame:
+    rows = []
+
     for record in records:
         originals = record.get(original_field, []) or []
         normalizeds = record.get(normalized_field, []) or []
+
         for index, value in enumerate(originals):
             rows.append({
                 original_col: value,
@@ -53,6 +117,7 @@ def _build_exploded_mapping_dataframe(records: list[dict[str, Any]], original_fi
                 "arquivo_origem": record.get("source_file_name"),
                 "id_documento_logico": record.get("id_documento_logico"),
             })
+
     return pd.DataFrame(rows)
 
 
@@ -91,33 +156,67 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
         "instituicao_responsavel",
         "tipo_estudo_futuro",
     ]
+
     for field in unique_scalar_fields:
         unique_rows = collect_unique_values(consolidated_records, field)
         unique_df = pd.DataFrame(unique_rows)
         _save_dataframe(unique_df, settings.transformed_unique_dir / f"valores_unicos_{field}.csv")
 
-    family_rows = [{
-        "valor_original": record.get("familia_do_metodo") or "",
-        "valor_normalizado": record.get("familia_do_metodo_norm") or "",
-    } for record in consolidated_records]
-    _save_dataframe(pd.DataFrame(family_rows), settings.transformed_unique_dir / "valores_unicos_familia_do_metodo.csv")
+    family_rows = [
+        {
+            "valor_original": record.get("familia_do_metodo") or "",
+            "valor_normalizado": record.get("familia_do_metodo_norm") or "",
+        }
+        for record in consolidated_records
+    ]
+    _save_dataframe(
+        pd.DataFrame(family_rows),
+        settings.transformed_unique_dir / "valores_unicos_familia_do_metodo.csv",
+    )
+
+    # Arquivo necessário para o enrichment/clusterização de condicionantes.
+    condicionantes_df = _build_unique_list_values_dataframe(
+        consolidated_records,
+        field="condicionantes_estudo_futuro",
+        value_col="valor_original",
+    )
+    _save_dataframe(
+        condicionantes_df,
+        settings.transformed_unique_dir / "valores_unicos_condicionantes.csv",
+    )
 
     normalized_tables = {
         "temas_normalizados.csv": _build_exploded_mapping_dataframe(
-            treated_records, "temas", "temas_norm", "tema_original", "tema_normalizado"
+            treated_records,
+            "temas",
+            "temas_norm",
+            "tema_original",
+            "tema_normalizado",
         ),
         "metodos_normalizados.csv": _build_exploded_mapping_dataframe(
-            treated_records, "metodos_estudo_futuro", "metodos_estudo_futuro_norm", "metodo_original", "metodo_normalizado"
+            treated_records,
+            "metodos_estudo_futuro",
+            "metodos_estudo_futuro_norm",
+            "metodo_original",
+            "metodo_normalizado",
         ),
         "instituicoes_normalizadas.csv": pd.DataFrame(
-            [{
-                "instituicao_responsavel_original": row.get("instituicao_responsavel"),
-                "instituicao_responsavel_normalizada": row.get("instituicao_responsavel_norm"),
-                "instituicoes_apoio_originais": to_json_string(row.get("instituicoes_apoio")),
-                "instituicoes_apoio_normalizadas": to_json_string(row.get("instituicoes_apoio_norm")),
-                "arquivo_origem": row.get("source_file_name"),
-                "id_documento_logico": row.get("id_documento_logico"),
-            } for row in treated_records]
+            [
+                {
+                    "instituicao_responsavel_original": row.get("instituicao_responsavel"),
+                    "instituicao_responsavel_normalizada": row.get("instituicao_responsavel_norm"),
+                    "instituicoes_apoio_originais": to_json_string(row.get("instituicoes_apoio")),
+                    "instituicoes_apoio_normalizadas": to_json_string(row.get("instituicoes_apoio_norm")),
+                    "arquivo_origem": row.get("source_file_name"),
+                    "id_documento_logico": row.get("id_documento_logico"),
+                }
+                for row in treated_records
+            ]
+        ),
+        "condicionantes_normalizados.csv": _build_unique_list_values_dataframe(
+            consolidated_records,
+            field="condicionantes_estudo_futuro",
+            value_col="condicionante",
         ),
     }
 
@@ -135,5 +234,9 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
         "base_path": str(base_path),
         "consolidated_path": str(consolidated_path),
     }
-    logger.info(f"Transformação concluída. Registros tratados: {summary['processed']} | consolidados: {summary['consolidated']}")
+
+    logger.info(
+        f"Transformação concluída. Registros tratados: {summary['processed']} | "
+        f"consolidados: {summary['consolidated']}"
+    )
     return summary

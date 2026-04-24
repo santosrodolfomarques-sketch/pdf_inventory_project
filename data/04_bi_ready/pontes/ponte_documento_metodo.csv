@@ -1,6 +1,2 @@
-﻿id_documento_logico,id_metodo
-doc_49e12d5670dda940,met_a6be9df3b8e4cff2
-doc_49e12d5670dda940,met_f3c0358423484b60
-doc_49e12d5670dda940,met_917997385821636f
-doc_680553d1554ac1c8,met_07e21da5e6d076e7
-doc_680553d1554ac1c8,met_445ae052c0f9121d
+﻿sk_documento,id_documento_logico,sk_metodo,id_metodo_hash
+2,doc_1ef6f7fd04bfc171,1,met_311ddce8539ed597

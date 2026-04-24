@@ -1,6 +1,3 @@
 ﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-tipo_documento,Plano de Desenvolvimento Socioeconômico e Sustentável,plano de desenvolvimento socioeconomico e sustentavel,Plano,Plano,alta,aplicar automático,"Normalização para o tipo documental principal 'Plano', ignorando qualificadores descritivos.",True,1
-tipo_documento,Relatório,relatorio,Relatório,Relatório,alta,manter original,Valor já está normalizado e adequado.,True,1
-tipo_documento,Relatório final,relatorio final,Relatório,Relatório,alta,aplicar automático,"Normalização para o tipo documental principal 'Relatório', ignorando qualificadores como 'final'.",True,1
-tipo_documento,Spotlight Report,spotlight report,Relatório,Relatório,alta,aplicar automático,"Tradução e normalização para o tipo documental principal 'Relatório', ignorando qualificadores em inglês.",True,1
-tipo_documento,livro,livro,Livro,Livro,alta,aplicar automático,Padronização de caixa para 'Livro'.,True,1
+tipo_documento,Livro,livro,Livro,Publicação,alta,manter original,Valor já adequado e semanticamente distinto.,True,1
+tipo_documento,Relatório,relatorio,Relatório,Relatório,alta,manter original,Valor já adequado e semanticamente distinto.,True,1

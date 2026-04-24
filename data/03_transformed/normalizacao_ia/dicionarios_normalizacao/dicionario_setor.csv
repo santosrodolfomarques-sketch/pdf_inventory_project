@@ -1,5 +1,3 @@
 ﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-setor,Desenvolvimento Sustentável,desenvolvimento sustentavel,Desenvolvimento Sustentável,Tema,alta,revisar manualmente,"É um tema ou conceito transversal, não um setor econômico, social ou institucional.",False,1
-setor,Multissetorial,multissetorial,Multissetorial,Abrangência,alta,revisar manualmente,"Descreve a abrangência (múltiplos setores), não um setor específico.",False,1
-setor,Terceiro Setor,terceiro setor,Terceiro Setor,Setor Social,alta,manter original,Nome de setor social/institucional já padronizado e adequado.,True,1
-setor,Têxteis técnicos,texteis tecnicos,Setor Têxtil,Setor Econômico,alta,aplicar automático,"Segmento específico da indústria têxtil, normalizado para o setor econômico principal.",True,1
+setor,"Sociedade Civil, Desenvolvimento Sustentável","sociedade civil, desenvolvimento sustentavel",Sociedade Civil,Setor Social,alta,aplicar automático,"Extração do setor principal; 'Desenvolvimento Sustentável' é um tema, não um setor.",True,1
+setor,Terceiro Setor,terceiro setor,Terceiro Setor,Setor Social,alta,manter original,Termo já padronizado e semanticamente claro para setor.,True,1

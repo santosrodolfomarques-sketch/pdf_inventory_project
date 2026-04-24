@@ -1,6 +1,2 @@
-﻿id_metodo,metodo,familia_do_metodo,natureza_metodo
-met_a6be9df3b8e4cff2,Cenário de Caso Base,Cenários Prospectivos,Prospectivo
-met_f3c0358423484b60,Melhor Cenário,Cenários Prospectivos,Prospectivo
-met_917997385821636f,Modelo Gherzi,Cenários Prospectivos,Prospectivo
-met_07e21da5e6d076e7,Projeção Econométrica de Cenários,Extrapolação de Tendências,Prospectivo
-met_445ae052c0f9121d,Benchmarking,Extrapolação de Tendências,Não Classificado
+﻿sk_metodo,id_metodo_hash,metodo,familia_do_metodo,natureza_metodo
+1,met_311ddce8539ed597,Entrevista com ChatGPT,Outros,Qualitativo

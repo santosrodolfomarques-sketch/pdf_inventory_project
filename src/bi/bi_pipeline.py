@@ -24,7 +24,7 @@ def run_bi_preparation(settings: Settings, logger: Any) -> dict[str, Any]:
         return {"processed": 0, "status": "missing_transformed"}
 
     df = pd.read_csv(consolidated_path)
-    dimensions = build_dimensions_and_bridges(df)
+    dimensions = build_dimensions_and_bridges(df, settings=settings)
     fact = build_fact_inventory(df, dimensions)
     validation_report = run_bi_validations(dimensions, fact)
 

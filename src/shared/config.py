@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,6 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 
 RAW_PDF_DIR = DATA_DIR / "01_raw" / "pdfs"
+
 EXTRACTED_DIR = DATA_DIR / "02_extracted"
 EXTRACTED_JSON_DIR = EXTRACTED_DIR / "json_raw"
 EXTRACTION_LOG_DIR = EXTRACTED_DIR / "logs"
@@ -21,16 +23,20 @@ TRANSFORMED_BASE_DIR = TRANSFORMED_DIR / "tabelas_base"
 TRANSFORMED_NORMALIZED_DIR = TRANSFORMED_DIR / "tabelas_normalizadas"
 TRANSFORMED_PENDING_DIR = TRANSFORMED_DIR / "pendencias"
 TRANSFORMED_UNIQUE_DIR = TRANSFORMED_DIR / "valores_unicos_para_normalizacao"
+
 AI_NORMALIZATION_DIR = TRANSFORMED_DIR / "normalizacao_ia"
 AI_DICTIONARY_DIR = AI_NORMALIZATION_DIR / "dicionarios_normalizacao"
 AI_DICTIONARY_REVIEW_DIR = AI_NORMALIZATION_DIR / "revisao_manual"
 AI_APPLIED_DIR = AI_NORMALIZATION_DIR / "bases_normalizadas"
+
+ENRICHMENT_DIR = TRANSFORMED_DIR / "enrichment_ai"
 
 BI_READY_DIR = DATA_DIR / "04_bi_ready"
 BI_DIM_DIR = BI_READY_DIR / "dimensoes"
 BI_FACT_DIR = BI_READY_DIR / "fatos"
 BI_BRIDGE_DIR = BI_READY_DIR / "pontes"
 BI_DICT_DIR = BI_READY_DIR / "dicionario_dados"
+
 
 DEFAULT_TAXONOMIA_METODOS = [
     "Extrapolação de Tendências",
@@ -49,11 +55,13 @@ DEFAULT_DOCUMENT_TYPES = {
     "strategy": "Estratégia",
     "relatorio": "Relatório",
     "report": "Relatório",
+    "spotlight report": "Relatório",
     "estudo": "Estudo",
     "diagnostico": "Diagnóstico",
     "diagnóstico": "Diagnóstico",
     "agenda": "Agenda",
     "guia": "Guia",
+    "livro": "Livro",
     "policy brief": "Policy Brief",
 }
 
@@ -70,6 +78,36 @@ DEFAULT_TERRITORIAL_SCOPE = {
     "internacional": "Global",
 }
 
+DEFAULT_SECTOR_MAP = {
+    "sociedade civil": "Sociedade Civil",
+    "civil society": "Sociedade Civil",
+    "terceiro setor": "Terceiro Setor",
+    "third sector": "Terceiro Setor",
+    "saude": "Saúde",
+    "saúde": "Saúde",
+    "health": "Saúde",
+    "educacao": "Educação",
+    "educação": "Educação",
+    "education": "Educação",
+    "energia": "Energia",
+    "energy": "Energia",
+    "transporte": "Transporte",
+    "transport": "Transporte",
+    "clima": "Clima",
+    "climate": "Clima",
+    "economia": "Economia",
+    "economic": "Economia",
+    "seguranca": "Segurança",
+    "segurança": "Segurança",
+    "security": "Segurança",
+    "infraestrutura": "Infraestrutura",
+    "infrastructure": "Infraestrutura",
+    "meio ambiente": "Meio Ambiente",
+    "ambiental": "Meio Ambiente",
+    "environment": "Meio Ambiente",
+    "agricultura": "Agricultura",
+    "agriculture": "Agricultura",
+}
 
 DEFAULT_INSTITUTION_MAP = {
     "gtsc a2030": "GTSC A2030",
@@ -122,36 +160,7 @@ DEFAULT_METHOD_MAP = {
     "avaliacao": "Monitoramento e avaliação",
     "avaliação": "Monitoramento e avaliação",
 }
-DEFAULT_SECTOR_MAP = {
-    "sociedade civil": "Sociedade Civil",
-    "civil society": "Sociedade Civil",
-    "terceiro setor": "Terceiro Setor",
-    "third sector": "Terceiro Setor",
-    "saude": "Saúde",
-    "saúde": "Saúde",
-    "health": "Saúde",
-    "educacao": "Educação",
-    "educação": "Educação",
-    "education": "Educação",
-    "energia": "Energia",
-    "energy": "Energia",
-    "transporte": "Transporte",
-    "transport": "Transporte",
-    "clima": "Clima",
-    "climate": "Clima",
-    "economia": "Economia",
-    "economic": "Economia",
-    "seguranca": "Segurança",
-    "segurança": "Segurança",
-    "security": "Segurança",
-    "infraestrutura": "Infraestrutura",
-    "infrastructure": "Infraestrutura",
-    "meio ambiente": "Meio Ambiente",
-    "ambiental": "Meio Ambiente",
-    "environment": "Meio Ambiente",
-    "agricultura": "Agricultura",
-    "agriculture": "Agricultura",
-}
+
 
 @dataclass(slots=True)
 class Settings:
@@ -164,6 +173,9 @@ class Settings:
     max_chars_per_chunk: int = field(default_factory=lambda: int(os.getenv("MAX_CHARS_PER_CHUNK", "120000")))
     chunk_overlap: int = field(default_factory=lambda: int(os.getenv("CHUNK_OVERLAP", "5000")))
     pause_between_calls: float = field(default_factory=lambda: float(os.getenv("PAUSE_BETWEEN_CALLS", "1.2")))
+    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "80")))
+    ai_apply_min_confidence: str = field(default_factory=lambda: os.getenv("AI_APPLY_MIN_CONFIDENCE", "alta"))
+
     taxonomia_metodos: list[str] = field(default_factory=lambda: DEFAULT_TAXONOMIA_METODOS.copy())
     document_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_DOCUMENT_TYPES.copy())
     territorial_scope_map: dict[str, str] = field(default_factory=lambda: DEFAULT_TERRITORIAL_SCOPE.copy())
@@ -172,8 +184,6 @@ class Settings:
     future_study_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_FUTURE_STUDY_TYPE_MAP.copy())
     theme_map: dict[str, str] = field(default_factory=lambda: DEFAULT_THEME_MAP.copy())
     method_map: dict[str, str] = field(default_factory=lambda: DEFAULT_METHOD_MAP.copy())
-    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "80")))
-    ai_apply_min_confidence: str = field(default_factory=lambda: os.getenv("AI_APPLY_MIN_CONFIDENCE", "alta"))
 
     @property
     def raw_pdf_dir(self) -> Path:
@@ -224,6 +234,10 @@ class Settings:
         return AI_APPLIED_DIR
 
     @property
+    def enrichment_dir(self) -> Path:
+        return ENRICHMENT_DIR
+
+    @property
     def bi_dim_dir(self) -> Path:
         return BI_DIM_DIR
 
@@ -238,6 +252,7 @@ class Settings:
     @property
     def bi_dict_dir(self) -> Path:
         return BI_DICT_DIR
+
 
 def get_settings() -> Settings:
     return Settings()

@@ -1,50 +1,29 @@
 ﻿tema_original,tema_normalizado,arquivo_origem,id_documento_logico
-Agenda 2030,Agenda 2030,001.pdf,doc_5ba60d8ea1c8ec6a
-Objetivos de Desenvolvimento Sustentável (ODS),Objetivos de Desenvolvimento Sustentável (ODS),001.pdf,doc_5ba60d8ea1c8ec6a
-COVID-19,COVID-19,001.pdf,doc_5ba60d8ea1c8ec6a
-Pobreza,Pobreza,001.pdf,doc_5ba60d8ea1c8ec6a
-Fome,Fome,001.pdf,doc_5ba60d8ea1c8ec6a
-Segurança alimentar,Segurança alimentar,001.pdf,doc_5ba60d8ea1c8ec6a
-Nutrição,Nutrição,001.pdf,doc_5ba60d8ea1c8ec6a
-Agricultura sustentável,Agricultura sustentável,001.pdf,doc_5ba60d8ea1c8ec6a
-Saúde,Saúde,001.pdf,doc_5ba60d8ea1c8ec6a
-Bem-estar,Bem-estar,001.pdf,doc_5ba60d8ea1c8ec6a
-Educação,Educação,001.pdf,doc_5ba60d8ea1c8ec6a
-Igualdade de gênero,Igualdade de gênero,001.pdf,doc_5ba60d8ea1c8ec6a
-Água potável,Água potável,001.pdf,doc_5ba60d8ea1c8ec6a
-Saneamento,Saneamento,001.pdf,doc_5ba60d8ea1c8ec6a
-Energia sustentável,Energia sustentável,001.pdf,doc_5ba60d8ea1c8ec6a
-Crescimento econômico,Crescimento econômico,001.pdf,doc_5ba60d8ea1c8ec6a
-Emprego,Emprego,001.pdf,doc_5ba60d8ea1c8ec6a
-Infraestrutura resiliente,Infraestrutura resiliente,001.pdf,doc_5ba60d8ea1c8ec6a
-Industrialização sustentável,Industrialização sustentável,001.pdf,doc_5ba60d8ea1c8ec6a
-Inovação,Inovação,001.pdf,doc_5ba60d8ea1c8ec6a
-Redução das desigualdades,Redução das desigualdades,001.pdf,doc_5ba60d8ea1c8ec6a
-Cidades e comunidades sustentáveis,Cidades e comunidades sustentáveis,001.pdf,doc_5ba60d8ea1c8ec6a
-Padrões de produção e consumo sustentáveis,Padrões de produção e consumo sustentáveis,001.pdf,doc_5ba60d8ea1c8ec6a
-Mudanças climáticas,Mudanças climáticas,001.pdf,doc_5ba60d8ea1c8ec6a
-Oceanos,Oceanos,001.pdf,doc_5ba60d8ea1c8ec6a
-Mares,Mares,001.pdf,doc_5ba60d8ea1c8ec6a
-Recursos marinhos,Recursos marinhos,001.pdf,doc_5ba60d8ea1c8ec6a
-Ecossistemas terrestres,Ecossistemas terrestres,001.pdf,doc_5ba60d8ea1c8ec6a
-Gestão florestal sustentável,Gestão florestal sustentável,001.pdf,doc_5ba60d8ea1c8ec6a
-Combate à desertificação,Combate à desertificação,001.pdf,doc_5ba60d8ea1c8ec6a
-Degradação do solo,Degradação do solo,001.pdf,doc_5ba60d8ea1c8ec6a
-Perda de biodiversidade,Perda de biodiversidade,001.pdf,doc_5ba60d8ea1c8ec6a
-Sociedades pacíficas e inclusivas,Sociedades pacíficas e inclusivas,001.pdf,doc_5ba60d8ea1c8ec6a
-Acesso à justiça,Acesso à justiça,001.pdf,doc_5ba60d8ea1c8ec6a
-"Instituições eficazes, responsáveis e inclusivas","Instituições eficazes, responsáveis e inclusivas",001.pdf,doc_5ba60d8ea1c8ec6a
-Meios de implementação,Meios de implementação,001.pdf,doc_5ba60d8ea1c8ec6a
-Parceria global para o desenvolvimento sustentável,Parceria global para o desenvolvimento sustentável,001.pdf,doc_5ba60d8ea1c8ec6a
-Políticas públicas,Políticas públicas,001.pdf,doc_5ba60d8ea1c8ec6a
-Governança,Governança,001.pdf,doc_5ba60d8ea1c8ec6a
-Participação da sociedade civil,Sociedade Civil,001.pdf,doc_5ba60d8ea1c8ec6a
-Direitos Humanos,Direitos Humanos,001.pdf,doc_5ba60d8ea1c8ec6a
-Questões ambientais,Questões ambientais,001.pdf,doc_5ba60d8ea1c8ec6a
-Proteção social,Proteção social,001.pdf,doc_5ba60d8ea1c8ec6a
-Questões econômicas,Questões econômicas,001.pdf,doc_5ba60d8ea1c8ec6a
-Crise política,Crise política,001.pdf,doc_5ba60d8ea1c8ec6a
-Desigualdades,Desigualdades,001.pdf,doc_5ba60d8ea1c8ec6a
+Agenda 2030,Agenda 2030,001.pdf,doc_05f886b2ca373f65
+Objetivos de Desenvolvimento Sustentável (ODS),Objetivos de Desenvolvimento Sustentável (ODS),001.pdf,doc_05f886b2ca373f65
+ODS 1: Erradicação da Pobreza,ODS 1: Erradicação da Pobreza,001.pdf,doc_05f886b2ca373f65
+ODS 2: Fome Zero e Agricultura Sustentável,ODS 2: Fome Zero e Agricultura Sustentável,001.pdf,doc_05f886b2ca373f65
+ODS 3: Saúde e Bem-Estar,ODS 3: Saúde e Bem-Estar,001.pdf,doc_05f886b2ca373f65
+ODS 4: Educação de Qualidade,ODS 4: Educação de Qualidade,001.pdf,doc_05f886b2ca373f65
+ODS 5: Igualdade de Gênero,ODS 5: Igualdade de Gênero,001.pdf,doc_05f886b2ca373f65
+ODS 6: Água Potável e Saneamento,ODS 6: Água Potável e Saneamento,001.pdf,doc_05f886b2ca373f65
+ODS 7: Energia Limpa e Acessível,ODS 7: Energia Limpa e Acessível,001.pdf,doc_05f886b2ca373f65
+ODS 8: Trabalho Decente e Crescimento Econômico,ODS 8: Trabalho Decente e Crescimento Econômico,001.pdf,doc_05f886b2ca373f65
+"ODS 9: Indústria, Inovação e Infraestrutura","ODS 9: Indústria, Inovação e Infraestrutura",001.pdf,doc_05f886b2ca373f65
+ODS 10: Redução das Desigualdades,ODS 10: Redução das Desigualdades,001.pdf,doc_05f886b2ca373f65
+ODS 11: Cidades e Comunidades Sustentáveis,ODS 11: Cidades e Comunidades Sustentáveis,001.pdf,doc_05f886b2ca373f65
+ODS 12: Consumo e Produção Responsáveis,ODS 12: Consumo e Produção Responsáveis,001.pdf,doc_05f886b2ca373f65
+ODS 13: Ação Contra a Mudança Global do Clima,ODS 13: Ação Contra a Mudança Global do Clima,001.pdf,doc_05f886b2ca373f65
+ODS 14: Vida na Água,ODS 14: Vida na Água,001.pdf,doc_05f886b2ca373f65
+ODS 15: Vida Terrestre,ODS 15: Vida Terrestre,001.pdf,doc_05f886b2ca373f65
+"ODS 16: Paz, Justiça e Instituições Eficazes","ODS 16: Paz, Justiça e Instituições Eficazes",001.pdf,doc_05f886b2ca373f65
+ODS 17: Parcerias e Meios de Implementação,ODS 17: Parcerias e Meios de Implementação,001.pdf,doc_05f886b2ca373f65
+COVID-19,COVID-19,001.pdf,doc_05f886b2ca373f65
+Pandemia,Pandemia,001.pdf,doc_05f886b2ca373f65
+Desigualdade,Desigualdade,001.pdf,doc_05f886b2ca373f65
+Crise política,Crise política,001.pdf,doc_05f886b2ca373f65
+Crise econômica,Crise econômica,001.pdf,doc_05f886b2ca373f65
+Crise ambiental,Crise ambiental,001.pdf,doc_05f886b2ca373f65
 Voluntariado,Voluntariado,002.pdf,doc_1ef6f7fd04bfc171
 Sustentabilidade,Sustentabilidade,002.pdf,doc_1ef6f7fd04bfc171
 Terceiro Setor,Terceiro Setor,002.pdf,doc_1ef6f7fd04bfc171
@@ -52,98 +31,3 @@ Terceiro Setor,Terceiro Setor,002.pdf,doc_1ef6f7fd04bfc171
 Liderança,Liderança,002.pdf,doc_1ef6f7fd04bfc171
 Cidades Inteligentes,Cidades Inteligentes,002.pdf,doc_1ef6f7fd04bfc171
 I.A. Virturealidade,IA e Virtualidade,002.pdf,doc_1ef6f7fd04bfc171
-Têxteis técnicos,Têxteis técnicos,003.pdf,doc_49e12d5670dda940
-Não tecidos,Não tecidos,003.pdf,doc_49e12d5670dda940
-Crescimento econômico,Crescimento econômico,003.pdf,doc_49e12d5670dda940
-Sustentabilidade,Sustentabilidade,003.pdf,doc_49e12d5670dda940
-Diversificação econômica,Diversificação econômica,003.pdf,doc_49e12d5670dda940
-Criação de empregos,Criação de empregos,003.pdf,doc_49e12d5670dda940
-Desenvolvimento de habilidades,Desenvolvimento de habilidades,003.pdf,doc_49e12d5670dda940
-Inovação,Inovação,003.pdf,doc_49e12d5670dda940
-Avanço tecnológico,Avanço tecnológico,003.pdf,doc_49e12d5670dda940
-Competitividade global,Competitividade global,003.pdf,doc_49e12d5670dda940
-Mercado de têxteis técnicos,Mercado de têxteis técnicos,003.pdf,doc_49e12d5670dda940
-Mercado de não tecidos,Mercado de não tecidos,003.pdf,doc_49e12d5670dda940
-Agrotech,Agrotech,003.pdf,doc_49e12d5670dda940
-Meditech,Meditech,003.pdf,doc_49e12d5670dda940
-Buildtech,Buildtech,003.pdf,doc_49e12d5670dda940
-Mobiltech,Mobiltech,003.pdf,doc_49e12d5670dda940
-Clothtech,Clothtech,003.pdf,doc_49e12d5670dda940
-Oekotech,Oekotech,003.pdf,doc_49e12d5670dda940
-Packtech,Packtech,003.pdf,doc_49e12d5670dda940
-Geotech,Geotech,003.pdf,doc_49e12d5670dda940
-Protech,Protech,003.pdf,doc_49e12d5670dda940
-Hometech,Hometech,003.pdf,doc_49e12d5670dda940
-Sporttech,Sporttech,003.pdf,doc_49e12d5670dda940
-Indutech,Indutech,003.pdf,doc_49e12d5670dda940
-Fibras sintéticas,Fibras sintéticas,003.pdf,doc_49e12d5670dda940
-Fibras naturais,Fibras naturais,003.pdf,doc_49e12d5670dda940
-Fibras celulósicas,Fibras celulósicas,003.pdf,doc_49e12d5670dda940
-P&D,P&D,003.pdf,doc_49e12d5670dda940
-Treinamento,Treinamento,003.pdf,doc_49e12d5670dda940
-Pesquisa,Pesquisa,003.pdf,doc_49e12d5670dda940
-Políticas públicas,Políticas públicas,003.pdf,doc_49e12d5670dda940
-Incentivos fiscais,Incentivos fiscais,003.pdf,doc_49e12d5670dda940
-Padrões técnicos,Padrões técnicos,003.pdf,doc_49e12d5670dda940
-Reciclagem,Reciclagem,003.pdf,doc_49e12d5670dda940
-Biodegradabilidade,Biodegradabilidade,003.pdf,doc_49e12d5670dda940
-Objetivos de Desenvolvimento Sustentável,Objetivos de Desenvolvimento Sustentável,004.pdf,doc_196accfdd54b1443
-Agenda 2030,Agenda 2030,004.pdf,doc_196accfdd54b1443
-Desenvolvimento Sustentável,Desenvolvimento Sustentável,004.pdf,doc_196accfdd54b1443
-Indicadores,Indicadores,004.pdf,doc_196accfdd54b1443
-Acompanhamento,Acompanhamento,004.pdf,doc_196accfdd54b1443
-Pobreza,Pobreza,004.pdf,doc_196accfdd54b1443
-Fome,Fome,004.pdf,doc_196accfdd54b1443
-Segurança Alimentar,Segurança Alimentar,004.pdf,doc_196accfdd54b1443
-Nutrição,Nutrição,004.pdf,doc_196accfdd54b1443
-Agricultura Sustentável,Agricultura Sustentável,004.pdf,doc_196accfdd54b1443
-Saúde,Saúde,004.pdf,doc_196accfdd54b1443
-Bem-estar,Bem-estar,004.pdf,doc_196accfdd54b1443
-Educação,Educação,004.pdf,doc_196accfdd54b1443
-Igualdade de Gênero,Igualdade de Gênero,004.pdf,doc_196accfdd54b1443
-Empoderamento Feminino,Empoderamento Feminino,004.pdf,doc_196accfdd54b1443
-Água,Água,004.pdf,doc_196accfdd54b1443
-Saneamento,Saneamento,004.pdf,doc_196accfdd54b1443
-Energia,Energia,004.pdf,doc_196accfdd54b1443
-Crescimento Econômico,Crescimento Econômico,004.pdf,doc_196accfdd54b1443
-Emprego,Emprego,004.pdf,doc_196accfdd54b1443
-Trabalho Decente,Trabalho Decente,004.pdf,doc_196accfdd54b1443
-Infraestrutura,Infraestrutura,004.pdf,doc_196accfdd54b1443
-Industrialização,Industrialização,004.pdf,doc_196accfdd54b1443
-Inovação,Inovação,004.pdf,doc_196accfdd54b1443
-Desigualdade,Desigualdade,004.pdf,doc_196accfdd54b1443
-Cidades Sustentáveis,Cidades Sustentáveis,004.pdf,doc_196accfdd54b1443
-Assentamentos Humanos,Assentamentos Humanos,004.pdf,doc_196accfdd54b1443
-Produção e Consumo Sustentáveis,Produção e Consumo Sustentáveis,004.pdf,doc_196accfdd54b1443
-Mudanças Climáticas,Mudanças Climáticas,004.pdf,doc_196accfdd54b1443
-Oceanos,Oceanos,004.pdf,doc_196accfdd54b1443
-Mares,Mares,004.pdf,doc_196accfdd54b1443
-Recursos Marinhos,Recursos Marinhos,004.pdf,doc_196accfdd54b1443
-Ecossistemas Terrestres,Ecossistemas Terrestres,004.pdf,doc_196accfdd54b1443
-Florestas,Florestas,004.pdf,doc_196accfdd54b1443
-Desertificação,Desertificação,004.pdf,doc_196accfdd54b1443
-Degradação da Terra,Degradação da Terra,004.pdf,doc_196accfdd54b1443
-Biodiversidade,Biodiversidade,004.pdf,doc_196accfdd54b1443
-Paz,Paz,004.pdf,doc_196accfdd54b1443
-Justiça,Justiça,004.pdf,doc_196accfdd54b1443
-Instituições Eficazes,Instituições Eficazes,004.pdf,doc_196accfdd54b1443
-Desenvolvimento socioeconômico sustentável,Desenvolvimento socioeconômico sustentável,005.pdf,doc_680553d1554ac1c8
-Economia forte,Economia forte,005.pdf,doc_680553d1554ac1c8
-Ganhos sociais,Ganhos sociais,005.pdf,doc_680553d1554ac1c8
-Preservação do meio ambiente,Preservação do meio ambiente,005.pdf,doc_680553d1554ac1c8
-Segurança,Segurança,005.pdf,doc_680553d1554ac1c8
-Saúde,Saúde,005.pdf,doc_680553d1554ac1c8
-Educação,Educação,005.pdf,doc_680553d1554ac1c8
-Desigualdade social,Desigualdade social,005.pdf,doc_680553d1554ac1c8
-Geração de emprego e renda,Geração de emprego e renda,005.pdf,doc_680553d1554ac1c8
-Objetivos de Desenvolvimento Sustentável (ODS),Objetivos de Desenvolvimento Sustentável (ODS),005.pdf,doc_680553d1554ac1c8
-Governança colaborativa,Governança colaborativa,005.pdf,doc_680553d1554ac1c8
-Reinvenção das cadeias produtivas,Reinvenção das cadeias produtivas,005.pdf,doc_680553d1554ac1c8
-Infraestrutura,Infraestrutura,005.pdf,doc_680553d1554ac1c8
-Cultura e turismo,Cultura e turismo,005.pdf,doc_680553d1554ac1c8
-Capital humano,Capital humano,005.pdf,doc_680553d1554ac1c8
-Ambiente de negócios e inovação,Ambiente de negócios e inovação,005.pdf,doc_680553d1554ac1c8
-Serviços públicos,Serviços públicos,005.pdf,doc_680553d1554ac1c8
-Políticas públicas de direitos humanos,Políticas públicas de direitos humanos,005.pdf,doc_680553d1554ac1c8
-Políticas públicas de mulheres,Políticas públicas de mulheres,005.pdf,doc_680553d1554ac1c8
-Proteção social,Proteção social,005.pdf,doc_680553d1554ac1c8

@@ -1,116 +1,33 @@
-﻿id_tema,tema,macrotema,subtema
-tem_e4ba0f638aa585c7,Agenda 2030,Agenda 2030 e ODS,ODS / Agenda 2030
-tem_dcaa4c2bfdf8d65e,Objetivos de Desenvolvimento Sustentável,Outros / Não Classificado,Outros
-tem_f88f6fb8a6bb10bd,COVID-19,Outros / Não Classificado,Saúde
-tem_d401b351175a4fde,Pobreza,Desenvolvimento Social,Pobreza e Desigualdade
-tem_7e11c844d111c007,Fome,Desenvolvimento Social,Pobreza e Desigualdade
-tem_021fb0b47bc30e1a,Segurança Alimentar,Outros / Não Classificado,Outros
-tem_a4c5a40eadcb0cb2,Nutrição,Outros / Não Classificado,Outros
-tem_1b042041e6ca8569,Agricultura Sustentável,Outros / Não Classificado,Outros
-tem_122220c4c3bc1c2e,Saúde,Desenvolvimento Social,Saúde
-tem_a5f4a9e89b76fed3,Bem-estar,Outros / Não Classificado,Outros
-tem_c2e049285953c729,Educação,Desenvolvimento Social,Educação
-tem_94d8a664528956ee,Igualdade de Gênero,Desenvolvimento Social,Gênero e Diversidade
-tem_c1c415c6ae2d8422,Água Potável,Outros / Não Classificado,Outros
-tem_faf9e30ddfc06138,Saneamento,Outros / Não Classificado,Outros
-tem_abb874b28741560e,Energia Sustentável,Meio Ambiente e Clima,Energia
-tem_0b150ead6f54103d,Crescimento Econômico,Economia e Trabalho,Outros
-tem_35c6aeffc54f5b16,Emprego,Economia e Trabalho,Outros
-tem_549569e6184b588b,Infraestrutura Resiliente,Outros / Não Classificado,Outros
-tem_8aad09c59b7ab8c6,Industrialização Sustentável,Economia e Trabalho,Tecnologia
-tem_7adee233cff65220,Inovação,"Ciência, Tecnologia e Inovação",Outros
-tem_c8cb801feed4b07c,Redução das Desigualdades,Desenvolvimento Social,Pobreza e Desigualdade
-tem_53e8821e219d7a96,Cidades e Comunidades Sustentáveis,Outros / Não Classificado,Outros
-tem_3f882403bf57c21d,Padrões de Produção e Consumo Sustentáveis,Outros / Não Classificado,Outros
-tem_57706fc7e7955ae0,Mudanças Climáticas,Meio Ambiente e Clima,Clima
-tem_3bac39de03f25c89,Oceanos,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_a162eeb4db5f57bf,Mares,Outros / Não Classificado,Outros
-tem_b7279aa989136c48,Recursos Marinhos,Outros / Não Classificado,Outros
-tem_f5a4e974cae39bb6,Ecossistemas Terrestres,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_063fa89e1275f192,Gestão Florestal Sustentável,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_0dbba7bb1b02861e,Combate à Desertificação,Outros / Não Classificado,Outros
-tem_fb0d745a72655fbf,Degradação do Solo,Outros / Não Classificado,Outros
-tem_c75d8e97a8d36040,Perda de Biodiversidade,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_0c525ac3be6d28e5,Sociedades Pacíficas e Inclusivas,Outros / Não Classificado,Outros
-tem_04bf4b2cd2c01926,Acesso à Justiça,Governança e Instituições,Outros
-tem_bc5de9439a63f7ab,"Instituições Eficazes, Responsáveis e Inclusivas",Governança e Instituições,Governança
-tem_fc25de61862576d9,Meios de implementação,Outros / Não Classificado,Outros
-tem_03dd0849c41a3c6a,Parceria Global para o Desenvolvimento Sustentável,"Ciência, Tecnologia e Inovação",Tecnologia
-tem_5d28ed5eda9c9b01,Políticas Públicas,Outros / Não Classificado,Outros
-tem_1c76fa693581eae3,Governança,Governança e Instituições,Governança
-tem_dd8f84d67cd779d7,Sociedade Civil,Outros / Não Classificado,Outros
-tem_118b11e8e454ba9d,Direitos Humanos,Desenvolvimento Social,Outros
-tem_1c0188bbf3f56c2b,Questões Ambientais,Meio Ambiente e Clima,Outros
-tem_49ebe9e6bf7fc787,Proteção Social,"Ciência, Tecnologia e Inovação",Tecnologia
-tem_acdd876a41328654,Questões Econômicas,Economia e Trabalho,Outros
-tem_debf50d01c0f779d,Crise Política,Outros / Não Classificado,Outros
-tem_46fdf01c8095141c,Desigualdades,Desenvolvimento Social,Pobreza e Desigualdade
-tem_dab0853d2a3f3727,Voluntariado,Desenvolvimento Social,Tecnologia
-tem_b3b6ba077f98d43e,Sustentabilidade,Meio Ambiente e Clima,Outros
-tem_2c7450e1cb22f246,Terceiro Setor,Outros / Não Classificado,Outros
-tem_20b1e35e14755ca6,Ética,Outros / Não Classificado,Outros
-tem_2875faf65bd233c5,Liderança,Outros / Não Classificado,Outros
-tem_54067cfcce9e0e2f,Cidades Inteligentes,"Ciência, Tecnologia e Inovação",Outros
-tem_b112ea880595ae1b,IA e Virtualidade,"Ciência, Tecnologia e Inovação",Tecnologia
-tem_de06ca0bf31035fc,Têxteis Técnicos,Outros / Não Classificado,Outros
-tem_de6d78686c54a012,Não Tecidos,Outros / Não Classificado,Outros
-tem_7c1e7163e0710c06,Diversificação Econômica,Economia e Trabalho,Outros
-tem_ee8f5af3b2b6c5d9,Criação de Empregos,Economia e Trabalho,Tecnologia
-tem_9b35e145e72ccd19,Desenvolvimento de Habilidades,Outros / Não Classificado,Outros
-tem_8fc5abbffeecfebe,Avanço Tecnológico,"Ciência, Tecnologia e Inovação",Tecnologia
-tem_8204e9f449cf6c26,Competitividade Global,Outros / Não Classificado,Outros
-tem_44287c4660252182,Mercado de Têxteis Técnicos,Economia e Trabalho,Outros
-tem_1d3d4206f448b4a8,Mercado de Não Tecidos,Economia e Trabalho,Outros
-tem_55152dc2bf8f9f6b,Agrotech,Outros / Não Classificado,Outros
-tem_2cfe92d5d465f55c,Meditech,Outros / Não Classificado,Outros
-tem_4a5ea55a1a07b1d3,Buildtech,Outros / Não Classificado,Outros
-tem_6e478ef75a2163de,Mobiltech,Outros / Não Classificado,Outros
-tem_568bf1227dccf422,Clothtech,Outros / Não Classificado,Outros
-tem_b52927c159947345,Oekotech,Outros / Não Classificado,Outros
-tem_84c7d51e929f2253,Packtech,Outros / Não Classificado,Outros
-tem_1ac92a1c4ea53bb5,Geotech,Outros / Não Classificado,Outros
-tem_f022b573e1353ff6,Protech,Outros / Não Classificado,Outros
-tem_f7eb0ce05e528a18,Hometech,Outros / Não Classificado,Outros
-tem_0a750e1337962618,Sporttech,Outros / Não Classificado,Outros
-tem_e13185afbcffcb47,Indutech,Outros / Não Classificado,Outros
-tem_2325e58f489011e3,Fibras Sintéticas,Outros / Não Classificado,Outros
-tem_075cae4c3d6c48bf,Fibras Naturais,Outros / Não Classificado,Outros
-tem_85f2fe1173c90345,Fibras Celulósicas,Outros / Não Classificado,Outros
-tem_5494cae6a556e6c3,Pesquisa e Desenvolvimento,Outros / Não Classificado,Outros
-tem_3b05ce942d9ec7f0,Treinamento,Outros / Não Classificado,Outros
-tem_255c9126c6d65540,Pesquisa,Outros / Não Classificado,Outros
-tem_9f0575519ed8f8a6,Incentivo Fiscal,Outros / Não Classificado,Outros
-tem_ca4b943af9b9cd25,Padrão Técnico,Outros / Não Classificado,Outros
-tem_0b88497c981de3cd,Reciclagem,Outros / Não Classificado,Outros
-tem_dcee808ab36c10c4,Biodegradabilidade,Outros / Não Classificado,Outros
-tem_e7db77c9168af2e9,Desenvolvimento Sustentável,Outros / Não Classificado,Outros
-tem_e482222c1fe102a4,Indicadores,Outros / Não Classificado,Outros
-tem_b36bd186260af00f,Acompanhamento,Outros / Não Classificado,Outros
-tem_93fbcbfa77d8114a,Empoderamento Feminino,Outros / Não Classificado,Outros
-tem_576a03c1ac0a93f8,Água,Outros / Não Classificado,Outros
-tem_5d3bdc402f593b14,Energia,Meio Ambiente e Clima,Energia
-tem_1f50427ebebff25d,Trabalho Decente,Economia e Trabalho,Outros
-tem_fce1428758de2825,Infraestrutura,Outros / Não Classificado,Outros
-tem_2ffcd2fd51e9ebdf,Industrialização,Economia e Trabalho,Tecnologia
-tem_7fef625dc34d1f3f,Desigualdade,Desenvolvimento Social,Pobreza e Desigualdade
-tem_f8996557e9c1b4fe,Cidades Sustentáveis,Outros / Não Classificado,Outros
-tem_b1307d96d3b3b25d,Assentamentos Humanos,Outros / Não Classificado,Outros
-tem_fd7317fa3a1cd732,Produção e Consumo Sustentáveis,Outros / Não Classificado,Outros
-tem_5cdb9a846e49698f,Florestas,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_c0e2b03911e90b07,Desertificação,Outros / Não Classificado,Outros
-tem_d690edae857f16e5,Degradação da Terra,Outros / Não Classificado,Outros
-tem_08bd2663bcccd1a1,Biodiversidade,Meio Ambiente e Clima,Biodiversidade e Ecossistemas
-tem_c8ea7fcb79ca4642,Paz,Governança e Instituições,Outros
-tem_ac5c5f516e052ec1,Justiça,Governança e Instituições,Outros
-tem_bc50bd199faef889,Instituições Eficazes,Governança e Instituições,Governança
-tem_81ffb81aac368c43,Economia,Economia e Trabalho,Tecnologia
-tem_6602848131e264ae,Ganhos Sociais,"Ciência, Tecnologia e Inovação",Tecnologia
-tem_e36e915861eb40a0,Meio Ambiente,Meio Ambiente e Clima,Outros
-tem_970afc70800c0735,Segurança,Outros / Não Classificado,Outros
-tem_85e64f52d15a39e3,Emprego e Renda,Economia e Trabalho,Outros
-tem_37ffc7e71b49678c,Governança Colaborativa,Governança e Instituições,Governança
-tem_4ad0591165649006,Cadeias Produtivas,Economia e Trabalho,Tecnologia
-tem_83ce936cd10688cb,Cultura e Turismo,Outros / Não Classificado,Outros
-tem_5325be8491481046,Capital Humano,Economia e Trabalho,Outros
-tem_0d3bbfc4818fdbb4,Ambiente de Negócios e Inovação,Meio Ambiente e Clima,Outros
-tem_17efdb99eec78f55,Serviços Públicos,Outros / Não Classificado,Outros
+﻿sk_tema,id_tema_hash,tema,macrotema,subtema
+1,tem_039105641ea3aca2,ODS 8: Trabalho Decente e Crescimento Econômico,Economia e Trabalho,ODS / Agenda 2030
+2,tem_20b1e35e14755ca6,Ética,Outros / Não Classificado,Outros
+3,tem_2875faf65bd233c5,Liderança,Outros / Não Classificado,Outros
+4,tem_2c7450e1cb22f246,Terceiro Setor,Outros / Não Classificado,Outros
+5,tem_3168f8a166a1dda6,Inteligência Artificial e Virtualidade,"Ciência, Tecnologia e Inovação",Tecnologia
+6,tem_3451d0740180cf35,ODS 5: Igualdade de Gênero,Desenvolvimento Social,Gênero e Diversidade
+7,tem_54067cfcce9e0e2f,Cidades Inteligentes,"Ciência, Tecnologia e Inovação",Outros
+8,tem_56ae1c2890c04d23,Crise Econômica,Economia e Trabalho,Outros
+9,tem_618cd3187a43dda2,ODS 17: Parcerias e Meios de Implementação,"Ciência, Tecnologia e Inovação",Tecnologia
+10,tem_65464361ba78db80,"ODS 16: Paz, Justiça e Instituições Eficazes",Governança e Instituições,Governança
+11,tem_674d5dcdf3c686f5,ODS 7: Energia Limpa e Acessível,Meio Ambiente e Clima,Energia
+12,tem_69b6a34ff4e097c1,ODS 14: Vida na Água,Agenda 2030 e ODS,ODS / Agenda 2030
+13,tem_6fa800b771236bd6,ODS 13: Ação Contra a Mudança Global do Clima,Meio Ambiente e Clima,Clima
+14,tem_7fef625dc34d1f3f,Desigualdade,Desenvolvimento Social,Pobreza e Desigualdade
+15,tem_8332db0154ca2a1e,Pandemia,"Ciência, Tecnologia e Inovação",Tecnologia
+16,tem_8a0dc62b268d4a4e,ODS 1: Erradicação da Pobreza,Desenvolvimento Social,Pobreza e Desigualdade
+17,tem_8ddab356d31a0131,ODS 10: Redução das Desigualdades,Desenvolvimento Social,Pobreza e Desigualdade
+18,tem_901f78ef43224254,Crise Ambiental,Meio Ambiente e Clima,Outros
+19,tem_aac559440fac4854,ODS 6: Água Potável e Saneamento,Agenda 2030 e ODS,ODS / Agenda 2030
+20,tem_abbc4071f0614752,"ODS 9: Indústria, Inovação e Infraestrutura",Economia e Trabalho,Tecnologia
+21,tem_aec9799962cf7227,ODS 15: Vida Terrestre,Agenda 2030 e ODS,ODS / Agenda 2030
+22,tem_b3b6ba077f98d43e,Sustentabilidade,Meio Ambiente e Clima,Outros
+23,tem_d69e79433d2f8616,ODS 2: Fome Zero e Agricultura Sustentável,Desenvolvimento Social,Pobreza e Desigualdade
+24,tem_d90c32127d06e538,ODS 4: Educação de Qualidade,Desenvolvimento Social,Educação
+25,tem_dab0853d2a3f3727,Voluntariado,Desenvolvimento Social,Tecnologia
+26,tem_dcaa4c2bfdf8d65e,Objetivos de Desenvolvimento Sustentável,Outros / Não Classificado,Outros
+27,tem_debf50d01c0f779d,Crise Política,Outros / Não Classificado,Outros
+28,tem_e427e650ac0625c1,ODS 3: Saúde e Bem-Estar,Desenvolvimento Social,Saúde
+29,tem_e4ba0f638aa585c7,Agenda 2030,Agenda 2030 e ODS,ODS / Agenda 2030
+30,tem_edadbc15198df5e4,ODS 11: Cidades e Comunidades Sustentáveis,Agenda 2030 e ODS,ODS / Agenda 2030
+31,tem_f26a0348c477d1fe,ODS 12: Consumo e Produção Responsáveis,Agenda 2030 e ODS,ODS / Agenda 2030
+32,tem_f88f6fb8a6bb10bd,COVID-19,Outros / Não Classificado,Saúde

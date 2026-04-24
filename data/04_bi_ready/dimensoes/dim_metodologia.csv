@@ -1,5 +1,3 @@
-﻿id_metodologia,familia_do_metodo,natureza_metodologia,tipo_estudo_futuro,aplicou_estudo_futuro
-mdg_b237c8ebc21f461e,Cenários Prospectivos,Prospectivo,Análise Prospectiva,
-mdg_5266a869ba2e9393,Não classificado,Não Classificado,Não informado,
-mdg_553a8471404bc6a5,Cenários Prospectivos,Prospectivo,Cenários Prospectivos,True
-mdg_91f9f5e4022414dd,Extrapolação de Tendências,Não Classificado,Cenários Prospectivos,True
+﻿sk_metodologia,id_metodologia_hash,familia_do_metodo,natureza_metodologia,tipo_estudo_futuro,aplicou_estudo_futuro
+1,mdg_b0dcd1cc9ef17e56,Outros,Não Classificado,Análise de impacto e perspectivas futuras para a Agenda 2030,
+2,mdg_c182c79aa79aa5cf,Outros,Não Classificado,Não informado,True

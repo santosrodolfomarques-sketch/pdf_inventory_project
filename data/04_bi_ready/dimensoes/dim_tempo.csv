@@ -1,6 +1,3 @@
-﻿id_tempo,ano_publicacao,horizonte_temporal,extensao_tempo
-tmp_2e2ec91f972ccf97,2020,2030.0,10.0
-tmp_8164ac4f7622d9da,2024,2050.0,26.0
-tmp_d0c6e53d49bb9ed3,2024,2040.0,16.0
-tmp_3016c14db3cc0e12,2015,2030.0,15.0
-tmp_aab7fec9fc303801,2023,,
+﻿sk_tempo,id_tempo_hash,ano_publicacao,horizonte_temporal,extensao_tempo
+1,tmp_477c856c290090fa,2020,2030,10
+2,tmp_ebdf187eab8c2b99,2024,2050,26

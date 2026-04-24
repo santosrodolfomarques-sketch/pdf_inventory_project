@@ -1,3 +1,1 @@
 ﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-setor,Desenvolvimento Sustentável,desenvolvimento sustentavel,Desenvolvimento Sustentável,Tema,alta,revisar manualmente,"É um tema ou conceito transversal, não um setor econômico, social ou institucional.",False,1
-setor,Multissetorial,multissetorial,Multissetorial,Abrangência,alta,revisar manualmente,"Descreve a abrangência (múltiplos setores), não um setor específico.",False,1

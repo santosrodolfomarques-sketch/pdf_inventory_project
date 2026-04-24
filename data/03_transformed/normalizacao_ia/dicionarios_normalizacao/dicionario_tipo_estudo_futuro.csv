@@ -1,4 +1,2 @@
 ﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-tipo_estudo_futuro,Análise prospectiva,analise prospectiva,Análise Prospectiva,Abordagem Prospectiva,alta,aplicar automático,"Padronização de caixa e manutenção como abordagem geral, distinta de métodos específicos.",True,1
-tipo_estudo_futuro,Cenários,cenarios,Cenários Prospectivos,Método de Estudo de Futuro,alta,aplicar automático,Padronização para termo completo e técnico.,True,1
-tipo_estudo_futuro,Estudo de Cenários,estudo de cenarios,Cenários Prospectivos,Método de Estudo de Futuro,alta,aplicar automático,Padronização para termo comum e técnico.,True,1
+tipo_estudo_futuro,Análise de impacto e perspectivas futuras para a Agenda 2030,analise de impacto e perspectivas futuras para a agenda 2030,Análise de impacto e perspectivas futuras para a Agenda 2030,,baixa,revisar manualmente,"O valor é um título descritivo de um estudo específico, não um tipo de estudo de futuro padronizado. Requer revisão para extrair ou atribuir uma categoria de abordagem prospectiva.",False,1

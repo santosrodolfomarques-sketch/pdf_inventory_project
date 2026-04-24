@@ -6,24 +6,25 @@ from src.bi.dimensions import prepare_bi_dataframe
 from src.shared.ids import stable_hash_id
 
 
-def _merge_dimension_id(
+def _merge_dimension_sk(
     fact: pd.DataFrame,
     dim: pd.DataFrame,
     fact_col: str,
     dim_col: str,
-    dim_id_col: str,
-    output_id_col: str,
+    sk_col: str,
+    hash_col: str | None = None,
 ) -> pd.DataFrame:
-    return fact.merge(
-        dim[[dim_id_col, dim_col]].rename(columns={dim_col: fact_col, dim_id_col: output_id_col}),
-        on=fact_col,
-        how="left",
-    )
+    cols = [sk_col, dim_col]
+    if hash_col and hash_col in dim.columns:
+        cols.append(hash_col)
+    merged = fact.merge(dim[cols].rename(columns={dim_col: fact_col}), on=fact_col, how="left")
+    return merged
 
 
 def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFrame]) -> pd.DataFrame:
     df = prepare_bi_dataframe(df_raw)
 
+    dim_documento = dimensions["dim_documento"]
     dim_tempo = dimensions["dim_tempo"]
     dim_setor = dimensions["dim_setor"]
     dim_abrangencia = dimensions["dim_abrangencia"]
@@ -31,18 +32,29 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
     dim_qualidade = dimensions.get("dim_qualidade", pd.DataFrame())
 
     fact = df.merge(
+        dim_documento[["sk_documento", "id_documento_hash"]].rename(columns={"id_documento_hash": "id_documento_logico"}),
+        on="id_documento_logico",
+        how="left",
+    )
+
+    fact = fact.merge(
         dim_tempo,
         on=["ano_publicacao", "horizonte_temporal", "extensao_tempo"],
         how="left",
     )
 
-    fact = _merge_dimension_id(fact, dim_setor, "bi_setor", "setor", "id_setor", "id_dim_setor")
-    fact = _merge_dimension_id(fact, dim_abrangencia, "bi_abrangencia", "abrangencia", "id_abrangencia", "id_dim_abrangencia")
+    fact = _merge_dimension_sk(fact, dim_setor, "bi_setor", "setor", "sk_setor", "id_setor")
+    fact = _merge_dimension_sk(fact, dim_abrangencia, "bi_abrangencia", "abrangencia", "sk_abrangencia", "id_abrangencia")
 
     fact = fact.merge(
-        dim_metodologia[["id_metodologia", "familia_do_metodo", "tipo_estudo_futuro", "aplicou_estudo_futuro"]].rename(
+        dim_metodologia[[
+            "sk_metodologia",
+            "id_metodologia_hash",
+            "familia_do_metodo",
+            "tipo_estudo_futuro",
+            "aplicou_estudo_futuro",
+        ]].rename(
             columns={
-                "id_metodologia": "id_dim_metodologia",
                 "familia_do_metodo": "bi_familia_do_metodo",
                 "tipo_estudo_futuro": "bi_tipo_estudo_futuro",
             }
@@ -53,44 +65,66 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
 
     if not dim_qualidade.empty:
         fact = fact.merge(
-            dim_qualidade[["id_documento_logico", "id_qualidade", "score_qualidade", "nivel_qualidade", "flag_revisao_manual"]],
-            on="id_documento_logico",
+            dim_qualidade[[
+                "sk_documento",
+                "sk_qualidade",
+                "id_qualidade_hash",
+                "score_qualidade",
+                "nivel_qualidade",
+                "flag_revisao_manual",
+            ]],
+            on="sk_documento",
             how="left",
         )
     else:
-        fact["id_qualidade"] = None
-        fact["score_qualidade"] = None
-        fact["nivel_qualidade"] = None
-        fact["flag_revisao_manual"] = None
-
-    fact["id_fato_inventario"] = [
-        stable_hash_id(
-            "fat",
-            row.id_documento_logico,
-            row.id_tempo,
-            row.id_dim_setor,
-            row.id_dim_abrangencia,
-            row.id_dim_metodologia,
-        )
-        for row in fact.itertuples(index=False)
-    ]
+        fact["sk_qualidade"] = pd.NA
+        fact["id_qualidade_hash"] = pd.NA
+        fact["score_qualidade"] = pd.NA
+        fact["nivel_qualidade"] = pd.NA
+        fact["flag_revisao_manual"] = pd.NA
 
     fact["qtd_temas"] = fact["bi_temas"].apply(len)
     fact["qtd_metodos"] = fact["bi_metodos"].apply(len)
     fact["qtd_referencias"] = fact["referencias"].apply(len)
     fact["qtd_condicionantes"] = fact["condicionantes_estudo_futuro"].apply(len)
+    fact["qtd_instituicoes_apoio"] = fact["bi_instituicoes_apoio"].apply(len)
     fact["possui_condicionantes"] = fact["qtd_condicionantes"] > 0
     fact["possui_metodo_identificado"] = fact["qtd_metodos"] > 0
     fact["possui_horizonte_temporal"] = fact["horizonte_temporal"].notna()
+    fact["densidade_informacional"] = (
+        fact["qtd_temas"] + fact["qtd_metodos"] + fact["qtd_referencias"] + fact["qtd_condicionantes"]
+    )
+
+    fact["id_fato_inventario_hash"] = [
+        stable_hash_id(
+            "fat",
+            row.id_documento_logico,
+            row.get("id_tempo_hash") if hasattr(row, "get") else getattr(row, "id_tempo_hash", None),
+            getattr(row, "id_setor", None),
+            getattr(row, "id_abrangencia", None),
+            getattr(row, "id_metodologia_hash", None),
+        )
+        for row in fact.itertuples(index=False)
+    ]
+
+    fact = fact.sort_values(["sk_documento"], na_position="last").reset_index(drop=True)
+    fact.insert(0, "sk_fato_inventario", range(1, len(fact) + 1))
 
     cols = [
-        "id_fato_inventario",
+        "sk_fato_inventario",
+        "id_fato_inventario_hash",
+        "sk_documento",
         "id_documento_logico",
-        "id_tempo",
-        "id_dim_setor",
-        "id_dim_abrangencia",
-        "id_dim_metodologia",
-        "id_qualidade",
+        "sk_tempo",
+        "id_tempo_hash",
+        "sk_setor",
+        "id_setor",
+        "sk_abrangencia",
+        "id_abrangencia",
+        "sk_metodologia",
+        "id_metodologia_hash",
+        "sk_qualidade",
+        "id_qualidade_hash",
         "ano_publicacao",
         "horizonte_temporal",
         "extensao_tempo",
@@ -100,6 +134,8 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
         "qtd_metodos",
         "qtd_referencias",
         "qtd_condicionantes",
+        "qtd_instituicoes_apoio",
+        "densidade_informacional",
         "possui_condicionantes",
         "possui_metodo_identificado",
         "possui_horizonte_temporal",

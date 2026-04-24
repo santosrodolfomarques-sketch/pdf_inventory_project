@@ -1,5 +1,3 @@
-﻿id_setor,setor
-set_36ab227cbc00e91d,Multissetorial
-set_22ece1e10fdc2d93,Terceiro Setor
-set_c063562387bae010,Setor Têxtil
-set_a9ce142c502d7d9b,Desenvolvimento Sustentável
+﻿sk_setor,id_setor,setor
+1,set_22ece1e10fdc2d93,Terceiro Setor
+2,set_57130b0c20219275,Sociedade Civil

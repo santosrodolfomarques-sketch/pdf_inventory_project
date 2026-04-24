@@ -24,125 +24,196 @@
   ],
   "fato": "fato_inventario",
   "validacao": {
-    "status": "ok",
+    "status": "warning",
     "checks": [
       {
         "objeto": "dim_documento",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_documento_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_tempo",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_tempo_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_setor",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_setor_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_abrangencia",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_abrangencia_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_instituicao_responsavel",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_instituicao_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_tema",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_tema_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_metodo",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_metodo_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_apoio",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_instituicao_apoio_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_referencia",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_referencia_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_condicionante",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_condicionante_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
+        "objeto": "dim_source_file",
+        "teste": "dimensao_vazia",
+        "status": "warning"
+      },
+      {
         "objeto": "dim_metodologia",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_metodologia_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "dim_qualidade",
-        "teste": "chave_unica_nao_nula",
+        "teste": "sk_qualidade_unica_nao_nula",
         "duplicados": 0,
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "chave_unica",
+        "teste": "sk_fato_inventario_unica",
         "duplicados": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "fk_id_tempo_nao_nula",
+        "teste": "fk_sk_documento_nao_nula",
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "fk_id_dim_setor_nao_nula",
+        "teste": "fk_sk_tempo_nao_nula",
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "fk_id_dim_abrangencia_nao_nula",
+        "teste": "fk_sk_setor_nao_nula",
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "fk_id_dim_metodologia_nao_nula",
+        "teste": "fk_sk_abrangencia_nao_nula",
         "nulos": 0,
         "status": "ok"
       },
       {
         "objeto": "fato_inventario",
-        "teste": "fk_id_qualidade_nao_nula",
+        "teste": "fk_sk_metodologia_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "fato_inventario",
+        "teste": "fk_sk_qualidade_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_tema",
+        "teste": "sk_documento_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_tema",
+        "teste": "sk_tema_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_metodo",
+        "teste": "sk_documento_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_metodo",
+        "teste": "sk_metodo_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_instituicao_apoio",
+        "teste": "sk_documento_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_instituicao_apoio",
+        "teste": "sk_instituicao_apoio_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_referencia",
+        "teste": "sk_documento_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_referencia",
+        "teste": "sk_referencia_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_condicionante",
+        "teste": "sk_documento_nao_nula",
+        "nulos": 0,
+        "status": "ok"
+      },
+      {
+        "objeto": "ponte_documento_condicionante",
+        "teste": "sk_condicionante_nao_nula",
         "nulos": 0,
         "status": "ok"
       }

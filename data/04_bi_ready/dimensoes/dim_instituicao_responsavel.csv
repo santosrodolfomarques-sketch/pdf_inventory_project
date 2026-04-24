@@ -1,6 +1,3 @@
-﻿id_instituicao,instituicao
-ins_1bdce47e2f5fd6ed,Civil Society Working Group for the 2030 Agenda
-ins_9aa4d282a5ae4f69,Rodrigo Starling
-ins_f679f141aa53b086,Gherzi
-ins_ba2f9ed3df4e1159,Programa das Nações Unidas para o Desenvolvimento
-ins_458cae0a9dab0270,Secretaria de Estado de Planejamento do Acre
+﻿sk_instituicao,id_instituicao,instituicao,cluster,categoria,confianca_enriquecimento
+1,ins_9aa4d282a5ae4f69,Rodrigo Starling,,,
+2,ins_d861bae1effa7546,Grupo de Trabalho da Sociedade Civil para a Agenda 2030 (GTSC A2030),,,
