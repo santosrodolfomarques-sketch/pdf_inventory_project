@@ -32,6 +32,21 @@ LIST_COLUMNS = [
 ]
 
 
+def load_review_dictionary(settings, filename: str) -> pd.DataFrame | None:
+    if settings is None:
+        return None
+    path = settings.transformed_base_dir.parents[0] / "04_review" / "dicionarios_manuais" / filename
+    if not path.exists():
+        return None
+    df = pd.read_csv(path, encoding="utf-8-sig")
+    if df.empty or "valor_normalizado" not in df.columns:
+        return None
+    df = df.dropna(subset=["valor_normalizado"]).copy()
+    df["_merge_key"] = df["valor_normalizado"].apply(strip_accents_lower)
+    df = df.drop_duplicates(subset=["_merge_key"], keep="last")
+    df["valor_original"] = df["valor_normalizado"]
+    return df
+
 def load_enrichment_dictionary(settings, filename: str) -> pd.DataFrame | None:
     if settings is None:
         return None
@@ -320,14 +335,30 @@ def apply_method_taxonomy_enrichment(
 def build_theme_dimension_and_bridge(
     df: pd.DataFrame,
     doc_sk_map: pd.DataFrame,
+    theme_dict: pd.DataFrame | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     base = df[["id_documento_logico", "bi_temas"]].explode("bi_temas").dropna()
     base = base[base["bi_temas"].astype(str).str.strip() != ""]
     base = base.rename(columns={"bi_temas": "tema"})
 
     dim = base[["tema"]].drop_duplicates().reset_index(drop=True)
-    dim["macrotema"] = dim["tema"].apply(classify_macrotema)
-    dim["subtema"] = dim["tema"].apply(classify_subtema)
+    
+    if theme_dict is not None and "_merge_key" in theme_dict.columns:
+        left = dim.copy()
+        left["_merge_key"] = left["tema"].apply(strip_accents_lower)
+        enriched = left.merge(
+            theme_dict,
+            on="_merge_key",
+            how="left",
+            suffixes=("", "_dict"),
+        )
+        enriched["macrotema"] = enriched.apply(lambda row: fill_text(row.get("macrotema"), classify_macrotema(row["tema"])), axis=1)
+        enriched["subtema"] = enriched.apply(lambda row: fill_text(row.get("subtema"), classify_subtema(row["tema"])), axis=1)
+        dim = enriched
+    else:
+        dim["macrotema"] = dim["tema"].apply(classify_macrotema)
+        dim["subtema"] = dim["tema"].apply(classify_subtema)
+        
     dim["id_tema_hash"] = [stable_hash_id("tem", row.tema) for row in dim.itertuples(index=False)]
     dim = add_surrogate_key(dim[["id_tema_hash", "tema", "macrotema", "subtema"]], "sk_tema", ["id_tema_hash"])
 
@@ -462,16 +493,17 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
     dim_abrangencia = build_simple_dimension(df, "bi_abrangencia", "abr", "abrangencia", "sk_abrangencia")
     dim_instituicao_responsavel = build_simple_dimension(df, "bi_instituicao_responsavel", "ins", "instituicao", "sk_instituicao")
 
-    dim_tema, ponte_tema = build_theme_dimension_and_bridge(df, doc_sk_map)
+    theme_dict = load_review_dictionary(settings, "dicionario_temas.csv")
+    dim_tema, ponte_tema = build_theme_dimension_and_bridge(df, doc_sk_map, theme_dict)
     dim_metodo, ponte_metodo = build_method_dimension_and_bridge(df, doc_sk_map)
     dim_apoio, ponte_apoio = explode_dimension_with_bridge(df, "id_documento_logico", "bi_instituicoes_apoio", "instituicao_apoio", "iap", doc_sk_map, "sk_instituicao_apoio")
     dim_ref, ponte_ref = explode_dimension_with_bridge(df, "id_documento_logico", "referencias", "referencia", "ref", doc_sk_map, "sk_referencia")
     dim_cond, ponte_cond = explode_dimension_with_bridge(df, "id_documento_logico", "condicionantes_estudo_futuro", "condicionante", "con", doc_sk_map, "sk_condicionante")
     dim_source_file, ponte_source_file = explode_dimension_with_bridge(df, "id_documento_logico", "source_files", "arquivo_origem", "src", doc_sk_map, "sk_source_file")
 
-    inst_dict = load_enrichment_dictionary(settings, "dicionario_instituicoes_enriquecido.csv")
-    method_dict = load_enrichment_dictionary(settings, "dicionario_metodos_taxonomia.csv")
-    cond_dict = load_enrichment_dictionary(settings, "dicionario_condicionantes_cluster.csv")
+    inst_dict = load_review_dictionary(settings, "dicionario_instituicoes.csv")
+    method_dict = load_review_dictionary(settings, "dicionario_metodos.csv")
+    cond_dict = load_review_dictionary(settings, "dicionario_condicionantes.csv")
 
     dim_instituicao_responsavel = apply_institution_enrichment(dim_instituicao_responsavel, inst_dict, "instituicao")
     dim_apoio = apply_institution_enrichment(dim_apoio, inst_dict, "instituicao_apoio")
