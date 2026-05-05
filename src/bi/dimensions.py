@@ -35,7 +35,7 @@ LIST_COLUMNS = [
 def load_review_dictionary(settings, filename: str) -> pd.DataFrame | None:
     if settings is None:
         return None
-    path = settings.transformed_base_dir.parents[0] / "04_review" / "dicionarios_manuais" / filename
+    path = settings.transformed_base_dir.parents[1] / "04_review" / "dicionarios_manuais" / filename
     if not path.exists():
         return None
     df = pd.read_csv(path, encoding="utf-8-sig")
