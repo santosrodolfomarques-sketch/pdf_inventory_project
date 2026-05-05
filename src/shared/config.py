@@ -1,0 +1,282 @@
+from __future__ import annotations
+
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data"
+
+RAW_PDF_DIR = DATA_DIR / "01_raw" / "pdfs"
+
+EXTRACTED_DIR = DATA_DIR / "02_extracted"
+EXTRACTED_JSON_DIR = EXTRACTED_DIR / "json_raw"
+EXTRACTION_LOG_DIR = EXTRACTED_DIR / "logs"
+EXTRACTION_CONTROL_DIR = EXTRACTED_DIR / "controle_processamento"
+
+TRANSFORMED_DIR = DATA_DIR / "03_transformed"
+TRANSFORMED_BASE_DIR = TRANSFORMED_DIR / "tabelas_base"
+TRANSFORMED_NORMALIZED_DIR = TRANSFORMED_DIR / "tabelas_normalizadas"
+TRANSFORMED_PENDING_DIR = TRANSFORMED_DIR / "pendencias"
+TRANSFORMED_UNIQUE_DIR = TRANSFORMED_DIR / "valores_unicos_para_normalizacao"
+
+AI_NORMALIZATION_DIR = TRANSFORMED_DIR / "normalizacao_ia"
+AI_DICTIONARY_DIR = AI_NORMALIZATION_DIR / "dicionarios_normalizacao"
+AI_DICTIONARY_REVIEW_DIR = AI_NORMALIZATION_DIR / "revisao_manual"
+AI_APPLIED_DIR = AI_NORMALIZATION_DIR / "bases_normalizadas"
+AI_BATCH_CACHE_DIR = AI_NORMALIZATION_DIR / "cache_lotes"
+AI_CONTROL_DIR = AI_NORMALIZATION_DIR / "controle_processamento"
+
+ENRICHMENT_DIR = TRANSFORMED_DIR / "enrichment_ai"
+
+BI_READY_DIR = DATA_DIR / "04_bi_ready"
+BI_DIM_DIR = BI_READY_DIR / "dimensoes"
+BI_FACT_DIR = BI_READY_DIR / "fatos"
+BI_BRIDGE_DIR = BI_READY_DIR / "pontes"
+BI_DICT_DIR = BI_READY_DIR / "dicionario_dados"
+
+DEFAULT_TAXONOMIA_METODOS = [
+    "Extrapolação de Tendências",
+    "Cenários Prospectivos",
+    "Painel de Especialistas (Delphi/Workshops)",
+    "Modelagem e Simulação Quantitativa",
+    "Visão de Futuro / Backcasting",
+    "Análise de Impacto Cruzado",
+    "Outros",
+]
+
+DEFAULT_DOCUMENT_TYPES = {
+    "plano": "Plano",
+    "plan": "Plano",
+    "estrategia": "Estratégia",
+    "strategy": "Estratégia",
+    "relatorio": "Relatório",
+    "report": "Relatório",
+    "spotlight report": "Relatório",
+    "estudo": "Estudo",
+    "diagnostico": "Diagnóstico",
+    "diagnóstico": "Diagnóstico",
+    "agenda": "Agenda",
+    "guia": "Guia",
+    "livro": "Livro",
+    "policy brief": "Policy Brief",
+}
+
+DEFAULT_TERRITORIAL_SCOPE = {
+    "brasil": "Nacional",
+    "brazil": "Nacional",
+    "nacional": "Nacional",
+    "regional": "Regional",
+    "global": "Global",
+    "estadual": "Estadual",
+    "state": "Estadual",
+    "municipal": "Municipal",
+    "local": "Municipal",
+    "internacional": "Global",
+}
+
+DEFAULT_SECTOR_MAP = {
+    "sociedade civil": "Sociedade Civil",
+    "civil society": "Sociedade Civil",
+    "terceiro setor": "Terceiro Setor",
+    "third sector": "Terceiro Setor",
+    "saude": "Saúde",
+    "saúde": "Saúde",
+    "health": "Saúde",
+    "educacao": "Educação",
+    "educação": "Educação",
+    "education": "Educação",
+    "energia": "Energia",
+    "energy": "Energia",
+    "transporte": "Transporte",
+    "transport": "Transporte",
+    "clima": "Clima",
+    "climate": "Clima",
+    "economia": "Economia",
+    "economic": "Economia",
+    "seguranca": "Segurança",
+    "segurança": "Segurança",
+    "security": "Segurança",
+    "infraestrutura": "Infraestrutura",
+    "infrastructure": "Infraestrutura",
+    "meio ambiente": "Meio Ambiente",
+    "ambiental": "Meio Ambiente",
+    "environment": "Meio Ambiente",
+    "agricultura": "Agricultura",
+    "agriculture": "Agricultura",
+}
+
+DEFAULT_INSTITUTION_MAP = {
+    "gtsc a2030": "GTSC A2030",
+    "civil society working group for the 2030 agenda": "GTSC A2030",
+    "grupo de trabalho da sociedade civil para a agenda 2030": "GTSC A2030",
+}
+
+DEFAULT_FUTURE_STUDY_TYPE_MAP = {
+    "monitoramento": "Monitoramento e Avaliação",
+    "avaliacao": "Monitoramento e Avaliação",
+    "avaliação": "Monitoramento e Avaliação",
+    "cenario": "Cenários Prospectivos",
+    "cenário": "Cenários Prospectivos",
+    "foresight": "Cenários Prospectivos",
+    "backcasting": "Visão de Futuro / Backcasting",
+    "prospectiv": "Cenários Prospectivos",
+}
+
+DEFAULT_THEME_MAP = {
+    "covid-19": "COVID-19",
+    "covid 19": "COVID-19",
+    "sustainable development goals": "ODS",
+    "2030 agenda for sustainable development": "Agenda 2030",
+    "gender equality": "Igualdade de Gênero",
+    "climate change": "Mudança do Clima",
+    "poverty": "Pobreza",
+    "hunger": "Fome",
+    "education": "Educação",
+    "health": "Saúde",
+    "human rights": "Direitos Humanos",
+    "democracy": "Democracia",
+    "public policy": "Políticas Públicas",
+    "third sector": "Terceiro Setor",
+    "terceiro setor": "Terceiro Setor",
+    "sociedade civil": "Sociedade Civil",
+    "voluntariado": "Voluntariado",
+    "sustentabilidade": "Sustentabilidade",
+}
+
+DEFAULT_METHOD_MAP = {
+    "coleta e analise de dados": "Coleta e análise de dados",
+    "coleta e análise de dados": "Coleta e análise de dados",
+    "dados oficiais": "Uso de dados oficiais",
+    "grupos focais": "Grupos focais",
+    "grupo focal": "Grupos focais",
+    "indicadores": "Análise de indicadores",
+    "validacao": "Validação por especialistas",
+    "validação": "Validação por especialistas",
+    "monitoramento": "Monitoramento e avaliação",
+    "avaliacao": "Monitoramento e avaliação",
+    "avaliação": "Monitoramento e avaliação",
+}
+
+
+@dataclass(slots=True)
+class Settings:
+    gemini_api_key: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
+
+    # Dois modelos principais:
+    # - model_simple: modelo mais simples/barato para chamadas pequenas e rotineiras;
+    # - model_context: modelo mais robusto/maior contexto para fallback, batches grandes ou prompts longos.
+    model_simple: str = field(default_factory=lambda: os.getenv("MODEL_SIMPLE", os.getenv("MODEL_FLASH", "gemini-2.5-flash-lite")))
+    model_context: str = field(default_factory=lambda: os.getenv("MODEL_CONTEXT", os.getenv("MODEL_PRO", "gemini-2.5-pro")))
+
+    # Compatibilidade com módulos anteriores.
+    model_flash: str = field(default_factory=lambda: os.getenv("MODEL_FLASH", os.getenv("MODEL_SIMPLE", "gemini-2.5-flash-lite")))
+    model_pro: str = field(default_factory=lambda: os.getenv("MODEL_PRO", os.getenv("MODEL_CONTEXT", "gemini-2.5-pro")))
+
+    max_retries: int = field(default_factory=lambda: int(os.getenv("MAX_RETRIES", "4")))
+    llm_timeout_seconds: int = field(default_factory=lambda: int(os.getenv("LLM_TIMEOUT_SECONDS", "240")))
+    context_model_min_chars: int = field(default_factory=lambda: int(os.getenv("CONTEXT_MODEL_MIN_CHARS", os.getenv("MODEL_CONTEXT_MIN_CHARS", "90000"))))
+
+    max_pages_begin: int = field(default_factory=lambda: int(os.getenv("MAX_PAGES_BEGIN", "30")))
+    max_pages_end: int = field(default_factory=lambda: int(os.getenv("MAX_PAGES_END", "10")))
+    max_chars_per_chunk: int = field(default_factory=lambda: int(os.getenv("MAX_CHARS_PER_CHUNK", "100000")))
+    chunk_overlap: int = field(default_factory=lambda: int(os.getenv("CHUNK_OVERLAP", "3000")))
+    pause_between_calls: float = field(default_factory=lambda: float(os.getenv("PAUSE_BETWEEN_CALLS", "3.0")))
+
+    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "50")))
+    ai_apply_min_confidence: str = field(default_factory=lambda: os.getenv("AI_APPLY_MIN_CONFIDENCE", "alta"))
+    ai_dictionary_resume: bool = field(default_factory=lambda: os.getenv("AI_DICTIONARY_RESUME", "true").lower() in {"true", "1", "sim", "yes"})
+    ai_dictionary_force_reprocess: bool = field(default_factory=lambda: os.getenv("AI_DICTIONARY_FORCE_REPROCESS", "false").lower() in {"true", "1", "sim", "yes"})
+
+    taxonomia_metodos: list[str] = field(default_factory=lambda: DEFAULT_TAXONOMIA_METODOS.copy())
+    document_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_DOCUMENT_TYPES.copy())
+    territorial_scope_map: dict[str, str] = field(default_factory=lambda: DEFAULT_TERRITORIAL_SCOPE.copy())
+    sector_map: dict[str, str] = field(default_factory=lambda: DEFAULT_SECTOR_MAP.copy())
+    institution_map: dict[str, str] = field(default_factory=lambda: DEFAULT_INSTITUTION_MAP.copy())
+    future_study_type_map: dict[str, str] = field(default_factory=lambda: DEFAULT_FUTURE_STUDY_TYPE_MAP.copy())
+    theme_map: dict[str, str] = field(default_factory=lambda: DEFAULT_THEME_MAP.copy())
+    method_map: dict[str, str] = field(default_factory=lambda: DEFAULT_METHOD_MAP.copy())
+
+    @property
+    def raw_pdf_dir(self) -> Path:
+        return RAW_PDF_DIR
+
+    @property
+    def extracted_json_dir(self) -> Path:
+        return EXTRACTED_JSON_DIR
+
+    @property
+    def extraction_log_dir(self) -> Path:
+        return EXTRACTION_LOG_DIR
+
+    @property
+    def extraction_control_dir(self) -> Path:
+        return EXTRACTION_CONTROL_DIR
+
+    @property
+    def transformed_base_dir(self) -> Path:
+        return TRANSFORMED_BASE_DIR
+
+    @property
+    def transformed_normalized_dir(self) -> Path:
+        return TRANSFORMED_NORMALIZED_DIR
+
+    @property
+    def transformed_pending_dir(self) -> Path:
+        return TRANSFORMED_PENDING_DIR
+
+    @property
+    def transformed_unique_dir(self) -> Path:
+        return TRANSFORMED_UNIQUE_DIR
+
+    @property
+    def ai_normalization_dir(self) -> Path:
+        return AI_NORMALIZATION_DIR
+
+    @property
+    def ai_dictionary_dir(self) -> Path:
+        return AI_DICTIONARY_DIR
+
+    @property
+    def ai_dictionary_review_dir(self) -> Path:
+        return AI_DICTIONARY_REVIEW_DIR
+
+    @property
+    def ai_applied_dir(self) -> Path:
+        return AI_APPLIED_DIR
+
+    @property
+    def ai_batch_cache_dir(self) -> Path:
+        return AI_BATCH_CACHE_DIR
+
+    @property
+    def ai_control_dir(self) -> Path:
+        return AI_CONTROL_DIR
+
+    @property
+    def enrichment_dir(self) -> Path:
+        return ENRICHMENT_DIR
+
+    @property
+    def bi_dim_dir(self) -> Path:
+        return BI_DIM_DIR
+
+    @property
+    def bi_fact_dir(self) -> Path:
+        return BI_FACT_DIR
+
+    @property
+    def bi_bridge_dir(self) -> Path:
+        return BI_BRIDGE_DIR
+
+    @property
+    def bi_dict_dir(self) -> Path:
+        return BI_DICT_DIR
+
+
+def get_settings() -> Settings:
+    return Settings()
