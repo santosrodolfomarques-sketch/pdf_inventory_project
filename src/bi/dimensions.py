@@ -39,12 +39,22 @@ def load_review_dictionary(settings, filename: str) -> pd.DataFrame | None:
     if not path.exists():
         return None
     df = pd.read_csv(path, encoding="utf-8-sig")
-    if df.empty or "valor_normalizado" not in df.columns:
+    if df.empty:
         return None
-    df = df.dropna(subset=["valor_normalizado"]).copy()
-    df["_merge_key"] = df["valor_normalizado"].apply(strip_accents_lower)
+        
+    norm_col = None
+    if "valor_normalizado" in df.columns:
+        norm_col = "valor_normalizado"
+    elif "tema_normalizado" in df.columns:
+        norm_col = "tema_normalizado"
+        
+    if not norm_col:
+        return None
+        
+    df = df.dropna(subset=[norm_col]).copy()
+    df["_merge_key"] = df[norm_col].apply(strip_accents_lower)
     df = df.drop_duplicates(subset=["_merge_key"], keep="last")
-    df["valor_original"] = df["valor_normalizado"]
+    df["valor_original"] = df[norm_col]
     return df
 
 def load_enrichment_dictionary(settings, filename: str) -> pd.DataFrame | None:
