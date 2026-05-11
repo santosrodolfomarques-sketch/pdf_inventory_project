@@ -6,11 +6,19 @@ from src.bi.bridges import add_surrogate_key, build_simple_dimension, explode_di
 from src.bi.semantic_helpers import (
     choose_list,
     choose_scalar,
+    classify_condition_category,
+    classify_condition_cluster,
+    classify_institution_origin,
+    classify_institution_type,
     classify_macrotema,
+    classify_macro_setor,
     classify_method_family,
     classify_method_nature,
+    classify_nivel_abrangencia,
+    classify_pais_abrangencia,
     classify_subtema,
     coalesce_text,
+    is_generic_value,
     quality_level,
     safe_parse_list,
 )
@@ -126,20 +134,38 @@ def apply_institution_enrichment(
     enrichment: pd.DataFrame | None,
     institution_column: str,
 ) -> pd.DataFrame:
-    if enrichment is None or dim.empty:
+    if dim.empty:
         return dim
 
-    enriched = dim.merge(
-        enrichment,
-        left_on=institution_column,
-        right_on="valor_original",
-        how="left",
-    ).drop(columns=["valor_original"], errors="ignore")
+    enriched = dim.copy()
+    if enrichment is not None:
+        enriched = enriched.merge(
+            enrichment,
+            left_on=institution_column,
+            right_on="valor_original",
+            how="left",
+        ).drop(columns=["valor_original"], errors="ignore")
 
     rename_map = {
         "confianca": "confianca_enriquecimento",
     }
     enriched = enriched.rename(columns=rename_map)
+    for column in ["tipo_instituicao", "origem_instituicao", "confianca_enriquecimento"]:
+        if column not in enriched.columns:
+            enriched[column] = pd.NA
+
+    enriched["tipo_instituicao"] = enriched["tipo_instituicao"].where(
+        ~enriched["tipo_instituicao"].apply(is_generic_value),
+        enriched[institution_column].apply(classify_institution_type),
+    )
+    enriched["origem_instituicao"] = enriched["origem_instituicao"].where(
+        ~enriched["origem_instituicao"].apply(is_generic_value),
+        enriched[institution_column].apply(classify_institution_origin),
+    )
+    enriched["confianca_enriquecimento"] = enriched["confianca_enriquecimento"].where(
+        ~enriched["confianca_enriquecimento"].apply(is_generic_value),
+        "media",
+    )
 
     return enriched
 
@@ -148,20 +174,38 @@ def apply_condition_enrichment(
     dim: pd.DataFrame,
     enrichment: pd.DataFrame | None,
 ) -> pd.DataFrame:
-    if enrichment is None or dim.empty:
+    if dim.empty:
         return dim
 
-    enriched = dim.merge(
-        enrichment,
-        left_on="condicionante",
-        right_on="valor_original",
-        how="left",
-    ).drop(columns=["valor_original"], errors="ignore")
+    enriched = dim.copy()
+    if enrichment is not None:
+        enriched = enriched.merge(
+            enrichment,
+            left_on="condicionante",
+            right_on="valor_original",
+            how="left",
+        ).drop(columns=["valor_original"], errors="ignore")
 
     rename_map = {
         "confianca": "confianca_enriquecimento",
     }
     enriched = enriched.rename(columns=rename_map)
+    for column in ["cluster", "categoria", "confianca_enriquecimento"]:
+        if column not in enriched.columns:
+            enriched[column] = pd.NA
+
+    enriched["cluster"] = enriched["cluster"].where(
+        ~enriched["cluster"].apply(is_generic_value),
+        enriched["condicionante"].apply(classify_condition_cluster),
+    )
+    enriched["categoria"] = enriched["categoria"].where(
+        ~enriched["categoria"].apply(is_generic_value),
+        enriched["condicionante"].apply(classify_condition_category),
+    )
+    enriched["confianca_enriquecimento"] = enriched["confianca_enriquecimento"].where(
+        ~enriched["confianca_enriquecimento"].apply(is_generic_value),
+        "media",
+    )
 
     return enriched
 
@@ -321,7 +365,14 @@ def build_metodologia_dimension(df: pd.DataFrame) -> pd.DataFrame:
         )
     )
 
-    dim["natureza_metodologia"] = dim["familia_do_metodo"].apply(classify_method_nature)
+    dim["familia_do_metodo"] = dim.apply(
+        lambda row: classify_method_family(row["tipo_estudo_futuro"], row["familia_do_metodo"]),
+        axis=1,
+    )
+    dim["natureza_metodologia"] = dim.apply(
+        lambda row: classify_method_nature(row["familia_do_metodo"], row["tipo_estudo_futuro"]),
+        axis=1,
+    )
     dim["id_metodologia_hash"] = [
         stable_hash_id("mdg", row.familia_do_metodo, row.tipo_estudo_futuro, row.aplicou_estudo_futuro)
         for row in dim.itertuples(index=False)
@@ -355,6 +406,9 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
     dim_tempo = build_time_dimension(df)
     dim_setor = build_simple_dimension(df, "bi_setor", "set", "setor", "sk_setor")
     dim_abrangencia = build_simple_dimension(df, "bi_abrangencia", "abr", "abrangencia", "sk_abrangencia")
+    dim_setor["macro_setor"] = dim_setor["setor"].apply(classify_macro_setor)
+    dim_abrangencia["nivel_abrangencia"] = dim_abrangencia["abrangencia"].apply(classify_nivel_abrangencia)
+    dim_abrangencia["pais"] = dim_abrangencia["abrangencia"].apply(classify_pais_abrangencia)
 
     dim_instituicao_responsavel = build_simple_dimension(
         df,

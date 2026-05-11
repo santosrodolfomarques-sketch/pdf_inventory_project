@@ -42,3 +42,26 @@ def test_bi_validation_accepts_matching_fact_row_count():
     report = run_bi_validations(dimensions, fact, source=source)
 
     assert report["checks"][0]["status"] == "ok"
+
+
+def test_bi_validation_warns_on_negative_time_extension():
+    dimensions = {
+        "dim_documento": pd.DataFrame({"sk_documento": [1]}),
+    }
+    fact = pd.DataFrame({
+        "sk_fato_inventario": [1],
+        "sk_documento": [1],
+        "sk_tempo": [1],
+        "sk_setor": [1],
+        "sk_abrangencia": [1],
+        "sk_metodologia": [1],
+        "sk_qualidade": [1],
+        "flag_revisao_manual": [True],
+        "extensao_tempo": [-1],
+    })
+
+    report = run_bi_validations(dimensions, fact)
+    check = next(item for item in report["checks"] if item["teste"] == "extensao_tempo_nao_negativo")
+
+    assert check["status"] == "warning"
+    assert report["status"] == "warning"

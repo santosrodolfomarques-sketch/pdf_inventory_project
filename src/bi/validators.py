@@ -31,6 +31,27 @@ def _fact_fk_check(fact: pd.DataFrame, fk_col: str) -> dict[str, Any]:
     }
 
 
+def _fact_non_negative_check(fact: pd.DataFrame, col: str) -> dict[str, Any]:
+    if col not in fact.columns:
+        return {"objeto": "fato_inventario", "teste": f"{col}_nao_negativo", "negativos": -1, "status": "erro"}
+    numeric = pd.to_numeric(fact[col], errors="coerce")
+    negatives = int((numeric < 0).sum())
+    return {
+        "objeto": "fato_inventario",
+        "teste": f"{col}_nao_negativo",
+        "negativos": negatives,
+        "status": "ok" if negatives == 0 else "warning",
+    }
+
+
+def _fact_required_column_check(fact: pd.DataFrame, col: str) -> dict[str, Any]:
+    return {
+        "objeto": "fato_inventario",
+        "teste": f"{col}_presente",
+        "status": "ok" if col in fact.columns else "erro",
+    }
+
+
 def _bridge_fk_check(bridge_name: str, bridge: pd.DataFrame, sk_cols: list[str]) -> list[dict[str, Any]]:
     checks = []
     for col in sk_cols:
@@ -77,6 +98,9 @@ def run_bi_validations(
 
     for fk_col in ["sk_documento", "sk_tempo", "sk_setor", "sk_abrangencia", "sk_metodologia", "sk_qualidade"]:
         report["checks"].append(_fact_fk_check(fact, fk_col))
+
+    report["checks"].append(_fact_required_column_check(fact, "flag_revisao_manual"))
+    report["checks"].append(_fact_non_negative_check(fact, "extensao_tempo"))
 
     for name, df in dimensions.items():
         if name.startswith("ponte_") and not df.empty:

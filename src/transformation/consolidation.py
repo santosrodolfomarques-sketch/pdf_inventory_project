@@ -15,7 +15,6 @@ LIST_FIELDS = [
     "condicionantes_estudo_futuro",
     "instituicoes_apoio",
     "instituicoes_apoio_norm",
-    "source_files",
 ]
 
 def build_logical_document_id(record: dict[str, Any]) -> str:
@@ -40,7 +39,9 @@ def consolidate_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         base = dict(group[0])
         base["id_documento_logico"] = logical_id
         base["qtd_arquivos_origem"] = len(group)
-        base["source_files"] = [item.get("source_file_name") for item in group if item.get("source_file_name")]
+        base["source_files"] = union_unique_preserve_order(
+            item.get("source_file_name") for item in group if item.get("source_file_name")
+        )
 
         for field in LIST_FIELDS:
             aggregated = []

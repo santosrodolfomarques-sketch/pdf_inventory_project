@@ -72,10 +72,16 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
                 "score_qualidade",
                 "nivel_qualidade",
                 "flag_revisao_manual",
-            ]],
+            ]].rename(columns={"flag_revisao_manual": "flag_revisao_manual_qualidade"}),
             on="sk_documento",
             how="left",
         )
+        if "flag_revisao_manual" in fact.columns:
+            fact["flag_revisao_manual"] = fact["flag_revisao_manual_qualidade"].combine_first(
+                fact["flag_revisao_manual"]
+            )
+        else:
+            fact["flag_revisao_manual"] = fact["flag_revisao_manual_qualidade"]
     else:
         fact["sk_qualidade"] = pd.NA
         fact["id_qualidade_hash"] = pd.NA
