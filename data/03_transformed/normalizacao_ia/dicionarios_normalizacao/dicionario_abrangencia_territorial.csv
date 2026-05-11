@@ -1,2 +1,45 @@
 ﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-abrangencia_territorial,Brasil,brasil,Nacional,Abrangência Territorial,alta,aplicar automático,O país 'Brasil' representa uma abrangência territorial nacional.,True,1
+abrangencia_territorial,Bahia,bahia,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Belo Horizonte e Região Metropolitana,belo horizonte e regiao metropolitana,Regional,Região Metropolitana,alta,aplicar automático,Identifica uma região metropolitana específica.,True,1
+abrangencia_territorial,Brasil,brasil,Nacional,País,alta,aplicar automático,"Nome de país, normalizado para abrangência nacional.",True,1
+abrangencia_territorial,"Brasil, Global","brasil, global",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,"Brasil, Unidades da Federação, Municípios","brasil, unidades da federacao, municipios",Nacional,Múltipla,alta,aplicar automático,"Abrangência que inclui níveis nacional, estadual e municipal dentro do Brasil.",True,1
+abrangencia_territorial,Ceará,ceara,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Distrito Federal,distrito federal,Estadual,Unidade Federativa,alta,aplicar automático,"Unidade federativa brasileira, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Espírito Santo,espirito santo,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado de Goiás,estado de goias,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado de Sergipe,estado de sergipe,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado do Acre,estado do acre,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado do Amazonas,estado do amazonas,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado do Pará,estado do para,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estado do Rio de Janeiro,estado do rio de janeiro,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Estadual (Tocantins),estadual (tocantins),Estadual,Estado,alta,aplicar automático,"Valor já indica abrangência estadual, removendo detalhe.",True,1
+abrangencia_territorial,"Europa, Global","europa, global",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,Fortaleza,fortaleza,Municipal,Município,alta,aplicar automático,"Nome de município brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,France,france,Nacional,País,alta,aplicar automático,"Nome de país, normalizado para abrangência nacional.",True,1
+abrangencia_territorial,Global,global,Global,Global,alta,manter original,Valor já está adequado.,True,1
+abrangencia_territorial,Global (170 countries),global (170 countries),Global,Global,alta,aplicar automático,"Valor já indica abrangência global, removendo detalhe.",True,1
+abrangencia_territorial,"Global, OECD countries","global, oecd countries",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,Ireland,ireland,Nacional,País,alta,aplicar automático,"Nome de país, normalizado para abrangência nacional.",True,1
+abrangencia_territorial,Macrometrópole Paulista,macrometropole paulista,Regional,Região,alta,aplicar automático,Identifica uma região específica.,True,1
+abrangencia_territorial,Macrometrópole Paulista (MMP),macrometropole paulista (mmp),Regional,Região,alta,aplicar automático,"Identifica uma região específica, removendo sigla.",True,1
+abrangencia_territorial,Maranhão,maranhao,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Mato Grosso,mato grosso,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Minas Gerais,minas gerais,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,"Mundial, Brasil","mundial, brasil",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,"Mundo, Brasil","mundo, brasil",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,Nacional,nacional,Nacional,Nacional,alta,manter original,Valor já está adequado.,True,1
+abrangencia_territorial,Nacional (Brasil),nacional (brasil),Nacional,Nacional,alta,aplicar automático,"Valor já indica abrangência nacional, removendo detalhe.",True,1
+abrangencia_territorial,"Nacional, América do Sul, Atlântico Sul, países da costa ocidental africana, Antártica","nacional, america do sul, atlantico sul, paises da costa ocidental africana, antartica",Global,Múltipla,alta,aplicar automático,"Abrangência complexa que inclui múltiplos continentes e regiões, melhor representada por 'Global'.",True,1
+abrangencia_territorial,Paraíba,paraiba,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Pernambuco,pernambuco,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Piauí,piaui,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Recife,recife,Municipal,Município,alta,aplicar automático,"Nome de município brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Rio Grande do Norte,rio grande do norte,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Rio Grande do Sul,rio grande do sul,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Rondônia,rondonia,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Roraima,roraima,Estadual,Estado,alta,aplicar automático,"Nome de estado brasileiro, normalizado para categoria de abrangência.",True,1
+abrangencia_territorial,Uzbekistan,uzbekistan,Nacional,País,alta,aplicar automático,"Nome de país, normalizado para abrangência nacional.",True,1
+abrangencia_territorial,"['Brasil', 'América do Sul', 'Atlântico Sul', 'Continente Antártico', 'Espaço Exterior', 'Espaço Cibernético', 'Internacional']","['brasil', 'america do sul', 'atlantico sul', 'continente antartico', 'espaco exterior', 'espaco cibernetico', 'internacional']",Global,Múltipla,media,revisar manualmente,"Abrangência complexa com elementos territoriais e não-territoriais; 'Global' é a melhor representação territorial, mas requer revisão.",False,1
+abrangencia_territorial,"['Global', 'OECD countries', 'Regions', 'Cities', 'European Union']","['global', 'oecd countries', 'regions', 'cities', 'european union']",Global,Múltipla,alta,aplicar automático,"Lista de abrangências, priorizando a mais ampla (Global).",True,1
+abrangencia_territorial,"['Mundo', 'Brasil']","['mundo', 'brasil']",Global,Múltipla,alta,aplicar automático,"Combinação de abrangências, priorizando a mais ampla (Global).",True,1
