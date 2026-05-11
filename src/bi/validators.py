@@ -45,8 +45,23 @@ def _bridge_fk_check(bridge_name: str, bridge: pd.DataFrame, sk_cols: list[str])
     return checks
 
 
-def run_bi_validations(dimensions: dict[str, pd.DataFrame], fact: pd.DataFrame) -> dict[str, Any]:
+def run_bi_validations(
+    dimensions: dict[str, pd.DataFrame],
+    fact: pd.DataFrame,
+    source: pd.DataFrame | None = None,
+) -> dict[str, Any]:
     report: dict[str, Any] = {"status": "ok", "checks": []}
+
+    if source is not None:
+        expected_rows = len(source)
+        actual_rows = len(fact)
+        report["checks"].append({
+            "objeto": "fato_inventario",
+            "teste": "quantidade_linhas_compativel_com_base",
+            "esperado": expected_rows,
+            "encontrado": actual_rows,
+            "status": "ok" if actual_rows == expected_rows else "erro",
+        })
 
     for name, df in dimensions.items():
         if name.startswith("dim_"):

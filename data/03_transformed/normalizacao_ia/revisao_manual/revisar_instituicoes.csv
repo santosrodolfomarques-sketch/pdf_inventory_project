@@ -1,2 +1,0 @@
-﻿campo,valor_original,valor_original_limpo,valor_normalizado,categoria,confianca,acao_recomendada,justificativa,aplicar_automaticamente,lote
-instituicoes,Rodrigo Starling,rodrigo starling,Rodrigo Starling,Pessoa Física,alta,revisar manualmente,"Valor não representa uma instituição, mas uma pessoa física.",False,1

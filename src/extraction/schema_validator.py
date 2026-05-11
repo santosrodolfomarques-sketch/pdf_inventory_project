@@ -21,7 +21,7 @@ def parse_model_json(text: str) -> dict[str, Any]:
         return json.loads(candidate)
     except json.JSONDecodeError as exc:
         cleaned = candidate.replace("\\n", " ").replace("\\t", " ")
-        cleaned = re.sub(r",\s*([}\]])", r"\\1", cleaned)
+        cleaned = re.sub(r",\s*([}\]])", r"\1", cleaned)
         try:
             return json.loads(cleaned)
         except json.JSONDecodeError as exc2:

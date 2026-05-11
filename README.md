@@ -1,23 +1,23 @@
-# PDF Inventory Project — versão com normalização assistida por IA
+# PDF Inventory Project - versão com normalização assistida por IA
 
 Pipeline modular para inventariar PDFs técnicos e preparar dados para BI.
 
 ## Camadas
 
 1. **Extração com LLM**  
-   PDFs em `data/01_raw/pdfs` → JSON bruto em `data/02_extracted/json_raw`.
+   PDFs em `data/01_raw/pdfs` -> JSON bruto em `data/02_extracted/json_raw`.
 
 2. **Transformação inicial**  
-   JSON bruto → tabelas tratadas, valores únicos e pendências em `data/03_transformed`.
+   JSON bruto -> tabelas tratadas, valores únicos e pendências em `data/03_transformed`.
 
 3. **Normalização assistida por IA**  
-   Valores únicos → dicionários auditáveis em `data/03_transformed/normalizacao_ia/dicionarios_normalizacao`.
+   Valores únicos -> dicionários auditáveis em `data/03_transformed/normalizacao_ia/dicionarios_normalizacao`.
 
 4. **Aplicação dos dicionários**  
-   Dicionários aprovados automaticamente → bases normalizadas em `data/03_transformed/normalizacao_ia/bases_normalizadas`.
+   Dicionários aprovados automaticamente -> bases normalizadas em `data/03_transformed/normalizacao_ia/bases_normalizadas`.
 
 5. **Preparação para BI**  
-   Dados tratados → dimensões, fatos e pontes em `data/04_bi_ready`.
+   Dados tratados -> dimensões, fatos e pontes em `data/04_bi_ready`.
 
 ## Instalação com uv
 
@@ -103,3 +103,15 @@ python main.py --stage bi
 ```
 
 Se a normalização IA ainda não tiver sido aplicada, o BI usa a base consolidada comum como fallback.
+
+## Governança de arquivos
+
+Arquivos locais de ambiente, PDFs brutos, logs e saídas geradas pelo pipeline não devem ser versionados. O repositório mantém o código, documentação e arquivos de configuração de exemplo. Use `.env.example` como referência e mantenha a chave real apenas em `.env`.
+
+## Validação
+
+Execute os testes automatizados com:
+
+```powershell
+python -m pytest
+```

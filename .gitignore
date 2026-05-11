@@ -1,0 +1,37 @@
+# Local environment and secrets
+.env
+.venv/
+venv/
+env/
+
+# Python cache/build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Runtime logs
+*.log
+data/02_extracted/logs/
+
+# Project data generated locally
+data/01_raw/pdfs/*
+data/02_extracted/json_raw/
+data/02_extracted/controle_processamento/
+data/03_transformed/tabelas_base/
+data/03_transformed/tabelas_normalizadas/
+data/03_transformed/valores_unicos_para_normalizacao/
+data/03_transformed/pendencias/
+data/03_transformed/enrichment_ai/
+data/03_transformed/normalizacao_ia/dicionarios_normalizacao/
+data/03_transformed/normalizacao_ia/revisao_manual/
+data/03_transformed/normalizacao_ia/bases_normalizadas/
+data/04_bi_ready/
+
+# Keep directory placeholders if they are added later
+!data/**/.gitkeep

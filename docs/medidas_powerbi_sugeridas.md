@@ -31,7 +31,7 @@ Média de Métodos por Documento = AVERAGE(fato_inventario[qtd_metodos])
 
 ## Hierarquias recomendadas
 
-- Tema: `dim_tema[macrotema]` → `dim_tema[subtema]` → `dim_tema[tema]`
-- Metodologia: `dim_metodologia[natureza_metodologia]` → `dim_metodologia[familia_do_metodo]` → `dim_metodologia[tipo_estudo_futuro]`
-- Tempo: `dim_tempo[ano_publicacao]` → `dim_tempo[horizonte_temporal]`
-- Qualidade: `dim_qualidade[nivel_qualidade]` → `dim_qualidade[motivos_revisao]`
+- Tema: `dim_tema[macrotema]` -> `dim_tema[subtema]` -> `dim_tema[tema]`
+- Metodologia: `dim_metodologia[natureza_metodologia]` -> `dim_metodologia[familia_do_metodo]` -> `dim_metodologia[tipo_estudo_futuro]`
+- Tempo: `dim_tempo[ano_publicacao]` -> `dim_tempo[horizonte_temporal]`
+- Qualidade: `dim_qualidade[nivel_qualidade]` -> `dim_qualidade[motivos_revisao]`

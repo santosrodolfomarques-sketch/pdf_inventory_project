@@ -26,7 +26,7 @@ def run_bi_preparation(settings: Settings, logger: Any) -> dict[str, Any]:
     df = pd.read_csv(consolidated_path)
     dimensions = build_dimensions_and_bridges(df, settings=settings)
     fact = build_fact_inventory(df, dimensions)
-    validation_report = run_bi_validations(dimensions, fact)
+    validation_report = run_bi_validations(dimensions, fact, source=df)
 
     for name, dataframe in dimensions.items():
         if name.startswith("dim_"):
@@ -51,7 +51,7 @@ def run_bi_preparation(settings: Settings, logger: Any) -> dict[str, Any]:
     logger.info("Preparação para BI concluída.")
     return {
         "processed": len(fact),
-        "status": "ok",
+        "status": "ok" if validation_report["status"] != "error" else "validation_error",
         "fact_path": str(settings.bi_fact_dir / "fato_inventario.csv"),
         "dictionary_path": str(dict_path),
     }

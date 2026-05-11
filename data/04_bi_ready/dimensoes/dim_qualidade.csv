@@ -1,3 +1,0 @@
-﻿sk_qualidade,id_qualidade_hash,sk_documento,id_documento_logico,score_qualidade,nivel_qualidade,flag_revisao_manual,motivos_revisao
-1,qlt_0b4926f8f4e9b65b,2,doc_1ef6f7fd04bfc171,0.92,Alta,True,abrangencia_nao_informada
-2,qlt_c6a75b178ec257bd,1,doc_05f886b2ca373f65,0.85,Alta,True,estudo_futuro_sem_metodo
