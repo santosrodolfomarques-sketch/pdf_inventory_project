@@ -73,6 +73,28 @@ def load_enrichment_dictionary(settings, filename: str) -> pd.DataFrame | None:
     df = df.drop_duplicates(subset=["_merge_key"], keep="last")
     return df
 
+def load_merged_dictionary(settings, review_filename: str, enriched_filename: str) -> pd.DataFrame | None:
+    df_review = load_review_dictionary(settings, review_filename)
+    df_enriched = load_enrichment_dictionary(settings, enriched_filename)
+
+    if df_review is None and df_enriched is None:
+        return None
+    if df_review is None:
+        return df_enriched
+    if df_enriched is None:
+        return df_review
+
+    df_merged = df_review.merge(df_enriched, on="_merge_key", how="outer", suffixes=("_man", "_ia"))
+    
+    for col in df_enriched.columns:
+        if col == "_merge_key":
+            continue
+        if col in df_review.columns:
+            df_merged[col] = df_merged[col + "_man"].fillna(df_merged[col + "_ia"])
+            df_merged = df_merged.drop(columns=[col + "_man", col + "_ia"])
+            
+    return df_merged
+
 def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
     """Prepara a base para BI priorizando colunas normalizadas e preenchendo vazios críticos."""
     df = df_raw.copy()
@@ -513,9 +535,9 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
     dim_cond, ponte_cond = explode_dimension_with_bridge(df, "id_documento_logico", "condicionantes_estudo_futuro", "condicionante", "con", doc_sk_map, "sk_condicionante")
     dim_source_file, ponte_source_file = explode_dimension_with_bridge(df, "id_documento_logico", "source_files", "arquivo_origem", "src", doc_sk_map, "sk_source_file")
 
-    inst_dict = load_review_dictionary(settings, "dicionario_instituicoes.csv")
-    method_dict = load_review_dictionary(settings, "dicionario_metodos.csv")
-    cond_dict = load_review_dictionary(settings, "dicionario_condicionantes.csv")
+    inst_dict = load_merged_dictionary(settings, "dicionario_instituicoes.csv", "dicionario_instituicoes_enriquecido.csv")
+    method_dict = load_merged_dictionary(settings, "dicionario_metodos.csv", "dicionario_metodos_taxonomia.csv")
+    cond_dict = load_merged_dictionary(settings, "dicionario_condicionantes.csv", "dicionario_condicionantes_cluster.csv")
 
     dim_instituicao_responsavel = apply_institution_enrichment(dim_instituicao_responsavel, inst_dict, "instituicao")
     dim_apoio = apply_institution_enrichment(dim_apoio, inst_dict, "instituicao_apoio")
