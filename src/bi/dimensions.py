@@ -29,6 +29,8 @@ LIST_COLUMNS = [
     "referencias",
     "condicionantes_estudo_futuro",
     "source_files",
+    "setor",
+    "abrangencia_territorial",
 ]
 
 
@@ -96,12 +98,12 @@ def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
             lambda v: (str(v)[:77].rstrip() + "...") if len(str(v)) > 80 else str(v)
         )
     df["bi_tipo_documento"] = choose_scalar(df, "tipo_documento", "Não informado")
-    df["bi_setor"] = choose_scalar(df, "setor", "Não informado")
-    df["bi_abrangencia"] = choose_scalar(df, "abrangencia_territorial", "Não informado")
     df["bi_instituicao_responsavel"] = choose_scalar(df, "instituicao_responsavel", "Não informado")
     df["bi_tipo_estudo_futuro"] = choose_scalar(df, "tipo_estudo_futuro", "Não informado")
     df["bi_familia_do_metodo"] = choose_scalar(df, "familia_do_metodo", "Não classificado")
 
+    df["bi_setores"] = choose_list(df, "setor")
+    df["bi_abrangencias"] = choose_list(df, "abrangencia_territorial")
     df["bi_temas"] = choose_list(df, "temas")
     df["bi_metodos"] = choose_list(df, "metodos_estudo_futuro")
     df["bi_instituicoes_apoio"] = choose_list(df, "instituicoes_apoio")
@@ -407,8 +409,8 @@ def build_quality_dimension(df: pd.DataFrame, doc_sk_map: pd.DataFrame) -> pd.Da
         possui_nome = bool(coalesce_text(getattr(row, "bi_nome_documento", None)))
         possui_ano = pd.notna(getattr(row, "ano_publicacao", None))
         possui_horizonte = pd.notna(getattr(row, "horizonte_temporal", None))
-        possui_setor = coalesce_text(getattr(row, "bi_setor", None)) not in {None, "Não informado"}
-        possui_abrangencia = coalesce_text(getattr(row, "bi_abrangencia", None)) not in {None, "Não informado"}
+        possui_setor = len(getattr(row, "bi_setores", []) or []) > 0
+        possui_abrangencia = len(getattr(row, "bi_abrangencias", []) or []) > 0
         aplicou_estudo = bool(getattr(row, "aplicou_estudo_futuro", False))
 
         score = 0.0
@@ -499,8 +501,8 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
     doc_sk_map = dim_documento[["sk_documento", "id_documento_hash"]].rename(columns={"id_documento_hash": "id_documento_logico"})
 
     dim_tempo = build_time_dimension(df)
-    dim_setor = build_simple_dimension(df, "bi_setor", "set", "setor", "sk_setor")
-    dim_abrangencia = build_simple_dimension(df, "bi_abrangencia", "abr", "abrangencia", "sk_abrangencia")
+    dim_setor, ponte_setor = explode_dimension_with_bridge(df, "id_documento_logico", "bi_setores", "setor", "set", doc_sk_map, "sk_setor")
+    dim_abrangencia, ponte_abrangencia = explode_dimension_with_bridge(df, "id_documento_logico", "bi_abrangencias", "abrangencia", "abr", doc_sk_map, "sk_abrangencia")
     dim_instituicao_responsavel = build_simple_dimension(df, "bi_instituicao_responsavel", "ins", "instituicao", "sk_instituicao")
 
     theme_dict = load_review_dictionary(settings, "dicionario_temas.csv")
@@ -543,4 +545,6 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
         "ponte_documento_referencia": ponte_ref,
         "ponte_documento_condicionante": ponte_cond,
         "ponte_documento_arquivo_origem": ponte_source_file,
+        "ponte_documento_setor": ponte_setor,
+        "ponte_documento_abrangencia": ponte_abrangencia,
     }

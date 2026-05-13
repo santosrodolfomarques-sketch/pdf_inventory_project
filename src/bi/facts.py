@@ -65,8 +65,6 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
 
     dim_documento = dimensions["dim_documento"]
     dim_tempo = dimensions["dim_tempo"]
-    dim_setor = dimensions["dim_setor"]
-    dim_abrangencia = dimensions["dim_abrangencia"]
     dim_metodologia = dimensions["dim_metodologia"]
     dim_qualidade = dimensions.get("dim_qualidade", pd.DataFrame())
 
@@ -89,9 +87,6 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
         how="left",
         validate="many_to_one",
     )
-
-    fact = _merge_dimension_sk(fact, dim_setor, "bi_setor", "setor", "sk_setor", "id_setor")
-    fact = _merge_dimension_sk(fact, dim_abrangencia, "bi_abrangencia", "abrangencia", "sk_abrangencia", "id_abrangencia")
 
     methodology_cols = [
         "sk_metodologia",
@@ -163,8 +158,6 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
             "fat",
             getattr(row, "id_documento_logico", None),
             getattr(row, "id_tempo_hash", None),
-            getattr(row, "id_setor", None),
-            getattr(row, "id_abrangencia", None),
             getattr(row, "id_metodologia_hash", None),
             getattr(row, "sk_instituicao", None),
         )
@@ -187,10 +180,6 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
         "id_documento_logico",
         "sk_tempo",
         "id_tempo_hash",
-        "sk_setor",
-        "id_setor",
-        "sk_abrangencia",
-        "id_abrangencia",
         "sk_instituicao",
         "sk_metodologia",
         "id_metodologia_hash",
@@ -220,10 +209,6 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
         "nome_documento_curto",
         "tipo_documento",
         "tipo_documento_norm",
-        "setor",
-        "setor_norm",
-        "abrangencia_territorial",
-        "abrangencia_territorial_norm",
         "instituicao_responsavel",
         "instituicao_responsavel_norm",
         "tipo_estudo_futuro",
