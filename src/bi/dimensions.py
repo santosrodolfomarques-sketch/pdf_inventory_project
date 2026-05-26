@@ -62,6 +62,10 @@ def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
     df["bi_instituicao_responsavel"] = choose_scalar(df, "instituicao_responsavel", "Não informado")
     df["bi_tipo_estudo_futuro"] = choose_scalar(df, "tipo_estudo_futuro", "Não informado")
     df["bi_familia_do_metodo"] = choose_scalar(df, "familia_do_metodo", "Não classificado")
+    df["bi_familia_do_metodo"] = df.apply(
+        lambda row: classify_method_family(row["bi_tipo_estudo_futuro"], row["bi_familia_do_metodo"]),
+        axis=1,
+    )
 
     df["bi_temas"] = choose_list(df, "temas")
     df["bi_metodos"] = choose_list(df, "metodos_estudo_futuro")
@@ -76,6 +80,11 @@ def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
         df["qtd_arquivos_origem"] = df["source_files"].apply(
             lambda x: len(x) if isinstance(x, list) else 0
         )
+
+    df["id_tempo_hash"] = [
+        stable_hash_id("tmp", row.ano_publicacao, row.horizonte_temporal, row.extensao_tempo)
+        for row in df.itertuples(index=False)
+    ]
 
     return df
 
@@ -110,19 +119,13 @@ def build_document_dimension(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_time_dimension(df: pd.DataFrame) -> pd.DataFrame:
     dim = (
-        df[["ano_publicacao", "horizonte_temporal", "extensao_tempo"]]
+        df[["id_tempo_hash", "ano_publicacao", "horizonte_temporal", "extensao_tempo"]]
         .drop_duplicates()
-        .dropna(how="all")
         .reset_index(drop=True)
     )
 
-    dim["id_tempo_hash"] = [
-        stable_hash_id("tmp", row.ano_publicacao, row.horizonte_temporal, row.extensao_tempo)
-        for row in dim.itertuples(index=False)
-    ]
-
     dim = add_surrogate_key(
-        dim[["id_tempo_hash", "ano_publicacao", "horizonte_temporal", "extensao_tempo"]],
+        dim,
         "sk_tempo",
         ["id_tempo_hash"],
     )

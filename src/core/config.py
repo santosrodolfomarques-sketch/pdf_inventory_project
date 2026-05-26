@@ -82,7 +82,7 @@ class Settings:
     max_chars_per_chunk: int = field(default_factory=lambda: int(os.getenv("MAX_CHARS_PER_CHUNK", "120000")))
     chunk_overlap: int = field(default_factory=lambda: int(os.getenv("CHUNK_OVERLAP", "5000")))
     pause_between_calls: float = field(default_factory=lambda: float(os.getenv("PAUSE_BETWEEN_CALLS", "1.2")))
-    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "80")))
+    ai_dictionary_batch_size: int = field(default_factory=lambda: int(os.getenv("AI_DICTIONARY_BATCH_SIZE", "30")))
     ai_apply_min_confidence: str = field(default_factory=lambda: os.getenv("AI_APPLY_MIN_CONFIDENCE", "alta"))
 
     # Pesos configuráveis para cálculo do score de qualidade BI
