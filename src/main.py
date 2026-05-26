@@ -1,50 +1,21 @@
 from __future__ import annotations
 
 import argparse
-
-from src.shared.config import (
-    AI_APPLIED_DIR,
-    AI_DICTIONARY_DIR,
-    AI_DICTIONARY_REVIEW_DIR,
-    AI_NORMALIZATION_DIR,
-    BI_BRIDGE_DIR,
-    BI_DICT_DIR,
-    BI_DIM_DIR,
-    BI_FACT_DIR,
-    ENRICHMENT_DIR,
-    EXTRACTED_JSON_DIR,
-    EXTRACTION_CONTROL_DIR,
-    EXTRACTION_LOG_DIR,
-    RAW_PDF_DIR,
-    TRANSFORMED_BASE_DIR,
-    TRANSFORMED_NORMALIZED_DIR,
-    TRANSFORMED_PENDING_DIR,
-    TRANSFORMED_UNIQUE_DIR,
-    get_settings,
-)
+from src.core.config import get_settings
 from src.shared.logging_utils import setup_logger
 from src.shared.utils import ensure_dirs
 
 
-def _parse_targets(raw_targets: str | None) -> list[str] | None:
-    if not raw_targets:
-        return None
-    return [item.strip() for item in raw_targets.split(",") if item.strip()]
-
-
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Pipeline reestruturado para inventário de PDFs.")
+    parser = argparse.ArgumentParser(description="Pipeline enterprise reestruturado para inventário de PDFs (Caminho B).")
     parser.add_argument(
         "--stage",
         choices=[
             "all",
             "extraction",
-            "retry-failed",
-            "transform",
             "transformation",
             "ai-normalization",
             "apply-normalization",
-            "enrichment",
             "bi",
         ],
         default="all",
@@ -53,17 +24,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--force-reprocess",
         action="store_true",
-        help="Ignora cache da camada de extração.",
+        help="Ignora o cache da camada de extração e força consulta ao Gemini.",
     )
     parser.add_argument(
         "--only-new-values",
         action="store_true",
         help="Na normalização por IA, envia apenas valores que ainda não existem nos dicionários.",
-    )
-    parser.add_argument(
-        "--targets",
-        default=None,
-        help="Alvos da normalização por IA, separados por vírgula. Ex.: setor,temas,metodos",
     )
     return parser.parse_args()
 
@@ -72,81 +38,74 @@ def main() -> None:
     args = parse_args()
     settings = get_settings()
 
+    # Assegura que todas as pastas físicas do pipeline existam
     ensure_dirs([
-        RAW_PDF_DIR,
-        EXTRACTED_JSON_DIR,
-        EXTRACTION_LOG_DIR,
-        EXTRACTION_CONTROL_DIR,
-        TRANSFORMED_BASE_DIR,
-        TRANSFORMED_NORMALIZED_DIR,
-        TRANSFORMED_PENDING_DIR,
-        TRANSFORMED_UNIQUE_DIR,
-        AI_NORMALIZATION_DIR,
-        AI_DICTIONARY_DIR,
-        AI_DICTIONARY_REVIEW_DIR,
-        AI_APPLIED_DIR,
-        ENRICHMENT_DIR,
-        BI_DIM_DIR,
-        BI_FACT_DIR,
-        BI_BRIDGE_DIR,
-        BI_DICT_DIR,
+        settings.raw_pdf_dir,
+        settings.extracted_json_dir,
+        settings.extraction_log_dir,
+        settings.extraction_control_dir,
+        settings.transformed_base_dir,
+        settings.transformed_normalized_dir,
+        settings.transformed_pending_dir,
+        settings.transformed_unique_dir,
+        settings.ai_normalization_dir,
+        settings.ai_dictionary_dir,
+        settings.ai_dictionary_review_dir,
+        settings.ai_applied_dir,
+        settings.enrichment_dir,
+        settings.bi_dim_dir,
+        settings.bi_fact_dir,
+        settings.bi_bridge_dir,
+        settings.bi_dict_dir,
     ])
 
-    logger = setup_logger("pdf_inventory", EXTRACTION_LOG_DIR / "pipeline.log")
-    targets = _parse_targets(args.targets)
+    logger = setup_logger("pdf_inventory", settings.extraction_log_dir / "pipeline.log")
     stage = args.stage
 
-    if stage == "all":
-        from src.extraction.extraction_pipeline import run_extraction
-        from src.transformation.transformation_pipeline import run_transformation
-        from src.normalization_ai.normalization_ai_pipeline import (
-            run_ai_normalization,
-            run_apply_ai_normalization,
-        )
-        from src.enrichment_ai.enrichment_pipeline import run_enrichment
-        from src.bi.bi_pipeline import run_bi_preparation
+    logger.info(f"Iniciando pipeline PDF Inventory - Etapa: {stage}")
 
+    if stage == "all":
+        from src.extraction.pipeline import run_extraction
+        from src.transformation.pipeline import run_transformation
+        from src.normalization.pipeline import run_ai_normalization, apply_ai_dictionaries
+        from src.bi.pipeline import run_bi_preparation
+
+        logger.info("--- 1. EXTRATÃO (LLM + Pydantic + Embeddings) ---")
         run_extraction(settings, logger, force_reprocess=args.force_reprocess)
+
+        logger.info("--- 2. TRANSFORMAÇÃO & DEDUPLICAÇÃO ---")
         run_transformation(settings, logger)
-        run_ai_normalization(settings, logger, only_new_values=args.only_new_values, targets=targets)
-        run_apply_ai_normalization(settings, logger)
-        run_enrichment(settings, logger)
+
+        logger.info("--- 3. NORMALIZAÇÃO IA (Batch Dictionaries) ---")
+        run_ai_normalization(settings, logger, only_new_values=args.only_new_values)
+
+        logger.info("--- 4. APLICAÇÃO DOS DICIONÁRIOS ---")
+        apply_ai_dictionaries(settings, logger)
+
+        logger.info("--- 5. MODELAGEM ESTRELA BI ---")
         run_bi_preparation(settings, logger)
 
     elif stage == "extraction":
-        from src.extraction.extraction_pipeline import run_extraction
-
+        from src.extraction.pipeline import run_extraction
         run_extraction(settings, logger, force_reprocess=args.force_reprocess)
 
-    elif stage == "retry-failed":
-        from src.extraction.extraction_pipeline import run_extraction
-
-        run_extraction(settings, logger, force_reprocess=args.force_reprocess, only_failed=True)
-
-    elif stage in {"transform", "transformation"}:
-        from src.transformation.transformation_pipeline import run_transformation
-
+    elif stage == "transformation":
+        from src.transformation.pipeline import run_transformation
         run_transformation(settings, logger)
 
     elif stage == "ai-normalization":
-        from src.normalization_ai.normalization_ai_pipeline import run_ai_normalization
-
-        run_ai_normalization(settings, logger, only_new_values=args.only_new_values, targets=targets)
+        from src.normalization.pipeline import run_ai_normalization
+        run_ai_normalization(settings, logger, only_new_values=args.only_new_values)
 
     elif stage == "apply-normalization":
-        from src.normalization_ai.normalization_ai_pipeline import run_apply_ai_normalization
-
-        run_apply_ai_normalization(settings, logger)
-
-    elif stage == "enrichment":
-        from src.enrichment_ai.enrichment_pipeline import run_enrichment
-
-        run_enrichment(settings, logger)
+        from src.normalization.pipeline import apply_ai_dictionaries
+        apply_ai_dictionaries(settings, logger)
 
     elif stage == "bi":
-        from src.bi.bi_pipeline import run_bi_preparation
-
+        from src.bi.pipeline import run_bi_preparation
         run_bi_preparation(settings, logger)
+
+    logger.info("Execução do pipeline concluída com sucesso.")
 
 
 if __name__ == "__main__":
