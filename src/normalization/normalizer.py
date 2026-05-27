@@ -110,7 +110,7 @@ def build_ai_dictionaries(
     only_new_values: bool = False,
 ) -> dict[str, Any]:
     """Lê os valores únicos salvos pela transformação e propõe dicionários estruturados via IA."""
-    targets = targets or ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes"]
+    targets = targets or ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel"]
 
     settings.ai_dictionary_dir.mkdir(parents=True, exist_ok=True)
     settings.ai_dictionary_review_dir.mkdir(parents=True, exist_ok=True)
