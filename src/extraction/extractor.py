@@ -73,6 +73,7 @@ class GeminiExtractorClient:
     def __init__(
         self,
         api_key: str,
+        model_lite: str = "gemini-2.5-flash-lite",
         model_flash: str = "gemini-2.5-flash",
         model_pro: str = "gemini-2.5-pro",
         max_retries: int = 3,
@@ -81,6 +82,7 @@ class GeminiExtractorClient:
         if not api_key:
             raise ValueError("GEMINI_API_KEY não configurada. Verifique seu arquivo .env.")
         self.client = genai.Client(api_key=api_key)
+        self.model_lite = model_lite
         self.model_flash = model_flash
         self.model_pro = model_pro
         self.max_retries = max_retries
@@ -93,7 +95,8 @@ class GeminiExtractorClient:
     def generate_metadata(self, text_chunk: str) -> tuple[ExtractionModel, str]:
         """
         Gera os metadados do documento utilizando a funcionalidade de
-        Structured Outputs nativa do Gemini 2.5 com o esquema Pydantic.
+        Structured Outputs nativa do Gemini com o esquema Pydantic,
+        percorrendo uma cadeia de fallback de menor custo ao maior custo.
         """
         prompt = f"""
 Você é um analista especialista em curadoria e catalogação de documentos técnicos e estudos de futuro.
@@ -109,13 +112,18 @@ TEXTO DO DOCUMENTO:
 {text_chunk}
         """.strip()
 
+        # Cadeia de fallback progressiva
+        model_chain = [self.model_lite, self.model_flash, self.model_pro]
         last_error = None
+
         for attempt in range(self.max_retries):
-            # Tenta com o Flash; faz fallback para o Pro na última tentativa
-            model_name = self.model_flash if attempt < self.max_retries - 1 else self.model_pro
+            # Seleciona o modelo da cadeia com base na tentativa
+            idx = min(attempt, len(model_chain) - 1)
+            model_name = model_chain[idx]
+            
             try:
-                if attempt == self.max_retries - 1 and self.max_retries > 1:
-                    self._log("Acionando fallback para o modelo Pro devido a falhas anteriores.")
+                if attempt > 0:
+                    self._log(f"Fallback acionado: mudando para o modelo {model_name} na tentativa {attempt + 1}")
 
                 response = self.client.models.generate_content(
                     model=model_name,
@@ -127,7 +135,6 @@ TEXTO DO DOCUMENTO:
                     ),
                 )
 
-                # O retorno é validado automaticamente contra o ExtractionModel
                 parsed_model = ExtractionModel.model_validate_json(response.text)
                 return parsed_model, model_name
 

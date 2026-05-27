@@ -74,6 +74,7 @@ DEFAULT_SECTOR_MAP = {
 @dataclass(slots=True)
 class Settings:
     gemini_api_key: str = field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
+    model_lite: str = field(default_factory=lambda: os.getenv("MODEL_LITE", "gemini-2.5-flash-lite"))
     model_flash: str = field(default_factory=lambda: os.getenv("MODEL_FLASH", "gemini-2.5-flash"))
     model_pro: str = field(default_factory=lambda: os.getenv("MODEL_PRO", "gemini-2.5-pro"))
     max_retries: int = field(default_factory=lambda: int(os.getenv("MAX_RETRIES", "3")))

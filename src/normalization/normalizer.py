@@ -19,6 +19,7 @@ class GeminiNormalizerClient:
     def __init__(
         self,
         api_key: str,
+        model_lite: str = "gemini-2.5-flash-lite",
         model_flash: str = "gemini-2.5-flash",
         model_pro: str = "gemini-2.5-pro",
         max_retries: int = 3,
@@ -27,6 +28,7 @@ class GeminiNormalizerClient:
         if not api_key:
             raise ValueError("GEMINI_API_KEY não configurada. Verifique seu arquivo .env.")
         self.client = genai.Client(api_key=api_key)
+        self.model_lite = model_lite
         self.model_flash = model_flash
         self.model_pro = model_pro
         self.max_retries = max_retries
@@ -62,10 +64,17 @@ VALORES BRUTOS A ANALISAR:
 {json.dumps(values, ensure_ascii=False, indent=2)}
         """.strip()
 
+        # Cadeia de fallback progressiva
+        model_chain = [self.model_lite, self.model_flash, self.model_pro]
         last_error = None
+        
         for attempt in range(self.max_retries):
-            model_name = self.model_flash if attempt < self.max_retries - 1 else self.model_pro
+            idx = min(attempt, len(model_chain) - 1)
+            model_name = model_chain[idx]
             try:
+                if attempt > 0:
+                    self._log(f"Fallback normalizador acionado: mudando para {model_name} na tentativa {attempt + 1}")
+
                 response = self.client.models.generate_content(
                     model=model_name,
                     contents=prompt,
@@ -80,7 +89,7 @@ VALORES BRUTOS A ANALISAR:
 
             except Exception as exc:
                 last_error = exc
-                self._log(f"Falha ao normalizar lote de {target_name} ({model_name}): {exc}")
+                self._log(f"Falha ao normalizar lote de {target_name} ({model_name}) | tentativa {attempt+1}: {exc}")
                 if attempt < self.max_retries - 1:
                     time.sleep(2 ** attempt)
 
@@ -108,6 +117,7 @@ def build_ai_dictionaries(
 
     client = GeminiNormalizerClient(
         api_key=settings.gemini_api_key,
+        model_lite=settings.model_lite,
         model_flash=settings.model_flash,
         model_pro=settings.model_pro,
         max_retries=settings.max_retries,
