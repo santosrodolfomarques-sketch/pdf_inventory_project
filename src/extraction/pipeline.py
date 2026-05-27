@@ -8,7 +8,7 @@ from typing import Any
 from src.core.config import Settings
 from src.core.schemas import ExtractionModel
 from src.extraction.extractor import GeminiExtractorClient, extract_pdf_text_and_check
-from src.shared.cache_manager import build_cache_path, load_cached_extraction, save_cached_extraction
+from src.extraction.cache_manager import build_cache_path, load_cached_extraction, save_cached_extraction
 from src.shared.utils import append_rows_to_csv, file_sha256, utc_now_iso, write_json, read_json
 
 FAILED_STATUSES = {
