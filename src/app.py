@@ -252,7 +252,7 @@ elif menu == "🛠️ Dicionários de Normalização":
     st.title("🛠️ Auditoria de Dicionários IA")
     st.markdown("Valide ou edite as normalizações automáticas propostas pela inteligência artificial antes da modelagem final do Power BI.")
 
-    targets = ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes"]
+    targets = ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes", "temas", "metodos"]
     target_sel = st.selectbox("Selecione o dicionário para auditar:", targets)
 
     dict_path = settings.ai_dictionary_dir / f"dicionario_{target_sel}.csv"

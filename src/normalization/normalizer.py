@@ -43,11 +43,45 @@ class GeminiNormalizerClient:
         if not values:
             return DictionaryModel(items=[])
 
+        taxonomy_context = ""
+        if target_name == "temas":
+            taxonomy_context = """
+Para os temas, classifique rigidamente em:
+- categoria (Macrotema): Escolha um de: ["Agenda 2030 e ODS", "Meio Ambiente e Clima", "Energia e Recursos Naturais", "Infraestrutura e Território", "Desenvolvimento Social", "Economia e Trabalho", "Governança e Instituições", "Ciência, Tecnologia e Inovação", "Segurança e Defesa", "Agropecuária e Alimentação", "Outros / Não Classificado"]
+- subcategoria (Subtema): Escolha um de: ["ODS / Agenda 2030", "Clima", "Biodiversidade e Ecossistemas", "Saneamento e Resíduos", "Recursos Hídricos", "Energia", "Mineração", "Transporte e Logística", "Cidades e Habitação", "Pobreza e Desigualdade", "Saúde", "Educação", "Gênero e Diversidade", "Trabalho e Renda", "Indústria e Competitividade", "Finanças Públicas", "Governança", "Segurança e Defesa", "Tecnologia", "Agropecuária e Alimentação", "Outros"]
+"""
+        elif target_name == "metodos":
+            taxonomy_context = """
+Para os métodos de estudo de futuro, classifique rigidamente em:
+- categoria (Família do Método): Escolha um de: ["Cenários Prospectivos", "Extrapolação de Tendências", "Painel de Especialistas (Delphi/Workshops)", "Modelagem e Simulação Quantitativa", "Visão de Futuro / Backcasting", "Planejamento Estratégico / Roadmapping", "Monitoramento e Indicadores", "Análise Documental e Bibliográfica", "Outros / Não Classificado"]
+- subcategoria (Natureza do Método): Escolha um de: ["Quantitativo", "Qualitativo", "Prospectivo", "Documental", "Não Classificado"]
+"""
+        elif target_name == "setor":
+            taxonomy_context = """
+Para os setores, classifique rigidamente em:
+- categoria (Macro Setor): Escolha um de: ["Meio Ambiente e Clima", "Energia e Recursos Naturais", "Infraestrutura e Território", "Desenvolvimento Social", "Economia e Trabalho", "Governança e Setor Público", "Ciência, Tecnologia e Inovação", "Multissetorial", "Outros / Não Classificado"]
+- subcategoria: null ou uma especificação mais detalhada.
+"""
+        elif target_name == "abrangencia_territorial":
+            taxonomy_context = """
+Para abrangência territorial, classifique rigidamente em:
+- categoria (Nível de Abrangência): Escolha um de: ["Global", "Nacional", "País estrangeiro", "Estadual", "Regional", "Municipal/Local", "Não informado"]
+- subcategoria (País): Escolha um de: ["Brasil", "França", "Irlanda", "Global", "Não informado"]
+"""
+        elif target_name == "condicionantes":
+            taxonomy_context = """
+Para as incertezas e condicionantes, classifique rigidamente em:
+- categoria (Categoria do Condicionante): Escolha um de: ["Ambiental", "Social", "Econômico", "Tecnológico", "Político", "Institucional", "Outros"]
+- subcategoria (Cluster do Condicionante): Escolha um de: ["Mudanças climáticas e transição ambiental", "Recursos naturais e biodiversidade", "Desigualdade e vulnerabilidade social", "Conjuntura econômica e financiamento", "Tecnologia e inovação", "Governança e capacidade institucional", "Riscos políticos e regulatórios", "Demanda, produção e cadeias produtivas", "Outros condicionantes"]
+"""
+
         prompt = f"""
 Você é um curador de dados analíticos especialista em higienização, taxonomia e preparação de bases de BI.
 Sua missão é ler a lista de valores brutos extraídos de documentos e sugerir uma tabela de normalização estruturada.
 
 CAMPO ALVO: {target_name}
+
+{taxonomy_context}
 
 DIRETRIZES:
 1. Agrupe sinônimos óbvios, variações de escrita, caixa alta/baixa, erros de digitação e plurais sob um único termo normalizado.
@@ -55,7 +89,8 @@ DIRETRIZES:
 3. Para cada item, preencha:
    - valor_original: exatamente igual ao enviado.
    - valor_normalizado: o termo padronizado (ou null se deve manter o original).
-   - categoria: categoria ampla (ex.: setor energético, instituição pública, tema ambiental, etc.).
+   - categoria: categoria ampla/macro classificada de acordo com a taxonomia informada acima. Se não corresponder a nenhuma, use 'Outros / Não Classificado' ou equivalente.
+   - subcategoria: subcategoria detalhada classificada de acordo com a taxonomia informada acima.
    - confianca: 'alta' (certeza da equivalência), 'media' ou 'baixa'.
    - acao_recomendada: 'aplicar automático' (se a confiança for alta), 'revisar manualmente' (se for ambíguo) ou 'manter original' (se o termo já estiver perfeito).
    - justificativa: uma frase explicativa curta.
@@ -110,7 +145,7 @@ def build_ai_dictionaries(
     only_new_values: bool = False,
 ) -> dict[str, Any]:
     """Lê os valores únicos salvos pela transformação e propõe dicionários estruturados via IA."""
-    targets = targets or ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel"]
+    targets = targets or ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "temas", "metodos", "condicionantes"]
 
     settings.ai_dictionary_dir.mkdir(parents=True, exist_ok=True)
     settings.ai_dictionary_review_dir.mkdir(parents=True, exist_ok=True)

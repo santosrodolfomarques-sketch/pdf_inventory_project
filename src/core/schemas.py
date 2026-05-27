@@ -69,6 +69,7 @@ class DictionaryItemModel(BaseModel):
     valor_original: str = Field(..., description="O valor original extraído dos documentos técnicos.")
     valor_normalizado: str | None = Field(None, description="O valor padronizado recomendado para a taxonomia unificada de BI.")
     categoria: str | None = Field(None, description="Categoria semântica ampla à qual o valor pertence.")
+    subcategoria: str | None = Field(None, description="Subcategoria semântica detalhada à qual o valor pertence.")
     confianca: str = Field(..., description="Grau de confiança na equivalência semântica: 'alta', 'media' ou 'baixa'.")
     acao_recomendada: str = Field(
         ...,

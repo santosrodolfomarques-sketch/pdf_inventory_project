@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.bi.bridges import add_surrogate_key, build_simple_dimension, explode_dimension_with_bridge
-from src.bi.dimensions import prepare_bi_dataframe, load_enrichment_dictionary, apply_institution_enrichment, apply_condition_enrichment, build_metodologia_dimension, build_time_dimension
+from src.bi.dimensions import prepare_bi_dataframe, load_enrichment_dictionary, apply_institution_enrichment, apply_condition_enrichment, build_metodologia_dimension, build_time_dimension, build_theme_dimension_and_bridge, build_method_dimension_and_bridge, load_ai_dictionary_mappings
 from src.bi.facts import build_fact_inventory
 from src.bi.semantic_helpers import (
     choose_list,
@@ -52,21 +52,31 @@ def build_star_schema(df_raw: pd.DataFrame, settings: Settings) -> dict[str, pd.
     # 2. Dimensão Tempo
     dim_tempo = build_time_dimension(df)
 
+    from src.transformation.cleansing import remove_accents
+
     # 3. Dimensão Setor
     dim_setor = build_simple_dimension(df, "bi_setor", "set", "setor", "sk_setor")
-    dim_setor["macro_setor"] = dim_setor["setor"].apply(classify_macro_setor)
+    cat_map_setor, _ = load_ai_dictionary_mappings(settings, "setor")
+    dim_setor["macro_setor"] = dim_setor["setor"].apply(
+        lambda x: cat_map_setor.get(remove_accents(str(x)).lower(), classify_macro_setor(x))
+    )
 
     # 4. Dimensão Abrangência
     dim_abrangencia = build_simple_dimension(df, "bi_abrangencia", "abr", "abrangencia", "sk_abrangencia")
-    dim_abrangencia["nivel_abrangencia"] = dim_abrangencia["abrangencia"].apply(classify_nivel_abrangencia)
-    dim_abrangencia["pais"] = dim_abrangencia["abrangencia"].apply(classify_pais_abrangencia)
+    cat_map_abr, subcat_map_abr = load_ai_dictionary_mappings(settings, "abrangencia_territorial")
+    dim_abrangencia["nivel_abrangencia"] = dim_abrangencia["abrangencia"].apply(
+        lambda x: cat_map_abr.get(remove_accents(str(x)).lower(), classify_nivel_abrangencia(x))
+    )
+    dim_abrangencia["pais"] = dim_abrangencia["abrangencia"].apply(
+        lambda x: subcat_map_abr.get(remove_accents(str(x)).lower(), classify_pais_abrangencia(x))
+    )
 
     # 5. Dimensão Instituição Responsável
     dim_inst_resp = build_simple_dimension(df, "bi_instituicao_responsavel", "ins", "instituicao", "sk_instituicao")
 
     # 6. Dimensões Multivaloradas e Pontes (Temas, Métodos, Apoio, Condicionantes, Referências, Fontes)
-    dim_tema, ponte_tema = _build_theme_dimension_and_bridge(df, doc_sk_map)
-    dim_metodo, ponte_metodo = _build_method_dimension_and_bridge(df, doc_sk_map)
+    dim_tema, ponte_tema = build_theme_dimension_and_bridge(df, doc_sk_map, settings)
+    dim_metodo, ponte_metodo = build_method_dimension_and_bridge(df, doc_sk_map, settings)
 
     dim_apoio, ponte_apoio = explode_dimension_with_bridge(df, "id_documento_logico", "bi_instituicoes_apoio", "instituicao_apoio", "iap", doc_sk_map, "sk_instituicao_apoio")
     dim_ref, ponte_ref = explode_dimension_with_bridge(df, "id_documento_logico", "referencias", "referencia", "ref", doc_sk_map, "sk_referencia")
@@ -82,7 +92,7 @@ def build_star_schema(df_raw: pd.DataFrame, settings: Settings) -> dict[str, pd.
     dim_cond = apply_condition_enrichment(dim_cond, cond_dict)
 
     # 7. Dimensão Metodologia
-    dim_metodologia = build_metodologia_dimension(df)
+    dim_metodologia = build_metodologia_dimension(df, settings)
 
     # 8. Cálculo Dinâmico da Dimensão Qualidade usando os Pesos Parametrizados
     dim_qualidade = _build_dynamic_quality_dimension(df, doc_sk_map, settings)
@@ -115,38 +125,6 @@ def build_star_schema(df_raw: pd.DataFrame, settings: Settings) -> dict[str, pd.
     dimensions["fato_inventario"] = fact
     return dimensions
 
-
-def _build_theme_dimension_and_bridge(df: pd.DataFrame, doc_sk_map: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    base = df[["id_documento_logico", "bi_temas"]].explode("bi_temas").dropna()
-    base = base[base["bi_temas"].astype(str).str.strip() != ""]
-    base = base.rename(columns={"bi_temas": "tema"})
-
-    dim = base[["tema"]].drop_duplicates().reset_index(drop=True)
-    dim["macrotema"] = dim["tema"].apply(classify_macrotema)
-    dim["subtema"] = dim["tema"].apply(classify_subtema)
-    dim["id_tema_hash"] = [stable_hash_id("tem", row.tema) for row in dim.itertuples(index=False)]
-    dim = add_surrogate_key(dim[["id_tema_hash", "tema", "macrotema", "subtema"]], "sk_tema", ["id_tema_hash"])
-
-    ponte = base.merge(dim[["sk_tema", "id_tema_hash", "tema"]], on="tema", how="left")
-    ponte = ponte.merge(doc_sk_map, on="id_documento_logico", how="left")
-    return dim, ponte[["sk_documento", "id_documento_logico", "sk_tema", "id_tema_hash"]].drop_duplicates().reset_index(drop=True)
-
-
-def _build_method_dimension_and_bridge(df: pd.DataFrame, doc_sk_map: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
-    base = df[["id_documento_logico", "bi_metodos", "bi_familia_do_metodo"]].explode("bi_metodos").dropna()
-    base = base[base["bi_metodos"].astype(str).str.strip() != ""]
-    base = base.rename(columns={"bi_metodos": "metodo"})
-
-    dim = base[["metodo", "bi_familia_do_metodo"]].drop_duplicates().reset_index(drop=True)
-    from src.bi.semantic_helpers import classify_method_family, classify_method_nature
-    dim["familia_do_metodo"] = dim.apply(lambda r: classify_method_family(r["metodo"], r.get("bi_familia_do_metodo")), axis=1)
-    dim["natureza_metodo"] = dim.apply(lambda r: classify_method_nature(r["familia_do_metodo"], r["metodo"]), axis=1)
-    dim["id_metodo_hash"] = [stable_hash_id("met", r.metodo, r.familia_do_metodo) for r in dim.itertuples(index=False)]
-    dim = add_surrogate_key(dim[["id_metodo_hash", "metodo", "familia_do_metodo", "natureza_metodo"]], "sk_metodo", ["id_metodo_hash"])
-
-    ponte = base.merge(dim[["sk_metodo", "id_metodo_hash", "metodo"]], on="metodo", how="left")
-    ponte = ponte.merge(doc_sk_map, on="id_documento_logico", how="left")
-    return dim, ponte[["sk_documento", "id_documento_logico", "sk_metodo", "id_metodo_hash"]].drop_duplicates().reset_index(drop=True)
 
 
 def _build_dynamic_quality_dimension(df: pd.DataFrame, doc_sk_map: pd.DataFrame, settings: Settings) -> pd.DataFrame:

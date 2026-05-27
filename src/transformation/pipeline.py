@@ -254,6 +254,24 @@ def run_transformation(settings: Settings, logger: Any) -> dict[str, Any]:
                 cond_vals.add(val)
     _save_csv(pd.DataFrame({"valor_original": sorted(list(cond_vals))}), settings.transformed_unique_dir / "valores_unicos_condicionantes.csv")
 
+    # Extrai temas únicos por frequência (top 150 para evitar sobrecarga de API)
+    tema_counts = defaultdict(int)
+    for rec in consolidated_records:
+        for val in rec.get("temas", []):
+            if val:
+                tema_counts[val] += 1
+    sorted_temas = [t for t, _ in sorted(tema_counts.items(), key=lambda x: x[1], reverse=True)]
+    _save_csv(pd.DataFrame({"valor_original": sorted_temas[:150]}), settings.transformed_unique_dir / "valores_unicos_temas.csv")
+
+    # Extrai métodos únicos por frequência (top 150)
+    metodo_counts = defaultdict(int)
+    for rec in consolidated_records:
+        for val in rec.get("metodos_estudo_futuro", []):
+            if val:
+                metodo_counts[val] += 1
+    sorted_metodos = [m for m, _ in sorted(metodo_counts.items(), key=lambda x: x[1], reverse=True)]
+    _save_csv(pd.DataFrame({"valor_original": sorted_metodos[:150]}), settings.transformed_unique_dir / "valores_unicos_metodos.csv")
+
     logger.info("Transformação e consolidação lógica concluídas com sucesso.")
     return {
         "processed": len(unique_raw),

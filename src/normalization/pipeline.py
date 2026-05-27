@@ -94,7 +94,7 @@ def apply_ai_dictionaries(settings: Settings, logger: Any) -> dict[str, Any]:
 
     # Carrega todos os dicionários em memória
     mappings = {}
-    for dict_name in ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes"]:
+    for dict_name in ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes", "temas", "metodos"]:
         path = settings.ai_dictionary_dir / f"dicionario_{dict_name}.csv"
         mappings[dict_name] = _load_dictionary(path)
 
