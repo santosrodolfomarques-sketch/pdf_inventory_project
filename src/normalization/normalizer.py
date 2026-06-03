@@ -200,6 +200,7 @@ def build_ai_dictionaries(
         # Tenta normalizar primeiro usando o aprendizado ativo local (ML/Similarity)
         if ml_normalizer:
             logger.info(f"Aplicando normalizador ML ativo para o alvo: {target} ({len(valores_brutos)} termos)...")
+            ml_normalizer.warmup_query_embeddings(valores_brutos)
             for val in valores_brutos:
                 ml_sug = ml_normalizer.suggest_normalization(target, val)
                 if ml_sug:

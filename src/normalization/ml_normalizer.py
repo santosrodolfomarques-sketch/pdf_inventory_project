@@ -136,6 +136,29 @@ class MLNormalizer:
                 
         self._save_embeddings_cache()
 
+    def warmup_query_embeddings(self, texts: list[str]) -> None:
+        """Gera em lote os embeddings de termos de busca que não estão no cache para evitar chamadas sequenciais."""
+        terms_to_embed = [t for t in texts if t and t not in self.embeddings_cache]
+        if not terms_to_embed:
+            return
+            
+        self._log(f"Gerando embeddings em lote para {len(terms_to_embed)} termos de consulta...")
+        
+        batch_size = 100
+        for i in range(0, len(terms_to_embed), batch_size):
+            chunk = terms_to_embed[i:i + batch_size]
+            try:
+                response = self.client.models.embed_content(
+                    model=self.embedding_model,
+                    contents=chunk
+                )
+                for val, emb_data in zip(chunk, response.embeddings):
+                    self.embeddings_cache[val] = [float(x) for x in emb_data.values]
+            except Exception as e:
+                self._log(f"Falha ao obter embeddings de consulta em lote: {e}")
+                
+        self._save_embeddings_cache()
+
     def _get_embedding(self, text: str) -> list[float] | None:
         """Obtém embedding de um texto, usando cache ou chamando a API."""
         if text in self.embeddings_cache:
