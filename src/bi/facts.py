@@ -38,8 +38,8 @@ def build_fact_inventory(df_raw: pd.DataFrame, dimensions: dict[str, pd.DataFram
     )
 
     fact = fact.merge(
-        dim_tempo,
-        on=["ano_publicacao", "horizonte_temporal", "extensao_tempo"],
+        dim_tempo[["sk_tempo", "id_tempo_hash"]],
+        on="id_tempo_hash",
         how="left",
     )
 

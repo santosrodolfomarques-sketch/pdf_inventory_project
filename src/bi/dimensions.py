@@ -62,6 +62,10 @@ def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
     df["bi_instituicao_responsavel"] = choose_scalar(df, "instituicao_responsavel", "Não informado")
     df["bi_tipo_estudo_futuro"] = choose_scalar(df, "tipo_estudo_futuro", "Não informado")
     df["bi_familia_do_metodo"] = choose_scalar(df, "familia_do_metodo", "Não classificado")
+    df["bi_familia_do_metodo"] = df.apply(
+        lambda row: classify_method_family(row["bi_tipo_estudo_futuro"], row["bi_familia_do_metodo"]),
+        axis=1,
+    )
 
     df["bi_temas"] = choose_list(df, "temas")
     df["bi_metodos"] = choose_list(df, "metodos_estudo_futuro")
@@ -76,6 +80,11 @@ def prepare_bi_dataframe(df_raw: pd.DataFrame) -> pd.DataFrame:
         df["qtd_arquivos_origem"] = df["source_files"].apply(
             lambda x: len(x) if isinstance(x, list) else 0
         )
+
+    df["id_tempo_hash"] = [
+        stable_hash_id("tmp", row.ano_publicacao, row.horizonte_temporal, row.extensao_tempo)
+        for row in df.itertuples(index=False)
+    ]
 
     return df
 
@@ -110,19 +119,13 @@ def build_document_dimension(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_time_dimension(df: pd.DataFrame) -> pd.DataFrame:
     dim = (
-        df[["ano_publicacao", "horizonte_temporal", "extensao_tempo"]]
+        df[["id_tempo_hash", "ano_publicacao", "horizonte_temporal", "extensao_tempo"]]
         .drop_duplicates()
-        .dropna(how="all")
         .reset_index(drop=True)
     )
 
-    dim["id_tempo_hash"] = [
-        stable_hash_id("tmp", row.ano_publicacao, row.horizonte_temporal, row.extensao_tempo)
-        for row in dim.itertuples(index=False)
-    ]
-
     dim = add_surrogate_key(
-        dim[["id_tempo_hash", "ano_publicacao", "horizonte_temporal", "extensao_tempo"]],
+        dim,
         "sk_tempo",
         ["id_tempo_hash"],
     )
@@ -210,17 +213,62 @@ def apply_condition_enrichment(
     return enriched
 
 
+def load_ai_dictionary_mappings(settings, dict_name: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Carrega as categorias e subcategorias mapeadas no dicionário de normalização por IA."""
+    cat_map = {}
+    subcat_map = {}
+    if settings is None:
+        return cat_map, subcat_map
+    path = settings.ai_dictionary_dir / f"dicionario_{dict_name}.csv"
+    if not path.exists():
+        return cat_map, subcat_map
+    try:
+        from src.transformation.cleansing import remove_accents
+        df = pd.read_csv(path)
+        for _, row in df.iterrows():
+            orig = str(row.get("valor_original", "")).strip()
+            norm = str(row.get("valor_normalizado", "")).strip()
+            cat = str(row.get("categoria", "")).strip()
+            subcat = str(row.get("subcategoria", "")).strip()
+            
+            # Limpa valores nulos do pandas
+            if pd.isna(row.get("categoria")) or cat.lower() in {"nan", "none", "null", ""}:
+                cat = "Outros / Não Classificado"
+            if pd.isna(row.get("subcategoria")) or subcat.lower() in {"nan", "none", "null", ""}:
+                subcat = "Outros"
+                
+            # Mapeia tanto pela chave limpa do original quanto pelo normalizado
+            if orig:
+                key_orig = remove_accents(orig).lower()
+                cat_map[key_orig] = cat
+                subcat_map[key_orig] = subcat
+            if norm and norm.lower() not in {"nan", "none", "null", ""}:
+                key_norm = remove_accents(norm).lower()
+                cat_map[key_norm] = cat
+                subcat_map[key_norm] = subcat
+    except Exception:
+        pass
+    return cat_map, subcat_map
+
+
 def build_theme_dimension_and_bridge(
     df: pd.DataFrame,
     doc_sk_map: pd.DataFrame,
+    settings=None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     base = df[["id_documento_logico", "bi_temas"]].explode("bi_temas").dropna()
     base = base[base["bi_temas"].astype(str).str.strip() != ""]
     base = base.rename(columns={"bi_temas": "tema"})
 
     dim = base[["tema"]].drop_duplicates().reset_index(drop=True)
-    dim["macrotema"] = dim["tema"].apply(classify_macrotema)
-    dim["subtema"] = dim["tema"].apply(classify_subtema)
+    from src.transformation.cleansing import remove_accents
+    cat_map, subcat_map = load_ai_dictionary_mappings(settings, "temas")
+    dim["macrotema"] = dim["tema"].apply(
+        lambda x: cat_map.get(remove_accents(str(x)).lower(), classify_macrotema(x))
+    )
+    dim["subtema"] = dim["tema"].apply(
+        lambda x: subcat_map.get(remove_accents(str(x)).lower(), classify_subtema(x))
+    )
     dim["id_tema_hash"] = [stable_hash_id("tem", row.tema) for row in dim.itertuples(index=False)]
 
     dim = add_surrogate_key(
@@ -241,6 +289,7 @@ def build_theme_dimension_and_bridge(
 def build_method_dimension_and_bridge(
     df: pd.DataFrame,
     doc_sk_map: pd.DataFrame,
+    settings=None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     base = df[
         ["id_documento_logico", "bi_metodos", "bi_familia_do_metodo"]
@@ -251,12 +300,20 @@ def build_method_dimension_and_bridge(
 
     dim = base[["metodo", "bi_familia_do_metodo"]].drop_duplicates().reset_index(drop=True)
 
+    from src.transformation.cleansing import remove_accents
+    cat_map, subcat_map = load_ai_dictionary_mappings(settings, "metodos")
     dim["familia_do_metodo"] = dim.apply(
-        lambda row: classify_method_family(row["metodo"], row.get("bi_familia_do_metodo")),
+        lambda row: cat_map.get(
+            remove_accents(str(row["metodo"])).lower(),
+            classify_method_family(row["metodo"], row.get("bi_familia_do_metodo"))
+        ),
         axis=1,
     )
     dim["natureza_metodo"] = dim.apply(
-        lambda row: classify_method_nature(row["familia_do_metodo"], row["metodo"]),
+        lambda row: subcat_map.get(
+            remove_accents(str(row["metodo"])).lower(),
+            classify_method_nature(row["familia_do_metodo"], row["metodo"])
+        ),
         axis=1,
     )
     dim["id_metodo_hash"] = [
@@ -352,7 +409,7 @@ def build_quality_dimension(df: pd.DataFrame, doc_sk_map: pd.DataFrame) -> pd.Da
     ]
 
 
-def build_metodologia_dimension(df: pd.DataFrame) -> pd.DataFrame:
+def build_metodologia_dimension(df: pd.DataFrame, settings=None) -> pd.DataFrame:
     dim = (
         df[["bi_familia_do_metodo", "bi_tipo_estudo_futuro", "aplicou_estudo_futuro"]]
         .drop_duplicates()
@@ -365,12 +422,24 @@ def build_metodologia_dimension(df: pd.DataFrame) -> pd.DataFrame:
         )
     )
 
+    from src.transformation.cleansing import remove_accents
+    cat_map_metodos, subcat_map_metodos = load_ai_dictionary_mappings(settings, "metodos")
+    cat_map_estudo, subcat_map_estudo = load_ai_dictionary_mappings(settings, "tipo_estudo_futuro")
+    cat_map = {**cat_map_metodos, **cat_map_estudo}
+    subcat_map = {**subcat_map_metodos, **subcat_map_estudo}
+
     dim["familia_do_metodo"] = dim.apply(
-        lambda row: classify_method_family(row["tipo_estudo_futuro"], row["familia_do_metodo"]),
+        lambda row: cat_map.get(
+            remove_accents(str(row["tipo_estudo_futuro"])).lower(),
+            classify_method_family(row["tipo_estudo_futuro"], row["familia_do_metodo"])
+        ),
         axis=1,
     )
     dim["natureza_metodologia"] = dim.apply(
-        lambda row: classify_method_nature(row["familia_do_metodo"], row["tipo_estudo_futuro"]),
+        lambda row: subcat_map.get(
+            remove_accents(str(row["tipo_estudo_futuro"])).lower(),
+            classify_method_nature(row["familia_do_metodo"], row["tipo_estudo_futuro"])
+        ),
         axis=1,
     )
     dim["id_metodologia_hash"] = [
@@ -406,9 +475,23 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
     dim_tempo = build_time_dimension(df)
     dim_setor = build_simple_dimension(df, "bi_setor", "set", "setor", "sk_setor")
     dim_abrangencia = build_simple_dimension(df, "bi_abrangencia", "abr", "abrangencia", "sk_abrangencia")
-    dim_setor["macro_setor"] = dim_setor["setor"].apply(classify_macro_setor)
-    dim_abrangencia["nivel_abrangencia"] = dim_abrangencia["abrangencia"].apply(classify_nivel_abrangencia)
-    dim_abrangencia["pais"] = dim_abrangencia["abrangencia"].apply(classify_pais_abrangencia)
+
+    from src.transformation.cleansing import remove_accents
+    
+    # Normalização por IA para setores
+    cat_map_setor, _ = load_ai_dictionary_mappings(settings, "setor")
+    dim_setor["macro_setor"] = dim_setor["setor"].apply(
+        lambda x: cat_map_setor.get(remove_accents(str(x)).lower(), classify_macro_setor(x))
+    )
+
+    # Normalização por IA para abrangência territorial
+    cat_map_abr, subcat_map_abr = load_ai_dictionary_mappings(settings, "abrangencia_territorial")
+    dim_abrangencia["nivel_abrangencia"] = dim_abrangencia["abrangencia"].apply(
+        lambda x: cat_map_abr.get(remove_accents(str(x)).lower(), classify_nivel_abrangencia(x))
+    )
+    dim_abrangencia["pais"] = dim_abrangencia["abrangencia"].apply(
+        lambda x: subcat_map_abr.get(remove_accents(str(x)).lower(), classify_pais_abrangencia(x))
+    )
 
     dim_instituicao_responsavel = build_simple_dimension(
         df,
@@ -418,8 +501,8 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
         "sk_instituicao",
     )
 
-    dim_tema, ponte_tema = build_theme_dimension_and_bridge(df, doc_sk_map)
-    dim_metodo, ponte_metodo = build_method_dimension_and_bridge(df, doc_sk_map)
+    dim_tema, ponte_tema = build_theme_dimension_and_bridge(df, doc_sk_map, settings)
+    dim_metodo, ponte_metodo = build_method_dimension_and_bridge(df, doc_sk_map, settings)
 
     dim_apoio, ponte_apoio = explode_dimension_with_bridge(
         df,
@@ -481,7 +564,7 @@ def build_dimensions_and_bridges(df_raw: pd.DataFrame, settings=None) -> dict[st
         cond_dict,
     )
 
-    dim_metodologia = build_metodologia_dimension(df)
+    dim_metodologia = build_metodologia_dimension(df, settings)
     dim_qualidade = build_quality_dimension(df, doc_sk_map)
 
     return {
