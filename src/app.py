@@ -1031,3 +1031,41 @@ elif menu == "🛠️ Dicionários de Normalização":
             with st.spinner("Atualizando tabelas normalizadas com base nos novos dicionários..."):
                 apply_ai_dictionaries(settings, logger)
                 st.success("Bases normalizadas atualizadas!")
+
+        # --- Reprocessamento e Manutenção do Pipeline (Sem Releitura de PDFs) ---
+        st.markdown("---")
+        st.subheader("🔄 Reprocessamento e Manutenção do Pipeline")
+        st.markdown(
+            "Como os metadados de todos os PDFs já processados são salvos em cache local (`data/02_extracted/json_raw`), "
+            "você pode reexecutar e atualizar as normalizações e taxonomias científicas (STEEPV & Popper Foresight Diamond) "
+            "a qualquer momento. **Isso não faz nenhuma chamada para ler os PDFs novamente na API.**"
+        )
+        
+        col_m1, col_m2 = st.columns(2)
+        with col_m1:
+            st.markdown("#### ⚡ Ações Globais Rápidas (Locais)")
+            if st.button("Reconstruir Toda a Base (Rápido - Caches Locais)", key="btn_rebuild_all_cache", use_container_width=True):
+                with st.spinner("Lendo caches e gerando base consolidada normalizada..."):
+                    run_transformation(settings, logger)
+                    apply_ai_dictionaries(settings, logger)
+                st.success("Toda a base consolidada foi reconstruída a partir dos caches locais!")
+                st.rerun()
+                
+            if st.button("Buscar e Normalizar Novos Termos via IA", key="btn_norm_new_llm", use_container_width=True):
+                with st.spinner("Identificando novos termos e classificando via Gemini..."):
+                    run_transformation(settings, logger)
+                    run_ai_normalization(settings, logger, only_new_values=True)
+                    apply_ai_dictionaries(settings, logger)
+                st.success("Novos termos classificados via IA e base atualizada!")
+                st.rerun()
+
+        with col_m2:
+            st.markdown("#### 🧠 Forçar Recategorização Completa")
+            if st.button("Forçar Re-normalização de TODOS os Termos via IA", key="btn_force_llm_all", use_container_width=True):
+                st.warning("⚠️ Isso enviará todos os termos únicos da base para reclassificação (STEEPV/Popper's Diamond) via Gemini API.")
+                with st.spinner("Reclassificando todos os termos via Gemini..."):
+                    run_transformation(settings, logger)
+                    run_ai_normalization(settings, logger, only_new_values=False)
+                    apply_ai_dictionaries(settings, logger)
+                st.success("Todos os termos foram recategorizados via IA!")
+                st.rerun()
