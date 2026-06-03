@@ -1,19 +1,25 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 import streamlit as st
 import pandas as pd
 import numpy as np
+import fitz  # PyMuPDF para renderizar capa do PDF
 
 from src.core.config import get_settings
 from src.bi.pipeline import run_bi_preparation
+from src.extraction.uploader import extract_single_pdf, commit_pdf_to_base
+from src.transformation.pipeline import run_transformation
+from src.normalization.pipeline import run_ai_normalization, apply_ai_dictionaries
+from src.shared.logging_utils import setup_logger
 from google import genai
 
 # Configurações iniciais da página Streamlit
 st.set_page_config(
     page_title="PDF Inventory Curation Hub",
-    page_icon="📊",
+    page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -51,30 +57,139 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 settings = get_settings()
+logger = setup_logger("streamlit_curator", settings.extraction_log_dir / "streamlit_curator.log")
+
+
+def _reprocess_complete_pipeline():
+    """Roda a transformação, normalização e aplicação automática de dicionários."""
+    with st.spinner("Atualizando bases consolidadas e aplicando normalizações..."):
+        run_transformation(settings, logger)
+        run_ai_normalization(settings, logger, only_new_values=True)
+        apply_ai_dictionaries(settings, logger)
+    st.success("Pipeline atualizado e normalizações aplicadas com sucesso!")
 
 
 def _reprocess_bi_pipeline():
     """Gera novamente as tabelas do Star Schema com os dados editados ou normalizações salvas."""
-    from src.shared.logging_utils import setup_logger
-    logger = setup_logger("streamlit_curator", settings.extraction_log_dir / "streamlit_curator.log")
-    
     with st.spinner("Atualizando tabelas e integridade do Star Schema BI..."):
         report = run_bi_preparation(settings, logger)
         if report.get("status") == "ok":
-            st.success("Tabelas BI atualizadas com sucesso!")
+            st.success("Tabelas BI exportadas e salvas com sucesso!")
         else:
             st.warning(f"Chaves e integridade recriadas com alguns alertas: {report.get('status')}")
 
 
 # --- Sidebar de Navegação ---
 st.sidebar.title("📚 Curation Hub")
+key_show = settings.gemini_api_key
+if key_show:
+    masked_key = f"{key_show[:8]}...{key_show[-4:]}"
+else:
+    masked_key = "⚠️ NÃO DETECTADA"
+st.sidebar.caption(f"🔑 Gemini API: `{masked_key}`")
 st.sidebar.markdown("---")
 menu = st.sidebar.radio(
     "Navegação",
-    ["📊 Dashboard Geral", "🔍 Busca Semântica", "📝 Navegador & Editor de Documentos", "🛠️ Dicionários de Normalização"]
+    [
+        "📊 Dashboard Geral", 
+        "📥 Importar & Processar PDFs", 
+        "📄 Ficha do Documento", 
+        "📊 Cruzar & Explorar", 
+        "🔍 Busca Semântica", 
+        "🛠️ Dicionários de Normalização"
+    ]
 )
 st.sidebar.markdown("---")
-st.sidebar.info("Caminho B - Reestruturação Enterprise com Structured Outputs e Pydantic.")
+
+# Seção de Exportação BI na barra lateral
+st.sidebar.subheader("💾 Exportação de Dados")
+if st.sidebar.button("Exportar tabelas para BI Ready", use_container_width=True):
+    _reprocess_bi_pipeline()
+
+st.sidebar.markdown("---")
+st.sidebar.info("Caminho B - Reestruturação Enterprise com Ingestão Incremental e Aprendizado Ativo de Normalização.")
+
+
+# --- Auxiliar de leitura das bases ---
+def load_consolidated_data():
+    # Tenta usar a base normalizada por IA se disponível, senão a normal básica
+    applied_path = settings.ai_applied_dir / "documentos_consolidados_normalizado_ia.csv"
+    base_path = settings.transformed_base_dir / "documentos_consolidados.csv"
+    
+    path = None
+    if applied_path.exists():
+        path = applied_path
+    elif base_path.exists():
+        path = base_path
+        
+    if path:
+        df = pd.read_csv(path)
+        for col in ["ano_publicacao", "horizonte_temporal"]:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce').astype('Int64')
+        return df, (path == applied_path)
+    return None, False
+
+
+def get_or_generate_summary(row, pdf_path):
+    cache_file = settings.ai_normalization_dir / "resumos_cache.json"
+    cache = {}
+    if cache_file.exists():
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cache = json.load(f)
+        except Exception:
+            pass
+            
+    doc_id = str(row.get("id_documento_logico"))
+    if doc_id in cache:
+        return cache[doc_id]
+        
+    summary_text = ""
+    pdf_text = ""
+    if pdf_path and pdf_path.exists():
+        try:
+            doc_pdf = fitz.open(pdf_path)
+            pages = []
+            for i in range(min(2, len(doc_pdf))):
+                pages.append(doc_pdf[i].get_text("text"))
+            pdf_text = "\n".join(pages)
+            doc_pdf.close()
+        except Exception:
+            pass
+            
+    try:
+        client_gen = genai.Client(api_key=settings.gemini_api_key)
+        prompt = f"""
+        Escreva um resumo executivo muito curto e objetivo (máximo de 3 frases) em português para o seguinte documento técnico.
+        Utilize os metadados do documento:
+        Título: {row.get('nome_documento')}
+        Tipo: {row.get('tipo_documento_norm', row.get('tipo_documento'))}
+        Setor: {row.get('setor_norm', row.get('setor'))}
+        Temas: {row.get('temas_norm', row.get('temas'))}
+        
+        Se houver trecho de texto do PDF abaixo, use-o para contextualizar melhor o resumo:
+        {pdf_text[:12000]}
+        """.strip()
+        
+        response = client_gen.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt
+        )
+        summary_text = response.text.strip()
+    except Exception as e:
+        summary_text = f"Resumo indisponível no momento. (Erro: {e})"
+        
+    if "indisponível" not in summary_text:
+        cache[doc_id] = summary_text
+        try:
+            settings.ai_normalization_dir.mkdir(parents=True, exist_ok=True)
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(cache, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+            
+    return summary_text
 
 
 # --- 1. DASHBOARD GERAL ---
@@ -82,12 +197,10 @@ if menu == "📊 Dashboard Geral":
     st.title("📊 Painel Geral de Inventário")
     st.markdown("Visão executiva da qualidade dos metadados extraídos dos PDFs técnicos.")
 
-    consolidated_path = settings.transformed_base_dir / "documentos_consolidados.csv"
-    if not consolidated_path.exists():
-        st.error("Nenhuma base transformada encontrada. Por favor, execute o pipeline principal.")
+    df, is_normalized = load_consolidated_data()
+    if df is None:
+        st.error("Nenhuma base consolidada encontrada. Por favor, importe PDFs para iniciar.")
     else:
-        df = pd.read_csv(consolidated_path)
-
         # KPIs Rápidos em cartões Premium
         col1, col2, col3, col4 = st.columns(4)
         with col1:
@@ -103,10 +216,321 @@ if menu == "📊 Dashboard Geral":
             st.markdown(f'<div class="card"><h3>Arquivos de Origem</h3><h2>{s_files}</h2></div>', unsafe_allow_html=True)
 
         st.markdown("### 📋 Prévia das Informações Consolidadas")
-        st.dataframe(df[["nome_documento", "tipo_documento", "ano_publicacao", "setor", "aplicou_estudo_futuro"]].head(15), use_container_width=True)
+        cols_to_show = ["nome_documento", "tipo_documento", "ano_publicacao", "setor", "aplicou_estudo_futuro"]
+        if is_normalized and "setor_norm" in df.columns:
+            cols_to_show = ["nome_documento", "tipo_documento_norm", "ano_publicacao", "setor_norm", "aplicou_estudo_futuro"]
+            
+        # Filtra colunas que realmente existem
+        cols_to_show = [c for c in cols_to_show if c in df.columns]
+        st.dataframe(df[cols_to_show].head(20), use_container_width=True)
 
 
-# --- 2. BUSCA SEMÂNTICA POR EMBEDDING ---
+# --- 2. INGESTÃO / IMPORTAR & PROCESSAR PDFS ---
+elif menu == "📥 Importar & Processar PDFs":
+    st.title("📥 Importar e Processar PDFs Incrementalmente")
+    st.markdown("Envie novos arquivos PDF técnicos para o pipeline, inspecione a extração estruturada do Gemini e confirme a gravação.")
+
+    uploaded_files = st.file_uploader("Escolha um ou mais arquivos PDF:", type=["pdf"], accept_multiple_files=True)
+    
+    if uploaded_files:
+        temp_dir = settings.raw_pdf_dir / "temp_uploads"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        
+        for uploaded_file in uploaded_files:
+            temp_pdf_path = temp_dir / uploaded_file.name
+            with open(temp_pdf_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+                
+            st.subheader(f"📄 Arquivo: {uploaded_file.name}")
+            
+            # Executa a extração em memória para revisão
+            if st.button(f"Analisar {uploaded_file.name}", key=f"analyze_{uploaded_file.name}"):
+                with st.spinner("Extraindo metadados e gerando representação vetorial via Gemini API..."):
+                    result = extract_single_pdf(temp_pdf_path, settings, logger)
+                    
+                if result.get("status") == "success":
+                    st.success("Metadados extraídos com sucesso pela IA!")
+                    
+                    # Salva o resultado na sessão para confirmação posterior
+                    st.session_state[f"temp_record_{uploaded_file.name}"] = result
+                    st.session_state[f"temp_path_{uploaded_file.name}"] = temp_pdf_path
+                else:
+                    st.error(f"Falha ao processar arquivo: {result.get('error')}")
+                    if result.get("needs_ocr"):
+                        st.warning("Nota: Este PDF pode ser uma imagem e precisa de processamento OCR externo.")
+
+            # Se o registro extraído já estiver na sessão, exibe formulário de aprovação
+            rec_key = f"temp_record_{uploaded_file.name}"
+            if rec_key in st.session_state:
+                record = st.session_state[rec_key]
+                payload = record["payload"]
+                meta = record["metadata"]
+                
+                st.markdown('<div class="card">', unsafe_allow_html=True)
+                st.markdown("### 🔍 Metadados Extraídos para Revisão")
+                
+                # Campos editáveis antes de salvar definitivamente
+                col1, col2 = st.columns(2)
+                with col1:
+                    nome_doc = st.text_input("Nome do Documento", value=str(payload.get("nome_documento", "")), key=f"name_{uploaded_file.name}")
+                    tipo_doc = st.text_input("Tipo de Documento", value=str(payload.get("tipo_documento", "")), key=f"type_{uploaded_file.name}")
+                    ano_pub = st.number_input("Ano de Publicação", value=int(payload.get("ano_publicacao")) if payload.get("ano_publicacao") else 2026, step=1, key=f"year_{uploaded_file.name}")
+                    horiz_temp = st.number_input("Horizonte Temporal", value=int(payload.get("horizonte_temporal")) if payload.get("horizonte_temporal") else 2030, step=1, key=f"horizon_{uploaded_file.name}")
+                with col2:
+                    setor_doc = st.text_input("Setor", value=str(payload.get("setor", "")), key=f"sector_{uploaded_file.name}")
+                    abrangencia_doc = st.text_input("Abrangência Territorial", value=str(payload.get("abrangencia_territorial", "")), key=f"scope_{uploaded_file.name}")
+                    inst_resp_doc = st.text_input("Instituição Responsável", value=str(payload.get("instituicao_responsavel", "")), key=f"inst_{uploaded_file.name}")
+                    aplicou_futuro = st.checkbox("Aplicou Estudo de Futuro / Prospectiva", value=bool(payload.get("aplicou_estudo_futuro", False)), key=f"applied_{uploaded_file.name}")
+
+                st.markdown("---")
+                col3, col4 = st.columns(2)
+                with col3:
+                    tipo_estudo = st.text_input("Tipo Abordagem de Futuro", value=str(payload.get("tipo_estudo_futuro", "")), key=f"tipo_est_{uploaded_file.name}")
+                    temas_list = st.text_area("Temas Chave (separados por vírgula)", value=", ".join(payload.get("temas", [])), key=f"temas_{uploaded_file.name}")
+                with col4:
+                    metodos_list = st.text_area("Métodos Utilizados (separados por vírgula)", value=", ".join(payload.get("metodos_estudo_futuro", [])), key=f"metodos_{uploaded_file.name}")
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Ação de confirmar gravação
+                if st.button(f"Confirmar Inclusão na Base", key=f"commit_{uploaded_file.name}"):
+                    # Converte campos de volta para o formato de lista
+                    def text_to_list(text):
+                        return [item.strip() for item in text.split(",") if item.strip()]
+                        
+                    # Atualiza o payload com o que o usuário editou no formulário
+                    record["payload"]["nome_documento"] = nome_doc
+                    record["payload"]["tipo_documento"] = tipo_doc
+                    record["payload"]["ano_publicacao"] = int(ano_pub)
+                    record["payload"]["horizonte_temporal"] = int(horiz_temp)
+                    record["payload"]["setor"] = setor_doc
+                    record["payload"]["abrangencia_territorial"] = abrangencia_doc
+                    record["payload"]["instituicao_responsavel"] = inst_resp_doc
+                    record["payload"]["aplicou_estudo_futuro"] = aplicou_futuro
+                    record["payload"]["tipo_estudo_futuro"] = tipo_estudo
+                    record["payload"]["temas"] = text_to_list(temas_list)
+                    record["payload"]["metodos_estudo_futuro"] = text_to_list(metodos_list)
+                    
+                    # Salva fisicamente o PDF e o arquivo JSON de extração oficial
+                    temp_pdf = st.session_state[f"temp_path_{uploaded_file.name}"]
+                    commit_pdf_to_base(temp_pdf, record, settings, logger)
+                    
+                    # Reprocessa as bases transformadas e normalizações
+                    _reprocess_complete_pipeline()
+                    
+                    # Limpa estado da sessão do arquivo
+                    del st.session_state[rec_key]
+                    del st.session_state[f"temp_path_{uploaded_file.name}"]
+                    
+                    # Remove o arquivo temporário enviado
+                    try:
+                        temp_pdf.unlink()
+                    except Exception:
+                        pass
+                        
+                    st.rerun()
+
+
+# --- 3. FICHA DO DOCUMENTO (Capa, Resumos e Fatos) ---
+elif menu == "📄 Ficha do Documento":
+    st.title("📄 Ficha Detalhada do Documento")
+    st.markdown("Veja resumos estruturados, termos extraídos e a capa renderizada em tempo real de qualquer PDF cadastrado.")
+
+    df, is_normalized = load_consolidated_data()
+    
+    if df is None or df.empty:
+        st.warning("Nenhum documento encontrado na base consolidada.")
+    else:
+        # Seletor de documento
+        documentos_disponiveis = df["nome_documento"].dropna().unique().tolist()
+        doc_selecionado = st.selectbox("Selecione o documento para detalhar:", documentos_disponiveis)
+        
+        if doc_selecionado:
+            row = df[df["nome_documento"] == doc_selecionado].iloc[0]
+            
+            # Localiza o arquivo PDF físico correspondente na raiz dos dados
+            source_files_raw = row.get("source_files", "[]")
+            try:
+                s_files = json.loads(source_files_raw)
+            except Exception:
+                s_files = [row["nome_documento"]] if "nome_documento" in row else []
+            
+            pdf_path = None
+            if s_files:
+                pdf_path = settings.raw_pdf_dir / s_files[0]
+                if not pdf_path.exists():
+                    pdf_files = list(settings.raw_pdf_dir.glob("*.pdf"))
+                    for p in pdf_files:
+                        if p.name.lower() in str(s_files[0]).lower() or str(s_files[0]).lower() in p.name.lower():
+                            pdf_path = p
+                            break
+            
+            col_capa, col_info = st.columns([1, 2])
+            
+            with col_capa:
+                st.subheader("🖼️ Capa do Documento")
+                pdf_found = False
+                if pdf_path and pdf_path.exists():
+                    try:
+                        # Abre o PDF com PyMuPDF e renderiza a primeira página como imagem
+                        doc_pdf = fitz.open(pdf_path)
+                        if len(doc_pdf) > 0:
+                            page = doc_pdf[0]
+                            pix = page.get_pixmap(dpi=130)
+                            img_bytes = pix.tobytes("png")
+                            st.image(img_bytes, caption=f"Capa de {pdf_path.name}", use_container_width=True)
+                            pdf_found = True
+                        doc_pdf.close()
+                    except Exception as e:
+                        st.warning(f"Não foi possível renderizar a capa do PDF: {e}")
+                
+                if not pdf_found:
+                    st.info("Arquivo PDF original não localizado ou impossibilitado de ser renderizado.")
+
+            with col_info:
+                st.subheader("📝 Principais Metadados do Documento")
+                
+                # Exibe dados normalizados prioritariamente se existirem
+                setor_val = row.get("setor_norm", row.get("setor", "Não informado"))
+                tipo_val = row.get("tipo_documento_norm", row.get("tipo_documento", "Não informado"))
+                abrangencia_val = row.get("abrangencia_territorial_norm", row.get("abrangencia_territorial", "Não informado"))
+                inst_val = row.get("instituicao_responsavel_norm", row.get("instituicao_responsavel", "Não informado"))
+                tipo_estudo_val = row.get("tipo_estudo_futuro_norm", row.get("tipo_estudo_futuro", "Não informado"))
+                
+                # Renderiza anos como inteiro usando formatação segura
+                ano_pub_str = str(row['ano_publicacao']) if pd.notna(row['ano_publicacao']) else 'Não informado'
+                horizon_str = str(row['horizonte_temporal']) if pd.notna(row['horizonte_temporal']) else 'Não informado'
+                
+                st.markdown(f"""
+                * **Título:** {row.get('nome_documento')}
+                * **Tipo de Documento:** {tipo_val}
+                * **Setor:** {setor_val}
+                * **Instituição Responsável:** {inst_val}
+                * **Ano de Publicação:** {ano_pub_str}
+                * **Horizonte Temporal:** {horizon_str}
+                * **Abrangência Territorial:** {abrangencia_val}
+                * **Estudo de Futuro / Prospectiva?** {'Sim' if str(row.get('aplicou_estudo_futuro')).lower() in ['true', '1', 'sim'] else 'Não'}
+                """)
+                
+                if str(row.get('aplicou_estudo_futuro')).lower() in ['true', '1', 'sim']:
+                    st.markdown(f"* **Tipo de Abordagem de Futuro:** {tipo_estudo_val}")
+                
+                # Aba de Resumo Executivo
+                st.markdown("### 📝 Resumo Executivo")
+                with st.spinner("Carregando/Gerando resumo executivo do documento..."):
+                    resumo_doc = get_or_generate_summary(row, pdf_path)
+                st.info(resumo_doc)
+
+                st.markdown("### 🏷️ Categorizações e Listas")
+                
+                def render_json_list(label, field_name):
+                    val_raw = row.get(field_name, "[]")
+                    try:
+                        # Suporta desserialização flexível (JSON ou ast)
+                        import ast
+                        items = ast.literal_eval(val_raw) if isinstance(val_raw, str) and val_raw.startswith("[") else val_raw
+                        if not isinstance(items, list):
+                            items = [items] if pd.notna(items) and items != "" else []
+                    except Exception:
+                        try:
+                            items = json.loads(val_raw)
+                        except Exception:
+                            items = [val_raw] if pd.notna(val_raw) and val_raw != "" else []
+                    
+                    if items:
+                        st.markdown(f"**{label}:**")
+                        cols = st.columns(4)
+                        for i, item in enumerate(items):
+                            cols[i % 4].markdown(f"🔹 {item}")
+                    else:
+                        st.markdown(f"**{label}:** *Nenhum identificado*")
+                
+                render_json_list("Temas Identificados", "temas_norm" if "temas_norm" in row else "temas")
+                st.markdown(" ")
+                render_json_list("Métodos Utilizados", "metodos_estudo_futuro_norm" if "metodos_estudo_futuro_norm" in row else "metodos_estudo_futuro")
+                st.markdown(" ")
+                render_json_list("Condicionantes & Incertezas", "condicionantes_estudo_futuro_norm" if "condicionantes_estudo_futuro_norm" in row else "condicionantes_estudo_futuro")
+                st.markdown(" ")
+                render_json_list("Instituições de Apoio", "instituicoes_apoio_norm" if "instituicoes_apoio_norm" in row else "instituicoes_apoio")
+
+
+# --- 4. CRUZAR & EXPLORAR (Análises Internas) ---
+elif menu == "📊 Cruzar & Explorar":
+    st.title("📊 Cruzar & Explorar Categorizações")
+    st.markdown("Gere tabelas dinâmicas de cruzamento e gráficos analíticos diretamente no painel a partir da base consolidada.")
+
+    df, is_normalized = load_consolidated_data()
+    
+    if df is None or df.empty:
+        st.warning("Nenhuma base consolidada encontrada.")
+    else:
+        st.subheader("🔀 Tabela Cruzada de Dimensões")
+        
+        # Mapeia colunas amigáveis
+        available_cols = {
+            "Setor": "setor_norm" if "setor_norm" in df.columns else "setor",
+            "Tipo de Documento": "tipo_documento_norm" if "tipo_documento_norm" in df.columns else "tipo_documento",
+            "Abrangência": "abrangencia_territorial_norm" if "abrangencia_territorial_norm" in df.columns else "abrangencia_territorial",
+            "Ano de Publicação": "ano_publicacao",
+            "Horizonte Temporal": "horizonte_temporal",
+            "Aplicou Estudo Futuro": "aplicou_estudo_futuro"
+        }
+        
+        col_row, col_col = st.columns(2)
+        with col_row:
+            row_dim = st.selectbox("Dimensão das Linhas:", list(available_cols.keys()), index=0)
+        with col_col:
+            col_dim = st.selectbox("Dimensão das Colunas:", list(available_cols.keys()), index=1)
+            
+        row_field = available_cols[row_dim]
+        col_field = available_cols[col_dim]
+        
+        if row_field == col_field:
+            st.error("Por favor, selecione dimensões diferentes para as linhas e colunas.")
+        else:
+            # Cria a pivot table de contagem
+            pivot_df = pd.crosstab(df[row_field].fillna("Não Informado"), df[col_field].fillna("Não Informado"), margins=True, margins_name="Total Geral")
+            st.dataframe(pivot_df, use_container_width=True)
+            
+        st.subheader("📈 Distribuição Temporal")
+        df_year = df["ano_publicacao"].dropna().value_counts().sort_index().reset_index()
+        df_year.columns = ["Ano", "Quantidade de Documentos"]
+        st.bar_chart(df_year.set_index("Ano"), y="Quantidade de Documentos")
+        
+        # Exibe distribuição de temas (precisa desserializar as listas JSON)
+        st.subheader("🏷️ Frequência de Temas")
+        temas_list = []
+        theme_col = "temas_norm" if "temas_norm" in df.columns else "temas"
+        for idx, row in df.iterrows():
+            t_raw = row.get(theme_col, "[]")
+            try:
+                import ast
+                # Tenta ast.literal_eval primeiro, depois json.loads
+                items = ast.literal_eval(t_raw) if isinstance(t_raw, str) and t_raw.startswith("[") else t_raw
+                if isinstance(items, list):
+                    temas_list.extend([str(x).strip() for x in items])
+                else:
+                    try:
+                        items_json = json.loads(t_raw)
+                        if isinstance(items_json, list):
+                            temas_list.extend([str(x).strip() for x in items_json])
+                        else:
+                            temas_list.append(str(t_raw).strip())
+                    except Exception:
+                        temas_list.append(str(t_raw).strip())
+            except Exception:
+                if pd.notna(t_raw) and t_raw != "":
+                    temas_list.append(str(t_raw).strip())
+                    
+        if temas_list:
+            df_temas = pd.Series(temas_list).value_counts().reset_index()
+            df_temas.columns = ["Tema", "Frequência"]
+            st.bar_chart(df_temas.head(15).set_index("Tema"), y="Frequência")
+        else:
+            st.info("Nenhum tema identificado para gerar gráfico.")
+
+
+# --- 5. BUSCA SEMÂNTICA POR EMBEDDING ---
 elif menu == "🔍 Busca Semântica":
     st.title("🔍 Busca Semântica Inteligente")
     st.markdown("Encontre documentos baseando-se em conceitos abstratos, graças aos embeddings gerados via Gemini API.")
@@ -140,7 +564,7 @@ elif menu == "🔍 Busca Semântica":
                 # Gera o embedding da consulta do usuário
                 client = genai.Client(api_key=settings.gemini_api_key)
                 response = client.models.embed_content(
-                    model="text-embedding-004",
+                    model="gemini-embedding-2",
                     contents=query
                 )
                 query_vector = np.array(response.embeddings[0].values, dtype=np.float32)
@@ -170,87 +594,10 @@ elif menu == "🔍 Busca Semântica":
                 st.error(f"Falha ao chamar a API de Embeddings do Gemini: {exc}")
 
 
-# --- 3. NAVEGADOR & EDITOR DE DOCUMENTOS ---
-elif menu == "📝 Navegador & Editor de Documentos":
-    st.title("📝 Navegador & Editor de Documentos")
-    st.markdown("Edite de forma interativa e salve alterações de qualquer campo extraído no banco consolidado.")
-
-    consolidated_path = settings.transformed_base_dir / "documentos_consolidados.csv"
-    if not consolidated_path.exists():
-        st.error("Por favor, execute o pipeline para gerar o arquivo documentos_consolidados.csv.")
-    else:
-        df = pd.read_csv(consolidated_path)
-
-        # Caixa de seleção do documento
-        documentos_disponiveis = df["nome_documento"].dropna().unique().tolist()
-        doc_selecionado = st.selectbox("Escolha um documento para auditar e editar:", documentos_disponiveis)
-
-        if doc_selecionado:
-            # Obtém a linha correspondente do DataFrame
-            idx = df[df["nome_documento"] == doc_selecionado].index[0]
-            row = df.loc[idx]
-
-            # Formulário interativo
-            with st.form("edit_form"):
-                st.subheader(f"Campos Factuais do Documento")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    nome_doc = st.text_input("Nome do Documento", value=str(row["nome_documento"]))
-                    tipo_doc = st.text_input("Tipo do Documento", value=str(row["tipo_documento"]))
-                    ano_pub = st.number_input("Ano de Publicação", value=int(row["ano_publicacao"]) if pd.notna(row["ano_publicacao"]) else 2026, step=1)
-                    horiz_temp = st.number_input("Horizonte Temporal Target", value=int(row["horizonte_temporal"]) if pd.notna(row["horizonte_temporal"]) else 2030, step=1)
-                
-                with col2:
-                    setor_doc = st.text_input("Setor Primário", value=str(row["setor"]))
-                    abrangencia_doc = st.text_input("Abrangência Territorial", value=str(row["abrangencia_territorial"]))
-                    inst_resp_doc = st.text_input("Instituição Responsável", value=str(row["instituicao_responsavel"]))
-                    aplicou_futuro = st.checkbox("Aplicou Estudo de Futuro / Prospectiva", value=bool(row["aplicou_estudo_futuro"]) if pd.notna(row["aplicou_estudo_futuro"]) else False)
-
-                col3, col4 = st.columns(2)
-                with col3:
-                    tipo_estudo = st.text_input("Tipo Abordagem de Futuro", value=str(row["tipo_estudo_futuro"]) if pd.notna(row["tipo_estudo_futuro"]) else "")
-                    temas_list = st.text_area("Temas Chave (separados por vírgula)", value=", ".join(json.loads(str(row["temas"]))) if str(row["temas"]).startswith("[") else str(row["temas"]))
-                    metodos_list = st.text_area("Métodos Utilizados (separados por vírgula)", value=", ".join(json.loads(str(row["metodos_estudo_futuro"]))) if str(row["metodos_estudo_futuro"]).startswith("[") else str(row["metodos_estudo_futuro"]))
-                
-                with col4:
-                    inst_apoio_list = st.text_area("Instituições de Apoio (separados por vírgula)", value=", ".join(json.loads(str(row["instituicoes_apoio"]))) if str(row["instituicoes_apoio"]).startswith("[") else str(row["instituicoes_apoio"]))
-                    cond_list = st.text_area("Fatores Condicionantes (separados por vírgula)", value=", ".join(json.loads(str(row["condicionantes_estudo_futuro"]))) if str(row["condicionantes_estudo_futuro"]).startswith("[") else str(row["condicionantes_estudo_futuro"]))
-                    refs_list = st.text_area("Referências Bibliográficas (separados por vírgula)", value=", ".join(json.loads(str(row["referencias"]))) if str(row["referencias"]).startswith("[") else str(row["referencias"]))
-
-                submit_btn = st.form_submit_button("Salvar Alterações e Recriar Modelagem BI")
-
-                if submit_btn:
-                    # Converte campos de lista de volta para JSON string
-                    def to_json_list(text):
-                        return json.dumps([item.strip() for item in text.split(",") if item.strip()], ensure_ascii=False)
-
-                    df.at[idx, "nome_documento"] = nome_doc
-                    df.at[idx, "tipo_documento"] = tipo_doc
-                    df.at[idx, "ano_publicacao"] = ano_pub
-                    df.at[idx, "horizonte_temporal"] = horiz_temp
-                    df.at[idx, "setor"] = setor_doc
-                    df.at[idx, "abrangencia_territorial"] = abrangencia_doc
-                    df.at[idx, "instituicao_responsavel"] = inst_resp_doc
-                    df.at[idx, "aplicou_estudo_futuro"] = aplicou_futuro
-                    df.at[idx, "tipo_estudo_futuro"] = tipo_estudo
-                    df.at[idx, "temas"] = to_json_list(temas_list)
-                    df.at[idx, "metodos_estudo_futuro"] = to_json_list(metodos_list)
-                    df.at[idx, "instituicoes_apoio"] = to_json_list(inst_apoio_list)
-                    df.at[idx, "condicionantes_estudo_futuro"] = to_json_list(cond_list)
-                    df.at[idx, "referencias"] = to_json_list(refs_list)
-
-                    # Salva no disco
-                    df.to_csv(consolidated_path, index=False, encoding="utf-8-sig")
-                    
-                    # Atualiza o modelo de BI
-                    _reprocess_bi_pipeline()
-
-
-# --- 4. AUDITORIA DE DICIONÁRIOS DE IA ---
+# --- 6. AUDITORIA DE DICIONÁRIOS DE IA ---
 elif menu == "🛠️ Dicionários de Normalização":
     st.title("🛠️ Auditoria de Dicionários IA")
-    st.markdown("Valide ou edite as normalizações automáticas propostas pela inteligência artificial antes da modelagem final do Power BI.")
+    st.markdown("Valide ou edite as normalizações propostas pela inteligência artificial e aprendizado ativo.")
 
     targets = ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "condicionantes", "temas", "metodos"]
     target_sel = st.selectbox("Selecione o dicionário para auditar:", targets)
@@ -264,17 +611,21 @@ elif menu == "🛠️ Dicionários de Normalização":
 
         st.subheader(f"Mapeamentos do Dicionário: {target_sel}")
 
-        # Tabela com caixa de seleção de aprovação
+        # Tabela com caixa de seleção de aprovação e exibição de origem
+        column_config = {
+            "aplicar_automaticamente": st.column_config.CheckboxColumn(
+                "Aprovado / Aplicar?",
+                help="Se marcado, a normalização será aplicada automaticamente",
+                default=False,
+            )
+        }
+        if "origem" in df_dict.columns:
+            column_config["origem"] = st.column_config.TextColumn("Origem/Método", disabled=True)
+
         df_dict_editable = st.data_editor(
             df_dict,
-            column_config={
-                "aplicar_automaticamente": st.column_config.CheckboxColumn(
-                    "Aprovado / Aplicar?",
-                    help="Se marcado, a normalização será aplicada automaticamente no BI",
-                    default=False,
-                )
-            },
-            disabled=["valor_original", "valor_original_limpo"],
+            column_config=column_config,
+            disabled=["valor_original", "valor_original_limpo", "origem"] if "origem" in df_dict.columns else ["valor_original", "valor_original_limpo"],
             use_container_width=True
         )
 
@@ -284,11 +635,7 @@ elif menu == "🛠️ Dicionários de Normalização":
             df_dict_editable.to_csv(dict_path, index=False, encoding="utf-8-sig")
             st.success("Dicionário salvo com sucesso!")
 
-            # Re-aplica as normalizações e atualiza o BI
-            from src.normalization.pipeline import apply_ai_dictionaries
-            from src.shared.logging_utils import setup_logger
-            logger = setup_logger("streamlit_curator", settings.extraction_log_dir / "streamlit_curator.log")
-            
+            # Re-aplica as normalizações
             with st.spinner("Atualizando tabelas normalizadas com base nos novos dicionários..."):
                 apply_ai_dictionaries(settings, logger)
-                _reprocess_bi_pipeline()
+                st.success("Bases normalizadas atualizadas!")

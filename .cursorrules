@@ -1,0 +1,30 @@
+# Regras de Desenvolvimento - PDF Inventory Project
+
+Este arquivo define os padrões técnicos, de arquitetura e de governança para qualquer agente de IA (como Antigravity, Gemini ou Cursor) que atue neste repositório.
+
+## 1. Arquitetura do Projeto
+O pipeline é estruturado em camadas sequenciais e modulares localizadas em `src/`:
+- **`src/extraction/`**: Leitura de PDFs brutos e extração estruturada de metadados via LLM (Gemini API + Pydantic).
+- **`src/transformation/`**: Limpeza, estruturação inicial e consolidação de registros (`documentos_consolidados.csv`).
+- **`src/normalization/`**: Normalização semântica usando dicionários locais e aprendizado ativo/LLM.
+- **`src/bi/`**: Geração de esquemas dimensionais (Star Schema) de BI prontos para consumo.
+- **`src/app.py`**: Hub de Curadoria em Streamlit para visualização, busca semântica, edição e auditoria.
+
+## 2. Governança de Dados
+- **NÃO ADICIONAR arquivos de dados ao controle de versão (Git):**
+  - PDFs em `data/01_raw/pdfs/`.
+  - JSONs brutos em `data/02_extracted/json_raw/`.
+  - Logs em `data/02_extracted/logs/`.
+  - CSVs consolidados em `data/03_transformed/` e `data/04_bi_ready/`.
+- Todos esses diretórios estão cobertos pelo `.gitignore`. Sempre mantenha os arquivos de configuração locais configurados via `.env` (baseado em `.env.example`).
+
+## 3. Padrões de Código
+- **Idioma:** Código (variáveis, funções, classes) em inglês/português híbrido (conforme convenção local). Comentários e documentação de código devem ser em português.
+- **Tipagem:** Uso obrigatório de type hints (`from __future__ import annotations`).
+- **Imports:** Imports absolutos, agrupados (Standard Library, Third Party, Local).
+- **Tratamento de Erros:** Sempre implementar fallbacks robustos ao chamar APIs externas (Gemini) com controle de logs e retentativas exponenciais.
+
+## 4. Integração com APIs Gemini
+- Usar a biblioteca oficial `google-genai` (SDK unificado com `genai.Client()`).
+- O modelo leve recomendado é `gemini-2.5-flash-lite`. O modelo padrão é `gemini-2.5-flash`.
+- Respostas estruturadas devem usar Pydantic + `response_mime_type="application/json"` + `response_schema`.

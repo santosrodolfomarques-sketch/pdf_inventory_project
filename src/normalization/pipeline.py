@@ -57,10 +57,17 @@ def _safe_deserialize_list(val: Any) -> list[str]:
     if not text or text.lower() in {"nan", "none", "null", "[]"}:
         return []
     try:
-        loaded = json.loads(text)
-        return loaded if isinstance(loaded, list) else [loaded]
+        import ast
+        loaded = ast.literal_eval(text)
+        if isinstance(loaded, list):
+            return [str(x).strip() for x in loaded]
+        return [str(loaded).strip()]
     except Exception:
-        return [text]
+        try:
+            loaded = json.loads(text)
+            return loaded if isinstance(loaded, list) else [loaded]
+        except Exception:
+            return [text]
 
 
 def _apply_scalar(value: Any, mapping: dict[str, str]) -> Any:

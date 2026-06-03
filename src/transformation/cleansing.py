@@ -9,7 +9,23 @@ def clean_string(value: Any) -> str | None:
     """Limpa e padroniza o espaçamento de uma string, removendo quebras de linha brutas."""
     if value is None:
         return None
+    
+    # Se for uma lista real, junta os itens
+    if isinstance(value, list):
+        value = ", ".join(str(v).strip() for v in value if v is not None)
+        
     text = str(value).replace("\n", " ").replace("\r", " ").strip()
+    
+    # Se parecer com uma representação de lista (ex: ['A', 'B']), tenta parsear e juntar
+    if text.startswith("[") and text.endswith("]"):
+        try:
+            import ast
+            parsed = ast.literal_eval(text)
+            if isinstance(parsed, list):
+                text = ", ".join(str(v).strip() for v in parsed if v is not None)
+        except Exception:
+            pass
+            
     text = re.sub(r"\s+", " ", text)
     return text if text else None
 

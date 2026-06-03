@@ -132,6 +132,7 @@ VALORES BRUTOS A ANALISAR:
 
 
 import json
+from src.normalization.ml_normalizer import MLNormalizer
 
 
 def _chunk_list(lst: list[Any], n: int) -> list[list[Any]]:
@@ -144,7 +145,7 @@ def build_ai_dictionaries(
     targets: list[str] | None = None,
     only_new_values: bool = False,
 ) -> dict[str, Any]:
-    """Lê os valores únicos salvos pela transformação e propõe dicionários estruturados via IA."""
+    """Lê os valores únicos salvos pela transformação e propõe dicionários estruturados via IA ou ML ativo."""
     targets = targets or ["setor", "tipo_documento", "abrangencia_territorial", "tipo_estudo_futuro", "instituicao_responsavel", "temas", "metodos", "condicionantes"]
 
     settings.ai_dictionary_dir.mkdir(parents=True, exist_ok=True)
@@ -158,6 +159,13 @@ def build_ai_dictionaries(
         max_retries=settings.max_retries,
         logger=logger,
     )
+
+    # Inicializa o normalizador de Machine Learning ativo local
+    try:
+        ml_normalizer = MLNormalizer(settings=settings, logger=logger)
+    except Exception as e:
+        logger.error(f"Não foi possível inicializar MLNormalizer, prosseguindo apenas com LLM: {e}")
+        ml_normalizer = None
 
     summary: dict[str, Any] = {"status": "ok", "targets": {}}
 
@@ -186,22 +194,51 @@ def build_ai_dictionaries(
             logger.info(f"Alvo {target}: nenhum valor novo a normalizar.")
             continue
 
-        # Processamento em lotes (Batching)
-        lotes = _chunk_list(valores_brutos, settings.ai_dictionary_batch_size)
         items_sugeridos = []
+        valores_para_llm = []
 
-        for idx, lote in enumerate(lotes, start=1):
-            logger.info(f"Normalizando {target} | lote {idx}/{len(lotes)} ({len(lote)} termos)...")
-            try:
-                dict_model = client.normalize_batch(target, lote)
-                for item in dict_model.items:
-                    row = item.model_dump()
-                    row["valor_original_limpo"] = remove_accents(row["valor_original"]).lower()
-                    row["aplicar_automaticamente"] = row["acao_recomendada"] == "aplicar automático"
+        # Tenta normalizar primeiro usando o aprendizado ativo local (ML/Similarity)
+        if ml_normalizer:
+            logger.info(f"Aplicando normalizador ML ativo para o alvo: {target} ({len(valores_brutos)} termos)...")
+            for val in valores_brutos:
+                ml_sug = ml_normalizer.suggest_normalization(target, val)
+                if ml_sug:
+                    row = {
+                        "valor_original": val,
+                        "valor_normalizado": ml_sug["valor_normalizado"],
+                        "categoria": ml_sug["categoria"],
+                        "subcategoria": ml_sug["subcategoria"],
+                        "confianca": ml_sug["confianca"],
+                        "acao_recomendada": ml_sug["acao_recomendada"],
+                        "justificativa": ml_sug["justificativa"],
+                        "valor_original_limpo": remove_accents(val).lower(),
+                        "aplicar_automaticamente": ml_sug["acao_recomendada"] == "aplicar automático",
+                        "origem": ml_sug["origem"]
+                    }
                     items_sugeridos.append(row)
-                time.sleep(settings.pause_between_calls)
-            except Exception as exc:
-                logger.error(f"Erro ao normalizar lote {idx} de {target}: {exc}")
+                else:
+                    valores_para_llm.append(val)
+        else:
+            valores_para_llm = valores_brutos
+
+        # Se sobraram termos não resolvidos localmente, envia para a API Gemini em lotes
+        if valores_para_llm:
+            logger.info(f"Enviando {len(valores_para_llm)} termos não resolvidos de {target} para normalização via LLM...")
+            lotes = _chunk_list(valores_para_llm, settings.ai_dictionary_batch_size)
+
+            for idx, lote in enumerate(lotes, start=1):
+                logger.info(f"Normalizando LLM {target} | lote {idx}/{len(lotes)} ({len(lote)} termos)...")
+                try:
+                    dict_model = client.normalize_batch(target, lote)
+                    for item in dict_model.items:
+                        row = item.model_dump()
+                        row["valor_original_limpo"] = remove_accents(row["valor_original"]).lower()
+                        row["aplicar_automaticamente"] = row["acao_recomendada"] == "aplicar automático"
+                        row["origem"] = "gemini_llm"
+                        items_sugeridos.append(row)
+                    time.sleep(settings.pause_between_calls)
+                except Exception as exc:
+                    logger.error(f"Erro ao normalizar lote {idx} de {target} via LLM: {exc}")
 
         if not items_sugeridos:
             continue
@@ -211,6 +248,9 @@ def build_ai_dictionaries(
         # Se apenas novos valores, mescla com o antigo
         if only_new_values and out_path.exists():
             df_old = pd.read_csv(out_path)
+            # Garante que a coluna 'origem' exista no antigo para evitar erros de merge
+            if "origem" not in df_old.columns:
+                df_old["origem"] = "legacy"
             df_result = pd.concat([df_old, df_result], ignore_index=True).drop_duplicates(
                 subset=["valor_original"], keep="last"
             )
@@ -224,8 +264,11 @@ def build_ai_dictionaries(
 
         summary["targets"][target] = {
             "termos_processados": len(valores_brutos),
+            "resolvidos_ml": len(valores_brutos) - len(valores_para_llm),
+            "processados_llm": len(valores_para_llm),
             "revisoes_pendentes": len(df_revisar),
             "dicionario_path": str(out_path),
         }
 
     return summary
+

@@ -155,7 +155,7 @@ TEXTO DO DOCUMENTO:
             # Limita o texto para caber no limite de tokens do embedding
             truncated_text = text[:30000]
             response = self.client.models.embed_content(
-                model="text-embedding-004",
+                model="gemini-embedding-2",
                 contents=truncated_text,
             )
             if response.embeddings and len(response.embeddings) > 0:
