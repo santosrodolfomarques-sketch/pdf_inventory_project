@@ -600,6 +600,105 @@ elif menu == "📄 Ficha do Documento":
                 st.markdown(" ")
                 render_json_list("Instituições de Apoio", "instituicoes_apoio_norm" if "instituicoes_apoio_norm" in row else "instituicoes_apoio")
 
+                # --- Reprocessamento de Metadados ---
+                st.markdown("---")
+                st.markdown("### 🔄 Reprocessamento de Metadados")
+                
+                reprocess_state_key = f"reprocess_state_{doc_selecionado}"
+                reprocess_state = st.session_state.get(reprocess_state_key)
+                
+                if reprocess_state is None:
+                    if not pdf_path or not pdf_path.exists():
+                        st.warning("⚠️ O arquivo PDF original não foi encontrado para permitir o reprocessamento.")
+                    else:
+                        st.markdown("Caso não esteja satisfeito com a extração dos metadados ou queira forçar uma reanálise completa via IA:")
+                        if st.button("Reprocessar Documento via Gemini API", key=f"btn_reprocess_{doc_selecionado}"):
+                            st.session_state[reprocess_state_key] = "running"
+                            st.rerun()
+                
+                elif reprocess_state == "running":
+                    with st.spinner("Conectando à Files API do Gemini e reprocessando o documento físico..."):
+                        try:
+                            result = extract_single_pdf(pdf_path, settings, logger)
+                            if result.get("status") == "success":
+                                st.session_state[f"reprocess_record_{doc_selecionado}"] = result
+                                st.session_state[reprocess_state_key] = "review"
+                                st.success("Nova extração concluída com sucesso! Revise os dados abaixo.")
+                            else:
+                                st.error(f"Falha na extração: {result.get('error')}")
+                                st.session_state[reprocess_state_key] = None
+                        except Exception as e:
+                            st.error(f"Erro inesperado no reprocessamento: {e}")
+                            st.session_state[reprocess_state_key] = None
+                    st.rerun()
+
+                elif reprocess_state == "review":
+                    record = st.session_state.get(f"reprocess_record_{doc_selecionado}")
+                    if record and "payload" in record:
+                        payload = record["payload"]
+                        
+                        st.markdown('<div style="background-color: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 10px;">', unsafe_allow_html=True)
+                        st.markdown("#### 📝 Revisar Novos Metadados Extraídos")
+                        
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            nome_doc = st.text_input("Nome do Documento", value=str(payload.get("nome_documento", "")), key=f"rep_name_{doc_selecionado}")
+                            tipo_doc = st.text_input("Tipo de Documento", value=str(payload.get("tipo_documento", "")), key=f"rep_type_{doc_selecionado}")
+                            ano_pub = st.number_input("Ano de Publicação", value=int(payload.get("ano_publicacao")) if payload.get("ano_publicacao") else 2026, step=1, key=f"rep_year_{doc_selecionado}")
+                            horiz_temp = st.number_input("Horizonte Temporal", value=int(payload.get("horizonte_temporal")) if payload.get("horizonte_temporal") else 2030, step=1, key=f"rep_horizon_{doc_selecionado}")
+                        with col2:
+                            setor_doc = st.text_input("Setor", value=str(payload.get("setor", "")), key=f"rep_sector_{doc_selecionado}")
+                            abrangencia_doc = st.text_input("Abrangência Territorial", value=str(payload.get("abrangencia_territorial", "")), key=f"rep_scope_{doc_selecionado}")
+                            inst_resp_doc = st.text_input("Instituição Responsável", value=str(payload.get("instituicao_responsavel", "")), key=f"rep_inst_{doc_selecionado}")
+                            aplicou_futuro = st.checkbox("Aplicou Estudo de Futuro / Prospectiva", value=bool(payload.get("aplicou_estudo_futuro", False)), key=f"rep_applied_{doc_selecionado}")
+
+                        st.markdown("---")
+                        col3, col4 = st.columns(2)
+                        with col3:
+                            tipo_estudo = st.text_input("Tipo Abordagem de Futuro", value=str(payload.get("tipo_estudo_futuro", "")), key=f"rep_tipo_est_{doc_selecionado}")
+                            temas_list = st.text_area("Temas Chave (separados por vírgula)", value=", ".join(payload.get("temas", [])), key=f"rep_temas_{doc_selecionado}")
+                        with col4:
+                            metodos_list = st.text_area("Métodos Utilizados (separados por vírgula)", value=", ".join(payload.get("metodos_estudo_futuro", [])), key=f"rep_metodos_{doc_selecionado}")
+                            condicionantes_list = st.text_area("Condicionantes (separados por vírgula)", value=", ".join(payload.get("condicionantes_estudo_futuro", [])), key=f"rep_conds_{doc_selecionado}")
+                            inst_apoio_list = st.text_area("Instituições de Apoio (separados por vírgula)", value=", ".join(payload.get("instituicoes_apoio", [])), key=f"rep_inst_ap_{doc_selecionado}")
+                        
+                        st.markdown("</div>", unsafe_allow_html=True)
+                        
+                        col_actions = st.columns(2)
+                        with col_actions[0]:
+                            if st.button("Confirmar e Atualizar Base", key=f"rep_commit_{doc_selecionado}", type="primary"):
+                                def text_to_list(text):
+                                    return [item.strip() for item in text.split(",") if item.strip()]
+                                    
+                                record["payload"]["nome_documento"] = nome_doc
+                                record["payload"]["tipo_documento"] = tipo_doc
+                                record["payload"]["ano_publicacao"] = int(ano_pub)
+                                record["payload"]["horizonte_temporal"] = int(horiz_temp)
+                                record["payload"]["setor"] = setor_doc
+                                record["payload"]["abrangencia_territorial"] = abrangencia_doc
+                                record["payload"]["instituicao_responsavel"] = inst_resp_doc
+                                record["payload"]["aplicou_estudo_futuro"] = aplicou_futuro
+                                record["payload"]["tipo_estudo_futuro"] = tipo_estudo
+                                record["payload"]["temas"] = text_to_list(temas_list)
+                                record["payload"]["metodos_estudo_futuro"] = text_to_list(metodos_list)
+                                record["payload"]["condicionantes_estudo_futuro"] = text_to_list(condicionantes_list)
+                                record["payload"]["instituicoes_apoio"] = text_to_list(inst_apoio_list)
+                                
+                                commit_pdf_to_base(pdf_path, record, settings, logger)
+                                _reprocess_complete_pipeline()
+                                
+                                st.session_state.pop(reprocess_state_key, None)
+                                st.session_state.pop(f"reprocess_record_{doc_selecionado}", None)
+                                
+                                st.success("Documento reprocessado e base atualizada com sucesso!")
+                                st.rerun()
+                                
+                        with col_actions[1]:
+                            if st.button("Cancelar", key=f"rep_cancel_{doc_selecionado}"):
+                                st.session_state.pop(reprocess_state_key, None)
+                                st.session_state.pop(f"reprocess_record_{doc_selecionado}", None)
+                                st.rerun()
+
 
 # --- 4. CRUZAR & EXPLORAR (Análises Internas) ---
 elif menu == "📊 Cruzar & Explorar":
