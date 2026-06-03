@@ -11,6 +11,7 @@ import fitz  # PyMuPDF para renderizar capa do PDF
 from src.core.config import get_settings
 from src.bi.pipeline import run_bi_preparation
 from src.extraction.uploader import extract_single_pdf, commit_pdf_to_base
+from src.extraction.detector import calculate_document_embedding, find_semantic_duplicates
 from src.transformation.pipeline import run_transformation
 from src.normalization.pipeline import run_ai_normalization, apply_ai_dictionaries
 from src.shared.logging_utils import setup_logger
@@ -228,7 +229,10 @@ if menu == "📊 Dashboard Geral":
 # --- 2. INGESTÃO / IMPORTAR & PROCESSAR PDFS ---
 elif menu == "📥 Importar & Processar PDFs":
     st.title("📥 Importar e Processar PDFs Incrementalmente")
-    st.markdown("Envie novos arquivos PDF técnicos para o pipeline, inspecione a extração estruturada do Gemini e confirme a gravação.")
+    st.markdown("Envie novos arquivos PDF técnicos para o pipeline, inspecione duplicados semânticos e confirme a gravação.")
+
+    # Carrega a base consolidada para checar duplicados
+    df_consolidated, _ = load_consolidated_data()
 
     uploaded_files = st.file_uploader("Escolha um ou mais arquivos PDF:", type=["pdf"], accept_multiple_files=True)
     
@@ -243,92 +247,235 @@ elif menu == "📥 Importar & Processar PDFs":
                 
             st.subheader(f"📄 Arquivo: {uploaded_file.name}")
             
-            # Executa a extração em memória para revisão
-            if st.button(f"Analisar {uploaded_file.name}", key=f"analyze_{uploaded_file.name}"):
-                with st.spinner("Extraindo metadados e gerando representação vetorial via Gemini API..."):
-                    result = extract_single_pdf(temp_pdf_path, settings, logger)
-                    
-                if result.get("status") == "success":
-                    st.success("Metadados extraídos com sucesso pela IA!")
-                    
-                    # Salva o resultado na sessão para confirmação posterior
-                    st.session_state[f"temp_record_{uploaded_file.name}"] = result
-                    st.session_state[f"temp_path_{uploaded_file.name}"] = temp_pdf_path
-                else:
-                    st.error(f"Falha ao processar arquivo: {result.get('error')}")
-                    if result.get("needs_ocr"):
-                        st.warning("Nota: Este PDF pode ser uma imagem e precisa de processamento OCR externo.")
-
-            # Se o registro extraído já estiver na sessão, exibe formulário de aprovação
-            rec_key = f"temp_record_{uploaded_file.name}"
-            if rec_key in st.session_state:
-                record = st.session_state[rec_key]
-                payload = record["payload"]
-                meta = record["metadata"]
-                
-                st.markdown('<div class="card">', unsafe_allow_html=True)
-                st.markdown("### 🔍 Metadados Extraídos para Revisão")
-                
-                # Campos editáveis antes de salvar definitivamente
-                col1, col2 = st.columns(2)
-                with col1:
-                    nome_doc = st.text_input("Nome do Documento", value=str(payload.get("nome_documento", "")), key=f"name_{uploaded_file.name}")
-                    tipo_doc = st.text_input("Tipo de Documento", value=str(payload.get("tipo_documento", "")), key=f"type_{uploaded_file.name}")
-                    ano_pub = st.number_input("Ano de Publicação", value=int(payload.get("ano_publicacao")) if payload.get("ano_publicacao") else 2026, step=1, key=f"year_{uploaded_file.name}")
-                    horiz_temp = st.number_input("Horizonte Temporal", value=int(payload.get("horizonte_temporal")) if payload.get("horizonte_temporal") else 2030, step=1, key=f"horizon_{uploaded_file.name}")
-                with col2:
-                    setor_doc = st.text_input("Setor", value=str(payload.get("setor", "")), key=f"sector_{uploaded_file.name}")
-                    abrangencia_doc = st.text_input("Abrangência Territorial", value=str(payload.get("abrangencia_territorial", "")), key=f"scope_{uploaded_file.name}")
-                    inst_resp_doc = st.text_input("Instituição Responsável", value=str(payload.get("instituicao_responsavel", "")), key=f"inst_{uploaded_file.name}")
-                    aplicou_futuro = st.checkbox("Aplicou Estudo de Futuro / Prospectiva", value=bool(payload.get("aplicou_estudo_futuro", False)), key=f"applied_{uploaded_file.name}")
-
-                st.markdown("---")
-                col3, col4 = st.columns(2)
-                with col3:
-                    tipo_estudo = st.text_input("Tipo Abordagem de Futuro", value=str(payload.get("tipo_estudo_futuro", "")), key=f"tipo_est_{uploaded_file.name}")
-                    temas_list = st.text_area("Temas Chave (separados por vírgula)", value=", ".join(payload.get("temas", [])), key=f"temas_{uploaded_file.name}")
-                with col4:
-                    metodos_list = st.text_area("Métodos Utilizados (separados por vírgula)", value=", ".join(payload.get("metodos_estudo_futuro", [])), key=f"metodos_{uploaded_file.name}")
-                
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Ação de confirmar gravação
-                if st.button(f"Confirmar Inclusão na Base", key=f"commit_{uploaded_file.name}"):
-                    # Converte campos de volta para o formato de lista
-                    def text_to_list(text):
-                        return [item.strip() for item in text.split(",") if item.strip()]
+            stage_key = f"flow_stage_{uploaded_file.name}"
+            stage = st.session_state.get(stage_key)
+            
+            # Executa a checagem inicial de duplicidade
+            if stage is None:
+                if st.button(f"Analisar {uploaded_file.name}", key=f"analyze_{uploaded_file.name}"):
+                    with st.spinner("Calculando representação semântica e checando duplicidades..."):
+                        new_emb = calculate_document_embedding(temp_pdf_path, settings)
+                        st.session_state[f"temp_emb_{uploaded_file.name}"] = new_emb
                         
-                    # Atualiza o payload com o que o usuário editou no formulário
-                    record["payload"]["nome_documento"] = nome_doc
-                    record["payload"]["tipo_documento"] = tipo_doc
-                    record["payload"]["ano_publicacao"] = int(ano_pub)
-                    record["payload"]["horizonte_temporal"] = int(horiz_temp)
-                    record["payload"]["setor"] = setor_doc
-                    record["payload"]["abrangencia_territorial"] = abrangencia_doc
-                    record["payload"]["instituicao_responsavel"] = inst_resp_doc
-                    record["payload"]["aplicou_estudo_futuro"] = aplicou_futuro
-                    record["payload"]["tipo_estudo_futuro"] = tipo_estudo
-                    record["payload"]["temas"] = text_to_list(temas_list)
-                    record["payload"]["metodos_estudo_futuro"] = text_to_list(metodos_list)
+                        dup = None
+                        if df_consolidated is not None and not df_consolidated.empty and new_emb:
+                            dup = find_semantic_duplicates(new_emb, df_consolidated, settings, threshold=0.85)
+                            
+                        if dup:
+                            st.session_state[f"dup_detected_{uploaded_file.name}"] = dup
+                            st.session_state[stage_key] = "conflict_check"
+                        else:
+                            st.session_state[stage_key] = "normal_extract"
+                        st.rerun()
+                        
+            # Fluxo 1: Duplicado Detectado - Escolha de Ação
+            if stage == "conflict_check":
+                dup = st.session_state[f"dup_detected_{uploaded_file.name}"]
+                st.warning(
+                    f"⚠️ **Potencial Duplicado Detectado!**\n\n"
+                    f"Este arquivo tem **{dup['similaridade']}%** de similaridade semântica com o documento já cadastrado: "
+                    f"**'{dup['nome_documento_duplicado']}'** (arquivo original: `{dup['arquivo_duplicado']}`)."
+                )
+                
+                decision = st.radio(
+                    "Como deseja proceder com este arquivo?",
+                    [
+                        "❌ Descartar este arquivo de upload", 
+                        "➕ Inserir como um novo documento independente", 
+                        "🤝 Mesclar as informações dos dois documentos (Resolução de Conflitos)"
+                    ],
+                    key=f"decision_{uploaded_file.name}"
+                )
+                
+                if st.button("Confirmar Opção", key=f"btn_confirm_{uploaded_file.name}"):
+                    if decision.startswith("❌"):
+                        try:
+                            temp_pdf_path.unlink()
+                        except Exception:
+                            pass
+                        st.session_state.pop(stage_key, None)
+                        st.session_state.pop(f"dup_detected_{uploaded_file.name}", None)
+                        st.session_state.pop(f"temp_emb_{uploaded_file.name}", None)
+                        st.success("Upload descartado.")
+                        st.rerun()
+                    elif decision.startswith("➕"):
+                        st.session_state[stage_key] = "normal_extract"
+                        st.rerun()
+                    elif decision.startswith("🤝"):
+                        with st.spinner("Carregando extração multimodal para resolução de conflitos..."):
+                            result = extract_single_pdf(temp_pdf_path, settings, logger)
+                        if result.get("status") == "success":
+                            st.session_state[f"merge_extracted_{uploaded_file.name}"] = result
+                            st.session_state[stage_key] = "merge_screen"
+                            st.rerun()
+                        else:
+                            st.error(f"Erro ao extrair metadados para mesclagem: {result.get('error')}")
+
+            # Fluxo 1.1: Tela de Resolução de Conflitos da Mesclagem
+            elif stage == "merge_screen":
+                dup = st.session_state[f"dup_detected_{uploaded_file.name}"]
+                new_record = st.session_state[f"merge_extracted_{uploaded_file.name}"]
+                new_payload = new_record["payload"]
+                base_data = dup["dados_consolidados"]
+                
+                st.markdown("### 🤝 Resolução de Conflitos de Metadados")
+                st.markdown("Selecione quais valores manter para os campos factuais do documento consolidado:")
+                
+                resolved_payload = dict(new_payload)
+                
+                fields_to_resolve = {
+                    "nome_documento": "Título do Documento",
+                    "tipo_documento": "Tipo de Documento",
+                    "setor": "Setor Primário",
+                    "abrangencia_territorial": "Abrangência Territorial",
+                    "instituicao_responsavel": "Instituição Responsável",
+                    "ano_publicacao": "Ano de Publicação",
+                    "horizonte_temporal": "Horizonte Temporal",
+                    "tipo_estudo_futuro": "Tipo de Abordagem de Futuro"
+                }
+                
+                col_b, col_n = st.columns(2)
+                with col_b:
+                    st.caption("Dados da Base Consolidada")
+                with col_n:
+                    st.caption("Dados do Novo PDF")
                     
-                    # Salva fisicamente o PDF e o arquivo JSON de extração oficial
-                    temp_pdf = st.session_state[f"temp_path_{uploaded_file.name}"]
-                    commit_pdf_to_base(temp_pdf, record, settings, logger)
+                resolved_fields = {}
+                for field, label in fields_to_resolve.items():
+                    val_base = base_data.get(field)
+                    val_new = new_payload.get(field)
                     
-                    # Reprocessa as bases transformadas e normalizações
+                    if pd.isna(val_base) or val_base is None:
+                        val_base = "Não informado"
+                    if pd.isna(val_new) or val_new is None:
+                        val_new = "Não informado"
+                        
+                    if str(val_base).strip().lower() == str(val_new).strip().lower():
+                        resolved_fields[field] = val_base
+                    else:
+                        st.markdown(f"**Campo: {label}**")
+                        opt = st.radio(
+                            f"Escolha para {label}:",
+                            [f"Manter Base: {val_base}", f"Adotar Novo: {val_new}"],
+                            key=f"conflict_{field}_{uploaded_file.name}"
+                        )
+                        resolved_fields[field] = val_base if opt.startswith("Manter") else val_new
+                
+                if st.button("Confirmar e Salvar Mesclagem", key=f"save_merge_{uploaded_file.name}"):
+                    for f, val in resolved_fields.items():
+                        if val == "Não informado":
+                            val = None
+                        elif f in ["ano_publicacao", "horizonte_temporal"] and val is not None:
+                            try:
+                                val = int(float(val))
+                            except ValueError:
+                                val = None
+                        resolved_payload[f] = val
+                    
+                    new_record["payload"] = resolved_payload
+                    
+                    # Salva a nova extração fisicamente e grava no cache
+                    new_cache_path = commit_pdf_to_base(temp_pdf_path, new_record, settings, logger)
+                    
+                    # Atualiza os metadados do documento antigo na pasta de extrações oficiais
+                    try:
+                        stem_old = Path(dup["arquivo_duplicado"]).stem
+                        json_dir = Path(settings.extracted_json_dir)
+                        old_caches = list(json_dir.glob(f"{stem_old}__*.json"))
+                        if old_caches:
+                            with old_caches[0].open("r", encoding="utf-8") as f:
+                                old_data = json.load(f)
+                            # Alinha os metadados identificadores para garantir o mesmo id_documento_logico
+                            for f in ["nome_documento", "ano_publicacao", "instituicao_responsavel"]:
+                                old_data["payload"][f] = resolved_payload[f]
+                            # Grava de volta
+                            write_json(old_caches[0], old_data)
+                            logger.info(f"Metadados do cache antigo {old_caches[0].name} atualizados com valores resolvidos da mesclagem.")
+                    except Exception as e:
+                        logger.error(f"Falha ao atualizar metadados do cache antigo na mesclagem: {e}")
+                        
                     _reprocess_complete_pipeline()
                     
-                    # Limpa estado da sessão do arquivo
-                    del st.session_state[rec_key]
-                    del st.session_state[f"temp_path_{uploaded_file.name}"]
-                    
-                    # Remove o arquivo temporário enviado
-                    try:
-                        temp_pdf.unlink()
-                    except Exception:
-                        pass
-                        
+                    # Limpa a sessão
+                    st.session_state.pop(stage_key, None)
+                    st.session_state.pop(f"dup_detected_{uploaded_file.name}", None)
+                    st.session_state.pop(f"temp_emb_{uploaded_file.name}", None)
+                    st.session_state.pop(f"merge_extracted_{uploaded_file.name}", None)
+                    st.success("Mesclagem e consolidação concluídas com sucesso!")
                     st.rerun()
+
+            # Fluxo 2: Processamento Padrão/Inclusão Independente
+            elif stage == "normal_extract":
+                rec_key = f"temp_record_{uploaded_file.name}"
+                if rec_key not in st.session_state:
+                    with st.spinner("Extraindo metadados estruturados via Files API do Gemini..."):
+                        result = extract_single_pdf(temp_pdf_path, settings, logger)
+                        if result.get("status") == "success":
+                            st.session_state[rec_key] = result
+                        else:
+                            st.error(f"Erro ao processar: {result.get('error')}")
+                            st.session_state.pop(stage_key, None)
+                            st.rerun()
+                            
+                # Exibe formulário para edição e confirmação
+                if rec_key in st.session_state:
+                    record = st.session_state[rec_key]
+                    payload = record["payload"]
+                    
+                    st.markdown('<div class="card">', unsafe_allow_html=True)
+                    st.markdown("### 🔍 Metadados Extraídos para Revisão")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        nome_doc = st.text_input("Nome do Documento", value=str(payload.get("nome_documento", "")), key=f"name_{uploaded_file.name}")
+                        tipo_doc = st.text_input("Tipo de Documento", value=str(payload.get("tipo_documento", "")), key=f"type_{uploaded_file.name}")
+                        ano_pub = st.number_input("Ano de Publicação", value=int(payload.get("ano_publicacao")) if payload.get("ano_publicacao") else 2026, step=1, key=f"year_{uploaded_file.name}")
+                        horiz_temp = st.number_input("Horizonte Temporal", value=int(payload.get("horizonte_temporal")) if payload.get("horizonte_temporal") else 2030, step=1, key=f"horizon_{uploaded_file.name}")
+                    with col2:
+                        setor_doc = st.text_input("Setor", value=str(payload.get("setor", "")), key=f"sector_{uploaded_file.name}")
+                        abrangencia_doc = st.text_input("Abrangência Territorial", value=str(payload.get("abrangencia_territorial", "")), key=f"scope_{uploaded_file.name}")
+                        inst_resp_doc = st.text_input("Instituição Responsável", value=str(payload.get("instituicao_responsavel", "")), key=f"inst_{uploaded_file.name}")
+                        aplicou_futuro = st.checkbox("Aplicou Estudo de Futuro / Prospectiva", value=bool(payload.get("aplicou_estudo_futuro", False)), key=f"applied_{uploaded_file.name}")
+
+                    st.markdown("---")
+                    col3, col4 = st.columns(2)
+                    with col3:
+                        tipo_estudo = st.text_input("Tipo Abordagem de Futuro", value=str(payload.get("tipo_estudo_futuro", "")), key=f"tipo_est_{uploaded_file.name}")
+                        temas_list = st.text_area("Temas Chave (separados por vírgula)", value=", ".join(payload.get("temas", [])), key=f"temas_{uploaded_file.name}")
+                    with col4:
+                        metodos_list = st.text_area("Métodos Utilizados (separados por vírgula)", value=", ".join(payload.get("metodos_estudo_futuro", [])), key=f"metodos_{uploaded_file.name}")
+                    
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    
+                    if st.button(f"Confirmar Inclusão na Base", key=f"commit_{uploaded_file.name}"):
+                        def text_to_list(text):
+                            return [item.strip() for item in text.split(",") if item.strip()]
+                            
+                        record["payload"]["nome_documento"] = nome_doc
+                        record["payload"]["tipo_documento"] = tipo_doc
+                        record["payload"]["ano_publicacao"] = int(ano_pub)
+                        record["payload"]["horizonte_temporal"] = int(horiz_temp)
+                        record["payload"]["setor"] = setor_doc
+                        record["payload"]["abrangencia_territorial"] = abrangencia_doc
+                        record["payload"]["instituicao_responsavel"] = inst_resp_doc
+                        record["payload"]["aplicou_estudo_futuro"] = aplicou_futuro
+                        record["payload"]["tipo_estudo_futuro"] = tipo_estudo
+                        record["payload"]["temas"] = text_to_list(temas_list)
+                        record["payload"]["metodos_estudo_futuro"] = text_to_list(metodos_list)
+                        
+                        commit_pdf_to_base(temp_pdf_path, record, settings, logger)
+                        _reprocess_complete_pipeline()
+                        
+                        st.session_state.pop(stage_key, None)
+                        st.session_state.pop(rec_key, None)
+                        st.session_state.pop(f"temp_emb_{uploaded_file.name}", None)
+                        try:
+                            temp_pdf_path.unlink()
+                        except Exception:
+                            pass
+                            
+                        st.success("Documento incluído com sucesso na base!")
+                        st.rerun()
 
 
 # --- 3. FICHA DO DOCUMENTO (Capa, Resumos e Fatos) ---

@@ -5,11 +5,13 @@ import time
 from pathlib import Path
 from typing import Any
 
+from google import genai
+from google.genai import types
+
 from src.core.config import Settings
 from src.core.schemas import ExtractionModel
 from src.extraction.extractor import GeminiExtractorClient, extract_pdf_text_and_check
-from src.extraction.pipeline import chunk_text, merge_extraction_models
-from src.shared.utils import file_sha256, utc_now_iso, write_json, read_json
+from src.shared.utils import file_sha256, utc_now_iso, write_json
 
 
 def extract_single_pdf(
@@ -18,11 +20,15 @@ def extract_single_pdf(
     logger: Any,
     force_reprocess: bool = False,
 ) -> dict[str, Any]:
-    """Extrai metadados estruturados e embeddings de um único PDF específico sem gravar no diretório de cache oficial."""
+    """Extrai metadados estruturados de um PDF carregando-o para a Files API do Gemini
+    e garante sua remoção após a conclusão para privacidade dos dados.
+    """
     file_hash = file_sha256(pdf_path)
+    logger.info(f"Iniciando extração via Files API para: {pdf_path.name}")
     
-    # Prepara o extrator Gemini
-    client = GeminiExtractorClient(
+    # 1. Prepara os clientes
+    client_gen = genai.Client(api_key=settings.gemini_api_key)
+    client_extractor = GeminiExtractorClient(
         api_key=settings.gemini_api_key,
         model_lite=settings.model_lite,
         model_flash=settings.model_flash,
@@ -31,60 +37,58 @@ def extract_single_pdf(
         logger=logger,
     )
     
-    # Executa a leitura adaptativa de 2 etapas
-    logger.info(f"Iniciando extração para arquivo único: {pdf_path.name}")
+    # 2. Faz o upload do PDF físico para a Files API do Gemini
+    logger.info(f"Fazendo upload do arquivo para o servidor Gemini...")
+    uploaded_file = client_gen.files.upload(file=pdf_path)
+    logger.info(f"Upload concluído. Identificador na nuvem: {uploaded_file.name}")
     
-    # Etapa 1: Amostragem Rápida
-    text, extraction_meta = extract_pdf_text_and_check(
-        pdf_path,
-        max_pages_begin=3,
-        max_pages_end=2,
-    )
-    
-    if extraction_meta.get("error") or extraction_meta.get("needs_ocr") or not text:
-        return {
-            "status": "failed",
-            "error": extraction_meta.get("error") or "Falta de texto ou necessidade de OCR",
-            "file_hash": file_hash,
-            "file_name": pdf_path.name,
-            "needs_ocr": extraction_meta.get("needs_ocr", False),
-        }
-        
     try:
-        model_payload, model_name = client.generate_metadata(text)
+        # Define os modelos para a cadeia de fallback
+        model_chain = [settings.model_flash, settings.model_pro]
+        final_payload = None
+        model_used = ""
+        last_error = None
         
-        needs_scale_up = any([
-            not model_payload.nome_documento,
-            model_payload.ano_publicacao is None,
-            not model_payload.setor,
-            not model_payload.tipo_documento,
-        ])
+        # Executa a extração usando a capacidade multimodal nativa do Gemini
+        for attempt, model_name in enumerate(model_chain, start=1):
+            logger.info(f"Tentativa {attempt} usando o modelo: {model_name}...")
+            try:
+                response = client_gen.models.generate_content(
+                    model=model_name,
+                    contents=[
+                        "Você é um analista especialista em curadoria de documentos técnicos.\n"
+                        "Sua missão é extrair de forma rigorosa os metadados do documento PDF anexo.",
+                        uploaded_file
+                    ],
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema=ExtractionModel,
+                        temperature=0.1,
+                    )
+                )
+                final_payload = ExtractionModel.model_validate_json(response.text)
+                model_used = model_name
+                logger.info(f"Extração concluída com sucesso usando {model_name}.")
+                break
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Falha na extração com {model_name}: {e}")
+                if attempt < len(model_chain):
+                    time.sleep(2)
+                    
+        if final_payload is None:
+            raise RuntimeError(f"Erro definitivo ao extrair metadados via Files API: {last_error}")
+            
+        # 3. Extração local de texto parcial apenas para geração do vetor de Embedding
+        logger.info("Extraindo texto parcial localmente para geração de embeddings...")
+        text_for_embedding, extraction_meta = extract_pdf_text_and_check(
+            pdf_path,
+            max_pages_begin=15,
+            max_pages_end=0,
+        )
         
-        if needs_scale_up:
-            logger.info("Escalando leitura para a Etapa 2...")
-            text, extraction_meta = extract_pdf_text_and_check(
-                pdf_path,
-                max_pages_begin=settings.max_pages_begin,
-                max_pages_end=settings.max_pages_end,
-            )
-            
-            chunks = chunk_text(text, settings.max_chars_per_chunk, settings.chunk_overlap)
-            chunk_models = []
-            models_used = []
-            
-            for chunk in chunks:
-                payload, m_used = client.generate_metadata(chunk)
-                chunk_models.append(payload)
-                models_used.append(m_used)
-                time.sleep(settings.pause_between_calls)
-                
-            final_model = merge_extraction_models(chunk_models)
-            model_name = " | ".join(sorted(set(models_used)))
-        else:
-            final_model = model_payload
-            
-        logger.info("Gerando embedding do documento...")
-        embedding_vector = client.generate_embeddings(text[:25000])
+        logger.info("Gerando representação de embedding com o modelo gemini-embedding-2...")
+        embedding_vector = client_extractor.generate_embeddings(text_for_embedding[:25000])
         
         record = {
             "status": "success",
@@ -93,22 +97,31 @@ def extract_single_pdf(
                 "source_file_path": str(pdf_path),
                 "source_file_hash": file_hash,
                 "processed_at_utc": utc_now_iso(),
-                "model_used": model_name,
+                "model_used": model_used,
                 "extraction_details": extraction_meta,
             },
-            "payload": final_model.model_dump(),
+            "payload": final_payload.model_dump(),
             "embedding": embedding_vector,
         }
         return record
         
     except Exception as e:
-        logger.error(f"Erro na extração adaptativa: {e}")
+        logger.error(f"Falha ao processar arquivo {pdf_path.name}: {e}")
         return {
             "status": "failed",
             "error": str(e),
             "file_hash": file_hash,
             "file_name": pdf_path.name,
         }
+        
+    finally:
+        # 4. Exclusão segura e explícita do arquivo dos servidores do Gemini
+        logger.info(f"Removendo arquivo do servidor Gemini de forma segura: {uploaded_file.name}")
+        try:
+            client_gen.files.delete(name=uploaded_file.name)
+            logger.info("Arquivo removido da nuvem do Gemini com sucesso.")
+        except Exception as delete_error:
+            logger.error(f"Erro ao deletar arquivo temporário da nuvem: {delete_error}")
 
 
 def commit_pdf_to_base(

@@ -47,20 +47,20 @@ class GeminiNormalizerClient:
         if target_name == "temas":
             taxonomy_context = """
 Para os temas, classifique rigidamente em:
-- categoria (Macrotema): Escolha um de: ["Agenda 2030 e ODS", "Meio Ambiente e Clima", "Energia e Recursos Naturais", "Infraestrutura e Território", "Desenvolvimento Social", "Economia e Trabalho", "Governança e Instituições", "Ciência, Tecnologia e Inovação", "Segurança e Defesa", "Agropecuária e Alimentação", "Outros / Não Classificado"]
-- subcategoria (Subtema): Escolha um de: ["ODS / Agenda 2030", "Clima", "Biodiversidade e Ecossistemas", "Saneamento e Resíduos", "Recursos Hídricos", "Energia", "Mineração", "Transporte e Logística", "Cidades e Habitação", "Pobreza e Desigualdade", "Saúde", "Educação", "Gênero e Diversidade", "Trabalho e Renda", "Indústria e Competitividade", "Finanças Públicas", "Governança", "Segurança e Defesa", "Tecnologia", "Agropecuária e Alimentação", "Outros"]
+- categoria (Macrotema - Dimensão STEEPV): Escolha um de: ["Social (S)", "Tecnológico (T)", "Econômico (E)", "Ecológico/Ambiental (E)", "Político/Governança (P)", "Valores/Cultura (V)", "Outros / Não Classificado"]
+- subcategoria (Subtema detalhado): Escolha ou classifique sob o tema de estudo específico discutido (ex: Energia Renovável, Saúde Pública, Inteligência Artificial, etc.).
 """
         elif target_name == "metodos":
             taxonomy_context = """
 Para os métodos de estudo de futuro, classifique rigidamente em:
-- categoria (Família do Método): Escolha um de: ["Cenários Prospectivos", "Extrapolação de Tendências", "Painel de Especialistas (Delphi/Workshops)", "Modelagem e Simulação Quantitativa", "Visão de Futuro / Backcasting", "Planejamento Estratégico / Roadmapping", "Monitoramento e Indicadores", "Análise Documental e Bibliográfica", "Outros / Não Classificado"]
-- subcategoria (Natureza do Método): Escolha um de: ["Quantitativo", "Qualitativo", "Prospectivo", "Documental", "Não Classificado"]
+- categoria (Família do Método - Popper Foresight Diamond): Escolha um de: ["Criatividade (Foco Speculative/Creativity)", "Expertise (Foco Expert/Judgment)", "Interação (Foco Participative/Stakeholders)", "Evidência (Foco Empirical/Evidence)", "Outros / Não Classificado"]
+- subcategoria (Natureza do Método): Escolha um de: ["Qualitativo", "Quantitativo", "Semi-Quantitativo", "Não Classificado"]
 """
         elif target_name == "setor":
             taxonomy_context = """
 Para os setores, classifique rigidamente em:
-- categoria (Macro Setor): Escolha um de: ["Meio Ambiente e Clima", "Energia e Recursos Naturais", "Infraestrutura e Território", "Desenvolvimento Social", "Economia e Trabalho", "Governança e Setor Público", "Ciência, Tecnologia e Inovação", "Multissetorial", "Outros / Não Classificado"]
-- subcategoria: null ou uma especificação mais detalhada.
+- categoria (Macro Setor - Dimensão STEEPV): Escolha um de: ["Social (S)", "Tecnológico (T)", "Econômico (E)", "Ecológico/Ambiental (E)", "Político/Governança (P)", "Valores/Cultura (V)", "Multissetorial", "Outros / Não Classificado"]
+- subcategoria: uma especificação mais detalhada ou null se não aplicável.
 """
         elif target_name == "abrangencia_territorial":
             taxonomy_context = """
@@ -71,8 +71,8 @@ Para abrangência territorial, classifique rigidamente em:
         elif target_name == "condicionantes":
             taxonomy_context = """
 Para as incertezas e condicionantes, classifique rigidamente em:
-- categoria (Categoria do Condicionante): Escolha um de: ["Ambiental", "Social", "Econômico", "Tecnológico", "Político", "Institucional", "Outros"]
-- subcategoria (Cluster do Condicionante): Escolha um de: ["Mudanças climáticas e transição ambiental", "Recursos naturais e biodiversidade", "Desigualdade e vulnerabilidade social", "Conjuntura econômica e financiamento", "Tecnologia e inovação", "Governança e capacidade institucional", "Riscos políticos e regulatórios", "Demanda, produção e cadeias produtivas", "Outros condicionantes"]
+- categoria (Categoria do Condicionante - Dimensão STEEPV): Escolha um de: ["Social (S)", "Tecnológico (T)", "Econômico (E)", "Ecológico/Ambiental (E)", "Político/Governança (P)", "Valores/Cultura (V)", "Outros"]
+- subcategoria (Cluster do Condicionante): Classifique no cluster temático mais próximo (ex: Mudanças climáticas, Inovação tecnológica, Capacidade institucional, etc.).
 """
 
         prompt = f"""
