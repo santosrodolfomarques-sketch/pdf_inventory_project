@@ -848,8 +848,8 @@ elif menu == "📊 Cruzar & Explorar":
                 col_spec.get("use_subcategory", False)
             )
             
-            # Explode ambas para calcular pares
-            exploded_df = temp_df.explode("_row_val").explode("_col_val")
+            # Explode ambas para calcular pares e reseta o índice para evitar índices duplicados
+            exploded_df = temp_df.explode("_row_val").explode("_col_val").reset_index(drop=True)
             
             # Remove valores que sejam puramente vazios ou nan após tratamento
             exploded_df["_row_val"] = exploded_df["_row_val"].fillna("Não Informado").astype(str).str.strip()
