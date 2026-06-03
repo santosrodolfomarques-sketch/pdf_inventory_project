@@ -16,6 +16,24 @@ from src.transformation.pipeline import run_transformation
 from src.normalization.pipeline import run_ai_normalization, apply_ai_dictionaries
 from src.shared.logging_utils import setup_logger
 from google import genai
+import logging
+
+class StreamlitLogHandler(logging.Handler):
+    """Handler customizado para direcionar logs do logger para um placeholder do Streamlit em tempo real."""
+    def __init__(self, placeholder):
+        super().__init__()
+        self.placeholder = placeholder
+        self.log_buffer = []
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            self.log_buffer.append(msg)
+            # Mantém apenas as últimas 15 linhas de log
+            self.log_buffer = self.log_buffer[-15:]
+            self.placeholder.code("\n".join(self.log_buffer), language="text")
+        except Exception:
+            pass
 
 # Configurações iniciais da página Streamlit
 st.set_page_config(
@@ -63,21 +81,35 @@ logger = setup_logger("streamlit_curator", settings.extraction_log_dir / "stream
 
 def _reprocess_complete_pipeline():
     """Roda a transformação, normalização e aplicação automática de dicionários."""
-    with st.spinner("Atualizando bases consolidadas e aplicando normalizações..."):
+    st.markdown("### 🔄 Processando Pipeline...")
+    log_placeholder = st.empty()
+    st_handler = StreamlitLogHandler(log_placeholder)
+    st_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', '%H:%M:%S'))
+    logger.addHandler(st_handler)
+    try:
         run_transformation(settings, logger)
         run_ai_normalization(settings, logger, only_new_values=True)
         apply_ai_dictionaries(settings, logger)
-    st.success("Pipeline atualizado e normalizações aplicadas com sucesso!")
+        st.success("Pipeline atualizado e normalizações aplicadas com sucesso!")
+    finally:
+        logger.removeHandler(st_handler)
 
 
 def _reprocess_bi_pipeline():
     """Gera novamente as tabelas do Star Schema com os dados editados ou normalizações salvas."""
-    with st.spinner("Atualizando tabelas e integridade do Star Schema BI..."):
+    st.markdown("### 📊 Exportando para BI...")
+    log_placeholder = st.empty()
+    st_handler = StreamlitLogHandler(log_placeholder)
+    st_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', '%H:%M:%S'))
+    logger.addHandler(st_handler)
+    try:
         report = run_bi_preparation(settings, logger)
         if report.get("status") == "ok":
             st.success("Tabelas BI exportadas e salvas com sucesso!")
         else:
             st.warning(f"Chaves e integridade recriadas com alguns alertas: {report.get('status')}")
+    finally:
+        logger.removeHandler(st_handler)
 
 
 # --- Sidebar de Navegação ---
@@ -1045,27 +1077,48 @@ elif menu == "🛠️ Dicionários de Normalização":
         with col_m1:
             st.markdown("#### ⚡ Ações Globais Rápidas (Locais)")
             if st.button("Reconstruir Toda a Base (Rápido - Caches Locais)", key="btn_rebuild_all_cache", use_container_width=True):
-                with st.spinner("Lendo caches e gerando base consolidada normalizada..."):
+                st.markdown("##### ⚙️ Executando...")
+                log_placeholder = st.empty()
+                st_handler = StreamlitLogHandler(log_placeholder)
+                st_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', '%H:%M:%S'))
+                logger.addHandler(st_handler)
+                try:
                     run_transformation(settings, logger)
                     apply_ai_dictionaries(settings, logger)
-                st.success("Toda a base consolidada foi reconstruída a partir dos caches locais!")
+                    st.success("Toda a base consolidada foi reconstruída a partir dos caches locais!")
+                finally:
+                    logger.removeHandler(st_handler)
                 st.rerun()
                 
             if st.button("Buscar e Normalizar Novos Termos via IA", key="btn_norm_new_llm", use_container_width=True):
-                with st.spinner("Identificando novos termos e classificando via Gemini..."):
+                st.markdown("##### ⚙️ Executando...")
+                log_placeholder = st.empty()
+                st_handler = StreamlitLogHandler(log_placeholder)
+                st_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', '%H:%M:%S'))
+                logger.addHandler(st_handler)
+                try:
                     run_transformation(settings, logger)
                     run_ai_normalization(settings, logger, only_new_values=True)
                     apply_ai_dictionaries(settings, logger)
-                st.success("Novos termos classificados via IA e base atualizada!")
+                    st.success("Novos termos classificados via IA e base atualizada!")
+                finally:
+                    logger.removeHandler(st_handler)
                 st.rerun()
 
         with col_m2:
             st.markdown("#### 🧠 Forçar Recategorização Completa")
             if st.button("Forçar Re-normalização de TODOS os Termos via IA", key="btn_force_llm_all", use_container_width=True):
                 st.warning("⚠️ Isso enviará todos os termos únicos da base para reclassificação (STEEPV/Popper's Diamond) via Gemini API.")
-                with st.spinner("Reclassificando todos os termos via Gemini..."):
+                st.markdown("##### ⚙️ Executando...")
+                log_placeholder = st.empty()
+                st_handler = StreamlitLogHandler(log_placeholder)
+                st_handler.setFormatter(logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', '%H:%M:%S'))
+                logger.addHandler(st_handler)
+                try:
                     run_transformation(settings, logger)
                     run_ai_normalization(settings, logger, only_new_values=False)
                     apply_ai_dictionaries(settings, logger)
-                st.success("Todos os termos foram recategorizados via IA!")
+                    st.success("Todos os termos foram recategorizados via IA!")
+                finally:
+                    logger.removeHandler(st_handler)
                 st.rerun()
