@@ -32,8 +32,11 @@ class MLNormalizer:
         self.min_semantic_similarity = min_semantic_similarity
         self.min_string_similarity = min_string_similarity
         
-        # Inicializa cliente Gemini
-        self.client = genai.Client(api_key=settings.gemini_api_key)
+        # Inicializa cliente Gemini com timeout seguro para evitar travamentos de rede
+        self.client = genai.Client(
+            api_key=settings.gemini_api_key,
+            http_options={'timeout': 20.0}
+        )
         
         # Caminho para o cache de embeddings persistente
         self.cache_path = settings.ai_normalization_dir / "embeddings_approved_cache.json"
@@ -109,6 +112,7 @@ class MLNormalizer:
 
     def _warmup_embeddings_cache(self) -> None:
         """Gera em lote os embeddings de termos aprovados recém-adicionados."""
+        import time
         terms_to_embed = []
         for target, values in self.approved_original_values.items():
             for val in values:
@@ -124,20 +128,31 @@ class MLNormalizer:
         batch_size = 100
         for i in range(0, len(terms_to_embed), batch_size):
             chunk = terms_to_embed[i:i + batch_size]
-            try:
-                response = self.client.models.embed_content(
-                    model=self.embedding_model,
-                    contents=chunk
-                )
-                for val, emb_data in zip(chunk, response.embeddings):
-                    self.embeddings_cache[val] = [float(x) for x in emb_data.values]
-            except Exception as e:
-                self._log(f"Falha ao obter embeddings de aquecimento: {e}")
+            success = False
+            for attempt in range(1, 4):
+                try:
+                    response = self.client.models.embed_content(
+                        model=self.embedding_model,
+                        contents=chunk
+                    )
+                    for val, emb_data in zip(chunk, response.embeddings):
+                        self.embeddings_cache[val] = [float(x) for x in emb_data.values]
+                    success = True
+                    break
+                except Exception as e:
+                    self._log(f"Falha ao obter embeddings de aquecimento | tentativa {attempt}/3: {e}")
+                    if attempt < 3:
+                        time.sleep(2 ** attempt)
+                        
+            # Evita sobrecarregar limite de requisições por minuto (RPM)
+            if success and (i + batch_size < len(terms_to_embed)):
+                time.sleep(1.5)
                 
         self._save_embeddings_cache()
 
     def warmup_query_embeddings(self, texts: list[str]) -> None:
         """Gera em lote os embeddings de termos de busca que não estão no cache para evitar chamadas sequenciais."""
+        import time
         terms_to_embed = [t for t in texts if t and t not in self.embeddings_cache]
         if not terms_to_embed:
             return
@@ -147,15 +162,25 @@ class MLNormalizer:
         batch_size = 100
         for i in range(0, len(terms_to_embed), batch_size):
             chunk = terms_to_embed[i:i + batch_size]
-            try:
-                response = self.client.models.embed_content(
-                    model=self.embedding_model,
-                    contents=chunk
-                )
-                for val, emb_data in zip(chunk, response.embeddings):
-                    self.embeddings_cache[val] = [float(x) for x in emb_data.values]
-            except Exception as e:
-                self._log(f"Falha ao obter embeddings de consulta em lote: {e}")
+            success = False
+            for attempt in range(1, 4):
+                try:
+                    response = self.client.models.embed_content(
+                        model=self.embedding_model,
+                        contents=chunk
+                    )
+                    for val, emb_data in zip(chunk, response.embeddings):
+                        self.embeddings_cache[val] = [float(x) for x in emb_data.values]
+                    success = True
+                    break
+                except Exception as e:
+                    self._log(f"Falha ao obter embeddings de consulta | tentativa {attempt}/3: {e}")
+                    if attempt < 3:
+                        time.sleep(2 ** attempt)
+                        
+            # Evita sobrecarregar limite de requisições por minuto (RPM)
+            if success and (i + batch_size < len(terms_to_embed)):
+                time.sleep(1.5)
                 
         self._save_embeddings_cache()
 

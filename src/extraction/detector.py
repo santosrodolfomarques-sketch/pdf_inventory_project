@@ -21,7 +21,7 @@ def calculate_document_embedding(pdf_path: Path, settings: Settings) -> list[flo
         if not text or len(text.strip()) < 20:
             return None
             
-        client = genai.Client(api_key=settings.gemini_api_key)
+        client = genai.Client(api_key=settings.gemini_api_key, http_options={'timeout': 20.0})
         # Limita o texto para no máximo 30.000 caracteres
         truncated_text = text[:30000]
         response = client.models.embed_content(
