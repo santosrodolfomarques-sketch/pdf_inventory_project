@@ -710,70 +710,216 @@ elif menu == "📊 Cruzar & Explorar":
     if df is None or df.empty:
         st.warning("Nenhuma base consolidada encontrada.")
     else:
-        st.subheader("🔀 Tabela Cruzada de Dimensões")
-        
-        # Mapeia colunas amigáveis
-        available_cols = {
-            "Setor": "setor_norm" if "setor_norm" in df.columns else "setor",
-            "Tipo de Documento": "tipo_documento_norm" if "tipo_documento_norm" in df.columns else "tipo_documento",
-            "Abrangência": "abrangencia_territorial_norm" if "abrangencia_territorial_norm" in df.columns else "abrangencia_territorial",
-            "Ano de Publicação": "ano_publicacao",
-            "Horizonte Temporal": "horizonte_temporal",
-            "Aplicou Estudo Futuro": "aplicou_estudo_futuro"
+        # Helper para tratamento e explosão de dimensões
+        def prepare_exploded_dimension(df_in, field, dict_name=None, use_category=False, use_subcategory=False):
+            from src.transformation.cleansing import remove_accents
+            import ast
+            import json
+            
+            # Carrega mapeamentos do dicionário de normalização, se houver
+            mapping_dict = {}
+            if dict_name:
+                dict_path = settings.ai_dictionary_dir / f"dicionario_{dict_name}.csv"
+                if dict_path.exists():
+                    try:
+                        dict_df = pd.read_csv(dict_path)
+                        for _, r in dict_df.iterrows():
+                            orig = str(r.get("valor_original", "")).strip().lower()
+                            norm = str(r.get("valor_normalizado", r.get("valor_original", ""))).strip()
+                            cat = str(r.get("categoria", "")).strip()
+                            subcat = str(r.get("subcategoria", "")).strip()
+                            
+                            val_to_use = norm
+                            if use_category and cat:
+                                val_to_use = cat
+                            elif use_subcategory and subcat:
+                                val_to_use = subcat
+                                
+                            if val_to_use:
+                                mapping_dict[orig] = val_to_use
+                                if norm:
+                                    mapping_dict[norm.lower()] = val_to_use
+                    except Exception:
+                        pass
+
+            def parse_and_map(val):
+                if pd.isna(val) or val is None:
+                    return ["Não Informado"]
+                val_str = str(val).strip()
+                if not val_str or val_str.lower() in {"nan", "none", "null", "[]"}:
+                    return ["Não Informado"]
+                
+                # Desserializa se for lista em formato string
+                items = []
+                if val_str.startswith("[") and val_str.endswith("]"):
+                    try:
+                        parsed = ast.literal_eval(val_str)
+                        if isinstance(parsed, list):
+                            items = [str(x).strip() for x in parsed if str(x).strip()]
+                    except Exception:
+                        try:
+                            parsed = json.loads(val_str)
+                            if isinstance(parsed, list):
+                                items = [str(x).strip() for x in parsed if str(x).strip()]
+                        except Exception:
+                            pass
+                
+                if not items:
+                    # Divide por vírgula para strings com múltiplos valores
+                    items = [x.strip() for x in val_str.split(",") if x.strip()]
+                    
+                if not items:
+                    return ["Não Informado"]
+                    
+                # Mapeia para dicionário se aplicável
+                mapped_items = []
+                for item in items:
+                    item_key = item.lower()
+                    if mapping_dict:
+                        mapped_val = mapping_dict.get(item_key, item)
+                        if mapped_val and str(mapped_val).lower() not in {"nan", "none", "null", ""}:
+                            mapped_items.append(str(mapped_val).strip())
+                        else:
+                            mapped_items.append(item)
+                    else:
+                        mapped_items.append(item)
+                
+                # Remove duplicados
+                seen = set()
+                unique_items = []
+                for x in mapped_items:
+                    x_clean = remove_accents(x).lower()
+                    if x_clean not in seen:
+                        seen.add(x_clean)
+                        unique_items.append(x)
+                return unique_items if unique_items else ["Não Informado"]
+
+            return df_in[field].apply(parse_and_map)
+
+        st.subheader("🔀 Tabela Cruzada de Dimensões (Explodida)")
+        st.markdown(
+            "Selecione as dimensões para cruzamento. Os múltiplos valores de campos com listas (ex: setores, temas, métodos) "
+            "são automaticamente explodidos para contar as ocorrências individualmente."
+        )
+
+        # Mapeia colunas e especificações
+        available_dims = {
+            "Setor (Normalizado)": {"field": "setor_norm" if "setor_norm" in df.columns else "setor", "dict": "setor"},
+            "Setor (Macro Setor - STEEPV)": {"field": "setor_norm" if "setor_norm" in df.columns else "setor", "dict": "setor", "use_category": True},
+            "Tipo de Documento": {"field": "tipo_documento_norm" if "tipo_documento_norm" in df.columns else "tipo_documento", "dict": "tipo_documento"},
+            "Abrangência Territorial": {"field": "abrangencia_territorial_norm" if "abrangencia_territorial_norm" in df.columns else "abrangencia_territorial", "dict": "abrangencia_territorial"},
+            "Temas (Normalizado)": {"field": "temas_norm" if "temas_norm" in df.columns else "temas", "dict": "temas"},
+            "Temas (Macrotema - STEEPV)": {"field": "temas_norm" if "temas_norm" in df.columns else "temas", "dict": "temas", "use_category": True},
+            "Métodos (Normalizado)": {"field": "metodos_estudo_futuro_norm" if "metodos_estudo_futuro_norm" in df.columns else "metodos_estudo_futuro", "dict": "metodos"},
+            "Métodos (Categoria - Popper Foresight Diamond)": {"field": "metodos_estudo_futuro_norm" if "metodos_estudo_futuro_norm" in df.columns else "metodos_estudo_futuro", "dict": "metodos", "use_category": True},
+            "Métodos (Subcategoria - Natureza)": {"field": "metodos_estudo_futuro_norm" if "metodos_estudo_futuro_norm" in df.columns else "metodos_estudo_futuro", "dict": "metodos", "use_subcategory": True},
+            "Condicionantes (Normalizado)": {"field": "condicionantes_estudo_futuro_norm" if "condicionantes_estudo_futuro_norm" in df.columns else "condicionantes_estudo_futuro", "dict": "condicionantes"},
+            "Condicionantes (Categoria - Dimensão STEEPV)": {"field": "condicionantes_estudo_futuro_norm" if "condicionantes_estudo_futuro_norm" in df.columns else "condicionantes_estudo_futuro", "dict": "condicionantes", "use_category": True},
+            "Ano de Publicação": {"field": "ano_publicacao"},
+            "Horizonte Temporal": {"field": "horizonte_temporal"}
         }
-        
+
         col_row, col_col = st.columns(2)
         with col_row:
-            row_dim = st.selectbox("Dimensão das Linhas:", list(available_cols.keys()), index=0)
+            row_dim = st.selectbox("Dimensão das Linhas (Y):", list(available_dims.keys()), index=1) # Default Setor (Macro Setor - STEEPV)
         with col_col:
-            col_dim = st.selectbox("Dimensão das Colunas:", list(available_cols.keys()), index=1)
-            
-        row_field = available_cols[row_dim]
-        col_field = available_cols[col_dim]
-        
-        if row_field == col_field:
+            col_dim = st.selectbox("Dimensão das Colunas (X):", list(available_dims.keys()), index=7) # Default Métodos (Categoria - Popper Foresight Diamond)
+
+        if row_dim == col_dim:
             st.error("Por favor, selecione dimensões diferentes para as linhas e colunas.")
         else:
-            # Cria a pivot table de contagem
-            pivot_df = pd.crosstab(df[row_field].fillna("Não Informado"), df[col_field].fillna("Não Informado"), margins=True, margins_name="Total Geral")
-            st.dataframe(pivot_df, use_container_width=True)
+            # 1. Prepara dados limpos e explodidos
+            row_spec = available_dims[row_dim]
+            col_spec = available_dims[col_dim]
             
-        st.subheader("📈 Distribuição Temporal")
-        df_year = df["ano_publicacao"].dropna().value_counts().sort_index().reset_index()
-        df_year.columns = ["Ano", "Quantidade de Documentos"]
-        st.bar_chart(df_year.set_index("Ano"), y="Quantidade de Documentos")
+            temp_df = df.copy()
+            temp_df["_row_val"] = prepare_exploded_dimension(
+                df, 
+                row_spec["field"], 
+                row_spec.get("dict"), 
+                row_spec.get("use_category", False), 
+                row_spec.get("use_subcategory", False)
+            )
+            temp_df["_col_val"] = prepare_exploded_dimension(
+                df, 
+                col_spec["field"], 
+                col_spec.get("dict"), 
+                col_spec.get("use_category", False), 
+                col_spec.get("use_subcategory", False)
+            )
+            
+            # Explode ambas para calcular pares
+            exploded_df = temp_df.explode("_row_val").explode("_col_val")
+            
+            # Remove valores que sejam puramente vazios ou nan após tratamento
+            exploded_df["_row_val"] = exploded_df["_row_val"].fillna("Não Informado").astype(str).str.strip()
+            exploded_df["_col_val"] = exploded_df["_col_val"].fillna("Não Informado").astype(str).str.strip()
+            exploded_df = exploded_df[(exploded_df["_row_val"] != "") & (exploded_df["_col_val"] != "")]
+
+            # Cria pivot table de contagem
+            pivot_df = pd.crosstab(
+                exploded_df["_row_val"], 
+                exploded_df["_col_val"], 
+                margins=True, 
+                margins_name="Total Geral"
+            )
+            
+            # Exibe tabela no Streamlit
+            st.dataframe(pivot_df, use_container_width=True)
+
+            # --- Gráficos do Cruzamento Específico ---
+            st.subheader(f"📈 Gráfico Analítico: {row_dim} vs {col_dim}")
+            
+            # Prepara dados do gráfico tirando o Total Geral para não poluir
+            graph_data = pd.crosstab(exploded_df["_row_val"], exploded_df["_col_val"])
+            
+            # Opções de visualização para o usuário
+            chart_type = st.radio(
+                "Tipo de Gráfico:", 
+                ["Barras Empilhadas (Stacked)", "Barras Agrupadas (Grouped)"], 
+                horizontal=True,
+                key="chart_type_selector"
+            )
+            
+            if not graph_data.empty:
+                st.bar_chart(graph_data, stack=(chart_type == "Barras Empilhadas (Stacked)"))
+            else:
+                st.info("Dados insuficientes para gerar o gráfico de cruzamento.")
+
+        # --- Seções auxiliares de frequência ---
+        st.subheader("📊 Distribuição de Frequências Individuais")
+        col_f1, col_f2 = st.columns(2)
         
-        # Exibe distribuição de temas (precisa desserializar as listas JSON)
-        st.subheader("🏷️ Frequência de Temas")
-        temas_list = []
-        theme_col = "temas_norm" if "temas_norm" in df.columns else "temas"
-        for idx, row in df.iterrows():
-            t_raw = row.get(theme_col, "[]")
-            try:
-                import ast
-                # Tenta ast.literal_eval primeiro, depois json.loads
-                items = ast.literal_eval(t_raw) if isinstance(t_raw, str) and t_raw.startswith("[") else t_raw
-                if isinstance(items, list):
-                    temas_list.extend([str(x).strip() for x in items])
-                else:
-                    try:
-                        items_json = json.loads(t_raw)
-                        if isinstance(items_json, list):
-                            temas_list.extend([str(x).strip() for x in items_json])
-                        else:
-                            temas_list.append(str(t_raw).strip())
-                    except Exception:
-                        temas_list.append(str(t_raw).strip())
-            except Exception:
-                if pd.notna(t_raw) and t_raw != "":
-                    temas_list.append(str(t_raw).strip())
-                    
-        if temas_list:
-            df_temas = pd.Series(temas_list).value_counts().reset_index()
-            df_temas.columns = ["Tema", "Frequência"]
-            st.bar_chart(df_temas.head(15).set_index("Tema"), y="Frequência")
-        else:
-            st.info("Nenhum tema identificado para gerar gráfico.")
+        with col_f1:
+            st.markdown("#### Distribuição de Anos de Publicação")
+            df_year = df["ano_publicacao"].dropna().value_counts().sort_index().reset_index()
+            df_year.columns = ["Ano", "Quantidade de Documentos"]
+            st.bar_chart(df_year.set_index("Ano"), y="Quantidade de Documentos")
+            
+        with col_f2:
+            st.markdown("#### Top 15 Temas Frequentes")
+            temas_list = []
+            theme_col = "temas_norm" if "temas_norm" in df.columns else "temas"
+            for idx, r in df.iterrows():
+                t_raw = r.get(theme_col, "[]")
+                try:
+                    import ast
+                    items = ast.literal_eval(t_raw) if isinstance(t_raw, str) and t_raw.startswith("[") else t_raw
+                    if isinstance(items, list):
+                        temas_list.extend([str(x).strip() for x in items])
+                    else:
+                        items_json = json.loads(t_raw) if isinstance(t_raw, str) else [t_raw]
+                        temas_list.extend([str(x).strip() for x in items_json])
+                except Exception:
+                    if pd.notna(t_raw) and t_raw != "":
+                        temas_list.extend([x.strip() for x in str(t_raw).split(",") if x.strip()])
+            
+            if temas_list:
+                df_temas = pd.Series(temas_list).value_counts().reset_index()
+                df_temas.columns = ["Tema", "Frequência"]
+                st.bar_chart(df_temas.head(15).set_index("Tema"), y="Frequência")
+            else:
+                st.info("Nenhum tema identificado para gerar gráfico.")
 
 
 # --- 5. BUSCA SEMÂNTICA POR EMBEDDING ---
